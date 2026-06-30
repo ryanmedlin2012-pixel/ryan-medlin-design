@@ -1,0 +1,68 @@
+.skills {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  background-color: white;
+  overflow-y: auto;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.heading {
+  font-size: 2rem;
+  margin: 0 0 2rem 0;
+  text-align: center;
+  color: #473636;
+  outline: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.skillGroup {
+  background-color: #f8f9fa;
+  padding: 2rem;
+  border-radius: 8px;
+  border-left: 4px solid #7a7a7a;
+}
+
+.categoryTitle {
+  font-size: 1.25rem;
+  margin: 0 0 1rem 0;
+  color: #473636;
+}
+
+.itemsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.itemsList li {
+  padding: 0.5rem 0;
+  color: #6a6a6a;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.itemsList li:before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: #7a7a7a;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

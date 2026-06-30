@@ -1,0 +1,356 @@
+/* ── JS mode ──────────────────────────────────────────────────────────── */
+
+.viewport {
+  position: fixed;
+  top: var(--nav-height, 64px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+
+.panel {
+  width: 100vw;
+  height: 100%;
+  flex-shrink: 0;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.heroPanel {
+  background: radial-gradient(
+    ellipse 200% 200% at 35% 40%,
+    #fefefe 0%,
+    #e8e8e8 22%,
+    #b8b8b8 48%,
+    #e0e0e0 76%,
+    #f0f0f0 100%
+  );
+}
+
+/* ── Panel inner (2-column grid) ──────────────────────────────────────── */
+
+.panelInner {
+  display: grid;
+  grid-template-columns: 55fr 45fr;
+  height: 100%;
+  padding: 2.5rem 3.5rem;
+  gap: 3rem;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.textColumn {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(71, 54, 54, 0.2) transparent;
+}
+
+.textColumn::-webkit-scrollbar {
+  width: 4px;
+}
+
+.textColumn::-webkit-scrollbar-thumb {
+  background-color: rgba(71, 54, 54, 0.2);
+  border-radius: 2px;
+}
+
+.imageColumn {
+  display: flex;
+  align-items: center;
+}
+
+/* ── Panel chrome ─────────────────────────────────────────────────────── */
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #7a7a7a;
+  text-decoration: none;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  align-self: flex-start;
+  transition: color 0.2s ease;
+}
+
+.backLink:hover {
+  color: #473636;
+}
+
+.backLink:focus-visible {
+  outline: 2px solid #473636;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.sectionLabel {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7a7a7a;
+  margin-bottom: 0.625rem;
+}
+
+.panelHeading {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 2rem;
+  color: #473636;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1.25rem;
+  outline: none;
+}
+
+.panelHeadingLarge {
+  font-size: 2.6rem;
+}
+
+/* ── Text content (generic element styles) ────────────────────────────── */
+
+.textContent {
+  flex: 1;
+}
+
+.textContent p {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #6a6a6a;
+  margin-bottom: 0.875rem;
+}
+
+.textContent p:last-child {
+  margin-bottom: 0;
+}
+
+.textContent h3 {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.05rem;
+  color: #473636;
+  margin: 1.25rem 0 0.375rem;
+  font-weight: 700;
+}
+
+.textContent h3:first-child {
+  margin-top: 0;
+}
+
+.textContent ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.875rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.textContent li {
+  padding: 0.5rem 0.875rem;
+  background-color: rgba(71, 54, 54, 0.04);
+  border-left: 3px solid rgba(71, 54, 54, 0.3);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.95rem;
+  color: #5a5a5a;
+  line-height: 1.5;
+}
+
+.textContent a {
+  color: #473636;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.textContent a:hover {
+  opacity: 0.75;
+}
+
+/* data-role="subtitle" — project subtitle on Panel 0 */
+.textContent [data-role='subtitle'] {
+  font-size: 1.15rem;
+  color: #5a5a5a;
+  line-height: 1.6;
+  margin-bottom: 0.625rem;
+}
+
+/* data-role="subtitle-small" — small italic note (patent links etc.) */
+.textContent [data-role='subtitle-small'] {
+  font-size: 0.875rem;
+  color: #7a7a7a;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+/* ── CSS snap mode ────────────────────────────────────────────────────── */
+
+.snapContainer {
+  position: fixed;
+  top: var(--nav-height, 64px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.snapContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.snapPanel {
+  width: 100vw;
+  height: 100%;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #ffffff;
+}
+
+/* In snap mode the panel scrolls — let panelInner grow with content */
+.snapPanel .panelInner {
+  height: auto;
+  min-height: 100%;
+  padding-bottom: 3.5rem;
+}
+
+.snapPanel .textColumn {
+  overflow-y: visible;
+}
+
+/* ── Progress bar ─────────────────────────────────────────────────────── */
+
+.progressTrack {
+  position: fixed;
+  top: var(--nav-height, 64px);
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: rgba(71, 54, 54, 0.1);
+  z-index: 98;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #473636;
+  transition: width 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* ── Section dots ─────────────────────────────────────────────────────── */
+
+.sectionDots {
+  position: fixed;
+  bottom: 1.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.625rem;
+  z-index: 200;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(71, 54, 54, 0.25);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.dot:hover {
+  background-color: rgba(71, 54, 54, 0.55);
+  transform: scale(1.3);
+}
+
+.dot:focus-visible {
+  outline: 2px solid #473636;
+  outline-offset: 3px;
+  border-radius: 50%;
+}
+
+.dotActive {
+  background-color: #473636;
+  transform: scale(1.3);
+}
+
+/* ── Vertical fallback (short landscape phones) ───────────────────────── */
+
+.verticalFallback {
+  padding-top: var(--nav-height, 64px);
+}
+
+.verticalPanel {
+  padding: 3rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.verticalPanel.heroPanel {
+  background: radial-gradient(
+    ellipse 200% 200% at 35% 40%,
+    #fefefe 0%,
+    #e8e8e8 22%,
+    #b8b8b8 48%,
+    #e0e0e0 76%,
+    #f0f0f0 100%
+  );
+}
+
+/* ── Responsive: medium desktop ───────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .panelInner {
+    padding: 2rem 2.5rem;
+    gap: 2rem;
+  }
+}
+
+/* ── Responsive: tablet / large phone ────────────────────────────────── */
+
+@media (max-width: 860px) {
+  .panelInner {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100%;
+    padding: 2rem 1.5rem 4rem;
+    gap: 1.5rem;
+  }
+
+  .textColumn {
+    overflow-y: visible;
+  }
+
+  .imageColumn {
+    order: 2;
+  }
+
+  .panelHeading {
+    font-size: 1.6rem;
+  }
+
+  .panelHeadingLarge {
+    font-size: 1.9rem;
+  }
+}

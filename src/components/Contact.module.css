@@ -1,0 +1,97 @@
+.contact {
+  background: linear-gradient(135deg, #4a4a4a 0%, #2a2a2a 100%);
+  color: white;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.contentWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+}
+
+.heading {
+  font-size: 2.5rem;
+  margin: 0 0 1rem 0;
+  outline: none;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  margin: 0 0 2.5rem 0;
+  opacity: 0.95;
+}
+
+.contactMethods {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid white;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.contactItem:hover {
+  background-color: white;
+  color: #5a5a5a;
+}
+
+.contactItem:focus {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+.icon {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* Footer strip integrated into the Contact panel */
+.footer {
+  background-color: rgba(0, 0, 0, 0.25);
+  padding: 1rem 2rem;
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.footer p {
+  margin: 0.25rem 0;
+}
+
+@media (max-width: 768px) {
+  .heading {
+    font-size: 2rem;
+  }
+
+  .contactMethods {
+    gap: 1rem;
+  }
+
+  .contactItem {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}
