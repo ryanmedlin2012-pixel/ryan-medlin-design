@@ -30,7 +30,7 @@ function HomePage() {
 function App() {
   return (
     <LayoutProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/ryan-medlin-design/">
         <Navigation />
         <ScrollToTop />
         <Routes>
