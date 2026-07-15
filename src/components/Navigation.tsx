@@ -63,9 +63,14 @@ export const Navigation: React.FC = () => {
   return (
     <nav ref={navRef} className={styles.nav} aria-label="Main navigation">
       <div className={styles.container}>
-        <Link to="/" className={styles.logo} style={{ textDecoration: 'none' }}>
+        <a
+          href="/"
+          className={styles.logo}
+          style={{ textDecoration: 'none' }}
+          onClick={(e) => handleSectionLink(e, '/#hero')}
+        >
           Ryan Medlin
-        </Link>
+        </a>
 
         {/* Hamburger — mobile only */}
         <button
