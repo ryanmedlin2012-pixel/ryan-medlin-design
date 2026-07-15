@@ -39,7 +39,7 @@
 .carouselHeader {
   position: absolute;
   top: 2rem;
-  left: 2.5rem;
+  left: 4rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -234,7 +234,10 @@
 
 /* Responsive tweaks for smaller desktop / large tablet */
 @media (max-width: 1024px) {
-  .carouselHeader,
+  .carouselHeader {
+    left: 2.5rem;
+  }
+
   .carouselSlide,
   .carouselNav {
     padding-left: 2.5rem;
