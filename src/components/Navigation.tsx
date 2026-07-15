@@ -4,11 +4,17 @@ import styles from './Navigation.module.css';
 import { useLayout } from '../context/LayoutContext';
 
 const projects = [
-  { title: 'Token redemption agent', path: '/project/token-redemption-agent' },
-  { title: 'Support escalation', path: '/project/support-escalation' },
-  { title: 'Unrecognized charge agent', path: '/project/unrecognized-charge-agent' },
-  { title: 'Voice chat reporting', path: '/project/voice-chat-reporting' },
-  { title: 'Scrolling article for 10 foot experience', path: '/project/scrolling-article-10-foot-experience' },
+  { title: 'SVA Improved Escalation to Assisted Support', path: '/project/support-escalation' },
+  { title: 'Persistent Chat & OCC Floating Surface', path: '/project/persistent-chat-occ' },
+  { title: 'Unrecognized Charge Agent', path: '/project/unrecognized-charge-agent' },
+  { title: 'Voice Chat Reporting & Voice Safety', path: '/project/voice-chat-reporting' },
+  { title: 'Token Redemption Agent', path: '/project/token-redemption-agent' },
+  { title: 'SVA Settings, Feedback & Agent Appearance', path: '/project/sva-settings-feedback' },
+  { title: 'Skylight to OCC Migration', path: '/project/skylight-occ-migration' },
+  { title: 'Asurion Hardware Card', path: '/project/asurion-hardware-card' },
+  { title: 'Floating SVA & the Front Door', path: '/project/floating-sva-front-door' },
+  { title: 'XDS Design System Contributions', path: '/project/xds-design-system' },
+  { title: 'Scrolling Article — 10-Foot Experience', path: '/project/scrolling-article-10-foot-experience' },
 ];
 
 const SECTION_HASHES: Record<string, number> = {
