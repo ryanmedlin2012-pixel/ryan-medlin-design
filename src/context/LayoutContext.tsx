@@ -30,6 +30,8 @@ export const LayoutProvider = ({ children }: { children: ReactNode }) => {
   const [currentSection, setCurrentSection] = useState(0);
   const [isAnimating, setIsAnimatingState] = useState(false);
   const isAnimatingRef = useRef(false);
+  const currentSectionRef = useRef(0);
+  const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wheelHandlersRef = useRef<Map<number, WheelHandler>>(new Map());
 
   const setIsAnimating = useCallback((value: boolean) => {
@@ -40,9 +42,28 @@ export const LayoutProvider = ({ children }: { children: ReactNode }) => {
   const goToSection = useCallback((index: number) => {
     if (index < 0 || index >= SECTION_COUNT) return;
     if (isAnimatingRef.current) return;
+    // Guard: already at this section — calling setCurrentSection(same) produces
+    // no state change, so the CSS transition never fires and isAnimating would
+    // be permanently locked at true. Early-exit instead.
+    if (index === currentSectionRef.current) return;
+
+    // Clear any pending safety timer from a previous navigation
+    if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current);
+
+    currentSectionRef.current = index;
     setCurrentSection(index);
     isAnimatingRef.current = true;
     setIsAnimatingState(true);
+
+    // Safety net: if handleTransitionEnd never fires (e.g. reduced-motion,
+    // snap-scroll path, or any edge case), reset isAnimating after the max
+    // possible animation duration so navigation never stays permanently locked.
+    safetyTimerRef.current = setTimeout(() => {
+      if (isAnimatingRef.current) {
+        isAnimatingRef.current = false;
+        setIsAnimatingState(false);
+      }
+    }, 1500);
   }, []);
 
   return (
