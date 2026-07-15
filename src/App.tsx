@@ -1,6 +1,8 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import './App.css'
 import { LayoutProvider } from './context/LayoutContext'
+import { useLayout } from './context/LayoutContext'
 import { Navigation } from './components/Navigation'
 import { ScrollToTop } from './components/ScrollToTop'
 import { HorizontalLayout } from './components/HorizontalLayout'
@@ -21,6 +23,20 @@ import { ProjectTen } from './pages/ProjectTen'
 import { ProjectEleven } from './pages/ProjectEleven'
 
 function HomePage() {
+  const location = useLocation();
+  const { goToSection } = useLayout();
+
+  useEffect(() => {
+    const state = location.state as { section?: number } | null;
+    if (state?.section !== undefined && state.section > 0) {
+      const idx = state.section;
+      // Defer until after HorizontalLayout has mounted and registered handlers
+      const id = setTimeout(() => goToSection(idx), 50);
+      return () => clearTimeout(id);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <HorizontalLayout
       sections={[

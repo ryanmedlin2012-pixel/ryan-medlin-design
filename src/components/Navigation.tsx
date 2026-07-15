@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styles from './Navigation.module.css';
 import { useLayout } from '../context/LayoutContext';
 
@@ -27,6 +27,7 @@ const SECTION_HASHES: Record<string, number> = {
 export const Navigation: React.FC = () => {
   const { pathname } = useLocation();
   const { goToSection } = useLayout();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const isHomePage = pathname === '/';
@@ -49,11 +50,13 @@ export const Navigation: React.FC = () => {
     e: React.MouseEvent<HTMLAnchorElement>,
     href: string
   ) => {
-    const index = SECTION_HASHES[href];
-    if (isHomePage && index !== undefined) {
-      e.preventDefault();
+    e.preventDefault();
+    const index = SECTION_HASHES[href] ?? 0;
+    setMenuOpen(false);
+    if (isHomePage) {
       goToSection(index);
-      setMenuOpen(false);
+    } else {
+      navigate('/', { state: { section: index } });
     }
   };
 
