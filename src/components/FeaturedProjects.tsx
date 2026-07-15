@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import styles from './FeaturedProjects.module.css';
 import { useLayout } from '../context/LayoutContext';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import scrollingArticleImg from '../assets/scrolling_article_card_800x400.png';
 
 interface Project {
   id: number;
@@ -17,44 +16,43 @@ interface Project {
 const projects: Project[] = [
   {
     id: 1,
-    title: 'Token redemption agent',
+    title: 'SVA Improved Escalation to Assisted Support',
     description:
-      'Redesigned an e-commerce platform serving 100K+ monthly users, reducing cart abandonment from 35% to 18% through user research and iterative prototyping.',
-    tags: ['UI Design', 'Product Strategy', 'Research'],
-    path: '/project/token-redemption-agent',
-  },
-  {
-    id: 2,
-    title: 'Support escalation',
-    description:
-      'Built a comprehensive design system for a B2B SaaS analytics platform, cutting component rework by 40% and reducing accessibility violations from 120 to 8.',
-    tags: ['UX Design', 'Design Systems', 'Accessibility'],
+      'Redesigned the Xbox SVA escalation path, collapsing 4 clicks to 1–2 actions. Reduced abandonment from 31% to 18% and lifted CSAT from 3.4 to 4.2/5. Validated in HITS study with 91% task success.',
+    tags: ['Conversational UX', 'AI Design', 'Research'],
     path: '/project/support-escalation',
   },
   {
-    id: 3,
-    title: 'Unrecognized charge agent',
+    id: 2,
+    title: 'Persistent Chat & the OCC Floating Surface',
     description:
-      'Redesigned a consumer banking app for 2M+ active users, achieving WCAG AAA certification while improving mobile adoption by 55%.',
-    tags: ['Mobile Design', 'Accessibility', 'Fintech'],
+      'Designed the Xbox OCC floating chat layer that travels across account pages with full context persistence. Chat engagement doubled (+107%) and CSAT rose to 4.4/5.',
+    tags: ['Interaction Design', 'AI Design', 'Platform'],
+    path: '/project/persistent-chat-occ',
+  },
+  {
+    id: 3,
+    title: 'Unrecognized Charge Agent',
+    description:
+      'Evolved the Xbox charge-dispute agent from MVP text links to rich adaptive cards. Click-through rate improved 102% and self-service resolution jumped from 18.7% to 31.2%.',
+    tags: ['Conversational UX', 'Visual Design', 'AI Design'],
     path: '/project/unrecognized-charge-agent',
   },
   {
     id: 4,
-    title: 'Voice chat reporting',
+    title: 'Voice Chat Reporting & Voice Safety',
     description:
-      'Redesigned a healthcare patient portal, growing adoption from 12% to 48% while passing HIPAA compliance audits and serving 500K+ patients.',
-    tags: ['Enterprise Design', 'Research', 'Healthcare'],
+      'Redesigned Xbox\'s evidence-first voice harassment reporting flow. Report submissions up 21%, evidence attachments up 60%, and action rate on violators up 43%.',
+    tags: ['UX Design', 'Trust & Safety', 'Research'],
     path: '/project/voice-chat-reporting',
   },
   {
     id: 5,
-    title: 'Scrolling article for 10 foot experience',
+    title: 'Token Redemption Agent',
     description:
-      'Designed and patented (US12427412B2) a focusable content expander system for console/TV UI, adopted by 15 institutions in 6 months.',
-    image: scrollingArticleImg,
-    tags: ['Product Design', '10-Foot UI', 'Innovation'],
-    path: '/project/scrolling-article-10-foot-experience',
+      'Designed an AI-assisted image upload flow for damaged Xbox game codes, with three distinct error states and pre-attached escalation context. CSAT 4.2/5, escalations avoided –11%.',
+    tags: ['Conversational UX', 'AI Design', 'Accessibility'],
+    path: '/project/token-redemption-agent',
   },
 ];
 
