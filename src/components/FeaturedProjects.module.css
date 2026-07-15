@@ -261,10 +261,10 @@
   .carouselHeader {
     position: static;
     flex-direction: row;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     gap: 1.5rem;
-    padding: 1.25rem 1.5rem;
+    padding: 1.25rem 4rem;
   }
 }
 
