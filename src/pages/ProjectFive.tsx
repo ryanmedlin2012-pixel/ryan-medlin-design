@@ -13,7 +13,7 @@ export const ProjectFive = () => (
               Reading &amp; scanning with focusable &amp; expandable elements
             </p>
             <p data-role="subtitle-small">
-              <strong>Patented under:</strong>{' '}
+              Patented under:{' '}
               <a
                 href="https://patents.google.com/patent/US12427412B2/en"
                 target="_blank"

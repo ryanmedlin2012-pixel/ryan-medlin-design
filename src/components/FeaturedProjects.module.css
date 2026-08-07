@@ -2,8 +2,8 @@
 
 .heading {
   font-size: 14px;
-  color: #473636;
-  font-weight: 300;
+  color: #333333;
+  font-weight: 500;
   margin: 0;
   outline: none; /* focus managed programmatically */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -17,12 +17,19 @@
 }
 
 .tag {
-  background-color: #d8d8d8;
-  color: #4a4a4a;
-  padding: 0.25rem 0.75rem;
+  background-color: #f5efe9;
+  color: #473636;
+  padding: 0.5rem 0.75rem 0.6rem;
   border-radius: 16px;
   font-size: 0.8rem;
   font-weight: 500;
+  border: 1px solid #d1b8a5;
+}
+
+@media (max-width: 767px) {
+  .tag {
+    padding: 0.3rem 0.55rem 0.4rem;
+  }
 }
 
 /* ── Desktop carousel mode ────────────────────────────────────────────── */
@@ -31,7 +38,6 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #f8f9fa;
   overflow: hidden;
   position: relative;
 }
@@ -39,7 +45,7 @@
 .carouselHeader {
   position: absolute;
   top: 2rem;
-  left: 4rem;
+  left: 2.5rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -56,7 +62,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: rgba(71, 54, 54, 0.2);
+  background-color: rgba(57, 165, 3, 0.2);
   border: none;
   cursor: pointer;
   padding: 0;
@@ -64,18 +70,18 @@
 }
 
 .cardDot:hover {
-  background-color: rgba(71, 54, 54, 0.5);
+  background-color: rgba(57, 165, 3, 0.5);
   transform: scale(1.3);
 }
 
 .cardDot:focus-visible {
-  outline: 2px solid #473636;
+  outline: 2px solid #39a503;
   outline-offset: 3px;
   border-radius: 50%;
 }
 
 .cardDotActive {
-  background-color: #473636;
+  background-color: #39a503;
   transform: scale(1.3);
 }
 
@@ -98,14 +104,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem 4rem;
+  padding: 0 4rem;
 }
 
 .carouselCard {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
-  max-width: 960px;
   width: 100%;
   align-items: center;
 }
@@ -116,19 +121,11 @@
   gap: 1rem;
 }
 
-.cardCounter {
-  font-size: 0.8rem;
-  color: #7a7a7a;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 .cardTitle {
   font-size: 1.75rem;
   color: #473636;
   margin: 0;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.3;
 }
 
@@ -143,32 +140,50 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #473636;
+  color: #39a503;
   font-weight: 600;
   text-decoration: none;
   font-size: 1rem;
   padding: 0.625rem 1.25rem;
-  border: 2px solid #473636;
+  border: 1px solid #39a503;
   border-radius: 4px;
   align-self: flex-start;
+  margin-top: 24px;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .viewProject:hover {
-  background-color: #473636;
+  background-color: #39a503;
   color: white;
 }
 
 .viewProject:focus-visible {
-  outline: 2px solid #473636;
+  outline: 2px solid #39a503;
   outline-offset: 3px;
 }
 
 .cardVisual {
   aspect-ratio: 16 / 9;
-  background-color: #e9ecef;
+  background:
+    radial-gradient(ellipse 130% 85% at 88% 8%, rgba(157, 236, 83, 0.16) 0%, transparent 55%),
+    radial-gradient(ellipse 120% 90% at 8% 96%, rgba(84, 193, 5, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 200% 200% at 35% 40%, #fefefe 0%, #e8e8e8 22%, #b8b8b8 48%, #e0e0e0 76%, #f0f0f0 100%);
   border-radius: 8px;
   overflow: hidden;
+}
+
+.cardVisualDimmed {
+  background:
+    radial-gradient(ellipse 130% 85% at 88% 8%, rgba(157, 236, 83, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 120% 90% at 8% 96%, rgba(84, 193, 5, 0.07) 0%, transparent 55%),
+    radial-gradient(
+      ellipse 200% 200% at 35% 40%,
+      rgba(254, 254, 254, 0.5) 0%,
+      rgba(232, 232, 232, 0.5) 22%,
+      rgba(184, 184, 184, 0.5) 48%,
+      rgba(224, 224, 224, 0.5) 76%,
+      rgba(240, 240, 240, 0.5) 100%
+    );
 }
 
 .cardImagePlaceholder {
@@ -190,16 +205,16 @@
   gap: 0.5rem;
   flex-shrink: 0;
   align-self: flex-start;
+  margin-left: -4px;
 }
 
 .navButton {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background-color: white;
-  border: 1.5px solid #473636;
-  color: #473636;
-  font-size: 0.75rem;
+  background-color: rgba(57, 165, 3, 0.5);
+  border: none;
+  color: #ffffff;
   cursor: pointer;
   transition: background-color 0.25s ease, color 0.25s ease;
   display: flex;
@@ -209,18 +224,18 @@
 }
 
 .navButton:hover:not(:disabled) {
-  background-color: #473636;
+  background-color: #39a503;
   color: white;
 }
 
 .navButton:disabled {
-  border-color: #d0d0d0;
-  color: #d0d0d0;
+  background-color: #e5e5e5;
+  color: #ffffff;
   cursor: not-allowed;
 }
 
 .navButton:focus-visible {
-  outline: 2px solid #473636;
+  outline: 2px solid #39a503;
   outline-offset: 3px;
 }
 
@@ -229,18 +244,13 @@
   color: #7a7a7a;
   font-weight: 600;
   letter-spacing: 0.08em;
-  min-width: 40px;
+  min-width: 48px;
   text-align: center;
 }
 
 /* Responsive tweaks for smaller desktop / large tablet */
 @media (max-width: 1024px) {
-  .carouselHeader {
-    left: 2.5rem;
-  }
-
-  .carouselSlide,
-  .carouselNav {
+  .carouselSlide {
     padding-left: 2.5rem;
     padding-right: 2.5rem;
   }
@@ -251,24 +261,73 @@
 }
 
 @media (max-width: 860px) {
+  .carouselSlide {
+    margin: 2rem 0;
+  }
+
   .carouselCard {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
 
   .cardVisual {
-    max-height: 200px;
+    order: -1;
+    display: block;
+    width: 100%;
+    max-height: none;
+  }
+
+  .cardImage {
+    object-fit: contain;
+    transform: scale(1.5);
+    transform-origin: center center;
+  }
+
+  .carouselHeader {
+    top: 3rem;
+    left: 3.5rem;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 12px;
+    border-radius: 8px;
   }
 }
 
-@media (max-width: 768px) {
+@media (min-width: 769px) and (max-width: 860px) {
+  .carouselCard {
+    grid-template-rows: 1fr auto;
+    height: 100%;
+  }
+
+  .cardVisual {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+}
+
+@media (max-width: 860px), (min-width: 861px) and (max-height: 723px) {
   .carouselHeader {
     position: static;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
-    gap: 1.5rem;
-    padding: 1.25rem 4rem;
+    padding: 1.25rem 2.5rem;
+  }
+}
+
+@media (min-width: 861px) {
+  .carouselSlide {
+    padding-right: 0;
+  }
+
+  .carouselCard {
+    height: 100%;
+  }
+
+  .cardVisual {
+    align-self: stretch;
+    aspect-ratio: auto;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 }
 
@@ -276,7 +335,6 @@
 
 .projectsMobile {
   min-height: 100%;
-  background-color: #f8f9fa;
   padding: 2rem 1.5rem 5rem; /* extra bottom for section dots */
 }
 
@@ -308,13 +366,24 @@
 }
 
 .compactCard:focus-within {
-  box-shadow: 0 0 0 3px rgba(71, 54, 54, 0.15), 0 6px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 3px rgba(57, 165, 3, 0.15), 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.compactCard .cardVisual {
+  margin-bottom: 1rem;
 }
 
 .compactCard h3 {
   font-size: 1rem;
   color: #473636;
+  font-weight: 500;
   margin: 0 0 0.5rem;
+}
+
+@media (max-width: 1024px) {
+  .compactCard h3 {
+    font-size: 1.3rem;
+  }
 }
 
 .compactCard p {

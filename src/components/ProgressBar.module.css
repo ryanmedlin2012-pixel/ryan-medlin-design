@@ -4,12 +4,19 @@
   left: 0;
   right: 0;
   height: 2px;
-  background-color: rgba(71, 54, 54, 0.1);
+  background-color: rgba(133, 82, 16, 0.15);
   z-index: 98;
 }
 
 .fill {
   height: 100%;
-  background-color: #473636;
-  transition: width 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+  transition: width 0.7s cubic-bezier(0.77, 0, 0.175, 1), background-color 0.4s ease;
+}
+
+.fillMacro {
+  background-color: rgba(71, 54, 54, 0.6);
+}
+
+.fillCarousel {
+  background-color: rgba(57, 165, 3, 0.6);
 }

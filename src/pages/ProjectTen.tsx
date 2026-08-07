@@ -24,12 +24,12 @@ export const ProjectTen = () => (
               surface estate — deployable on any page, available in any size, and backed by a single
               shared design system.
             </p>
-            <h3>At a Glance</h3>
+            <h3>At a glance</h3>
             <ul>
-              <li>Role: Senior UX Designer</li>
-              <li>Surface: Web (OCC), Xbox.com, Support pages</li>
-              <li>Timeline: 2023 – 2024</li>
-              <li>Partners: PM, Engineering, Content, Platform</li>
+              <li><span>Role:</span> Senior UX Designer</li>
+              <li><span>Surface:</span> Web (OCC), Xbox.com, Support pages</li>
+              <li><span>Timeline:</span> 2023 – 2024</li>
+              <li><span>Partners:</span> PM, Engineering, Content, Platform</li>
             </ul>
           </>
         ),
@@ -105,7 +105,7 @@ export const ProjectTen = () => (
         content: (
           <>
             <ul>
-              <li>Entry engagement: +38%</li>
+              <li><span>Entry engagement:</span> +38%</li>
               <li>FAB deployed on 38% of Xbox support surfaces (on-demand)</li>
               <li>Full-screen variant deployed on 100% of support pages</li>
               <li>Consistent experience header on 100% of support surfaces</li>

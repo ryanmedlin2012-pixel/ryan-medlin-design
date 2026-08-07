@@ -22,7 +22,7 @@ export const ProjectFour = () => (
               I redesigned the voice report flow to be evidence-first: structured, low-friction,
               and designed to gather the context agents need to act — without burdening the player.
             </p>
-            <h3>At a Glance</h3>
+            <h3>At a glance</h3>
             <ul>
               <li>Role: Senior UX Designer</li>
               <li>Surface: Web (OCC), Game Bar, Player Profile</li>
@@ -74,19 +74,19 @@ export const ProjectFour = () => (
             </p>
             <h3>Key Design Decisions</h3>
             <p>
-              <strong>Evidence attachment as a first-class step:</strong> Players are guided to
+              <span>Evidence attachment as a first-class step:</span> Players are guided to
               attach clips or screenshots at the start of the flow, not buried at the end. The
               interface explains what makes evidence effective, reducing friction for players who
               want to help but are not sure what to submit.
             </p>
             <p>
-              <strong>Consistency across surfaces:</strong> The report flow was standardized across
+              <span>Consistency across surfaces:</span> The report flow was standardized across
               Game Bar, Player Profile, and Message to ensure players had the same experience
               regardless of where they encountered the issue. This also enabled cross-surface
               analytics for the Trust and Safety team.
             </p>
             <p>
-              <strong>Confidence signals:</strong> Post-submission confirmation was redesigned to
+              <span>Confidence signals:</span> Post-submission confirmation was redesigned to
               communicate that the report was received, reviewed, and that action policies exist —
               without making commitments the system could not keep.
             </p>

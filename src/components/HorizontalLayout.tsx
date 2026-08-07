@@ -10,6 +10,12 @@ interface HorizontalLayoutProps {
   sections: ReactNode[];
 }
 
+const TRACK_TRANSITION = 'transform 0.7s cubic-bezier(0.77, 0, 0.175, 1)';
+
+// Matches the id already set on each section's own root element
+// (Hero, FeaturedProjects, Skills, Contact), in currentSection order.
+const SECTION_IDS = ['hero', 'projects', 'skills', 'contact'];
+
 export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
   const {
     currentSection,
@@ -32,6 +38,8 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
   const snapContainerRef = useRef<HTMLDivElement>(null);
   const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
   const cooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const resizeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Stable refs to avoid stale closures in persistent event listeners
   const currentSectionRef = useRef(currentSection);
@@ -201,6 +209,25 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [goToSection]);
 
+  // Suppress the translateX transition while the window is being resized —
+  // 100vw recomputes continuously during a drag-resize, and an always-on
+  // transition makes the panel visibly lag/chase the window edge instead of
+  // tracking it live.
+  useEffect(() => {
+    const handleResize = () => {
+      if (trackRef.current) trackRef.current.style.transition = 'none';
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+      resizeTimeoutRef.current = setTimeout(() => {
+        if (trackRef.current) trackRef.current.style.transition = TRACK_TRANSITION;
+      }, 150);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+    };
+  }, []);
+
   // Focus management: move focus to section heading on JS mode navigation
   useEffect(() => {
     if (!useJSMode) return;
@@ -210,6 +237,31 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
       setTimeout(() => heading.focus({ preventScroll: true }), 720);
     }
   }, [currentSection, useJSMode]);
+
+  // Vertical fallback (mobile / short landscape): this mode is a plain
+  // scrolling page with no transform-based positioning, so nav clicks that
+  // update currentSection need to be turned into an actual scroll — nothing
+  // else in this mode reacts to currentSection changes.
+  useEffect(() => {
+    if (!(isShortLandscape || isMobileWidth)) return;
+    const id = SECTION_IDS[currentSection];
+    const target = id ? document.getElementById(id) : null;
+    if (target) {
+      // scrollIntoView's block:'start' aligns the section's top edge with
+      // the viewport's top edge — but the fixed nav bar covers that strip,
+      // so the section heading would land hidden underneath it. Offset by
+      // the nav height plus a little breathing room instead.
+      const navHeight = parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue('--nav-height')
+      ) || 64;
+      const offset = navHeight + 24;
+      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({
+        top,
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      });
+    }
+  }, [currentSection, isShortLandscape, isMobileWidth, prefersReducedMotion]);
 
   // ─── Short landscape or mobile width → vertical fallback ──────────────────
   if (isShortLandscape || isMobileWidth) {
@@ -247,7 +299,7 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
   // ─── Desktop → JS-driven horizontal ───────────────────────────────────────
   const trackStyle: React.CSSProperties = {
     transform: `translateX(calc(-${currentSection} * 100vw))`,
-    transition: 'transform 0.7s cubic-bezier(0.77, 0, 0.175, 1)',
+    transition: TRACK_TRANSITION,
   };
 
   return (
@@ -255,6 +307,7 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
       <ProgressBar />
       <div className={styles.viewport}>
         <div
+          ref={trackRef}
           className={styles.track}
           style={trackStyle}
           onTransitionEnd={handleTransitionEnd}

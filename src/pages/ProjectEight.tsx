@@ -24,12 +24,12 @@ export const ProjectEight = () => (
               controllable, and trustworthy — so players understood what was happening and why, rather
               than experiencing an unexplained change of interface with no context.
             </p>
-            <h3>At a Glance</h3>
+            <h3>At a glance</h3>
             <ul>
-              <li>Role: Senior UX Designer</li>
-              <li>Surface: Web</li>
-              <li>Timeline: 2022</li>
-              <li>Partners: PM, Engineering, Research</li>
+              <li><span>Role:</span> Senior UX Designer</li>
+              <li><span>Surface:</span> Web</li>
+              <li><span>Timeline:</span> 2022</li>
+              <li><span>Partners:</span> PM, Engineering, Research</li>
             </ul>
           </>
         ),
@@ -55,10 +55,10 @@ export const ProjectEight = () => (
             </p>
             <h3>Baseline Metrics</h3>
             <ul>
-              <li>Migration success rate: 94.1%</li>
-              <li>Drop-offs during transfer: 5.9%</li>
-              <li>Page error reports (post-migration): 2.4%</li>
-              <li>CSAT (handoff experience): 3.7 / 5</li>
+              <li><span>Migration success rate:</span> 94.1%</li>
+              <li><span>Drop-offs during transfer:</span> 5.9%</li>
+              <li><span>Page error reports (post-migration):</span> 2.4%</li>
+              <li><span>CSAT (handoff experience):</span> 3.7 / 5</li>
             </ul>
           </>
         ),
@@ -104,10 +104,10 @@ export const ProjectEight = () => (
         content: (
           <>
             <ul>
-              <li>Migration success rate: 94.1% to 99.2% (+5.1pp)</li>
-              <li>Drop-offs during transfer: 5.9% to 0.8% (down 86%)</li>
-              <li>Page error reports post-migration: 2.4% to 0.3% (down 87.5%)</li>
-              <li>CSAT (handoff experience): 3.7 to 4.5 / 5 (+0.8)</li>
+              <li><span>Migration success rate:</span> 94.1% to 99.2% (+5.1pp)</li>
+              <li><span>Drop-offs during transfer:</span> 5.9% to 0.8% (down 86%)</li>
+              <li><span>Page error reports post-migration:</span> 2.4% to 0.3% (down 87.5%)</li>
+              <li><span>CSAT (handoff experience):</span> 3.7 to 4.5 / 5 (+0.8)</li>
             </ul>
             <p>
               An 86% reduction in transfer drop-offs is the core result: by making the migration

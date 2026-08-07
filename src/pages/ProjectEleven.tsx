@@ -25,12 +25,12 @@ export const ProjectEleven = () => (
               team should be able to pick up any component and have it work correctly in their
               context without modification.
             </p>
-            <h3>At a Glance</h3>
+            <h3>At a glance</h3>
             <ul>
-              <li>Role: Senior UX Designer</li>
-              <li>Surface: Cross-platform (Web, Mobile, Console)</li>
-              <li>Timeline: 2022 – 2025</li>
-              <li>Partners: PM, Engineering, Design Systems Team, Accessibility</li>
+              <li><span>Role:</span> Senior UX Designer</li>
+              <li><span>Surface:</span> Cross-platform (Web, Mobile, Console)</li>
+              <li><span>Timeline:</span> 2022 – 2025</li>
+              <li><span>Partners:</span> PM, Engineering, Design Systems Team, Accessibility</li>
             </ul>
           </>
         ),
@@ -56,10 +56,10 @@ export const ProjectEleven = () => (
             </p>
             <h3>Breakpoint Tiers</h3>
             <ul>
-              <li>360px: Mobile — touch-first, single-column, full-width actions</li>
-              <li>768px: Tablet — transitional, two-column where space allows</li>
-              <li>1280px: Desktop — pointer-driven, multi-column, expanded data density</li>
-              <li>1920px: Wide — large-screen optimized with constrained max-widths</li>
+              <li><span>360px:</span> Mobile — touch-first, single-column, full-width actions</li>
+              <li><span>768px:</span> Tablet — transitional, two-column where space allows</li>
+              <li><span>1280px:</span> Desktop — pointer-driven, multi-column, expanded data density</li>
+              <li><span>1920px:</span> Wide — large-screen optimized with constrained max-widths</li>
             </ul>
           </>
         ),
@@ -109,10 +109,10 @@ export const ProjectEleven = () => (
         content: (
           <>
             <ul>
-              <li>Responsive breakpoints adopted across Xbox support surfaces: 360 / 768 / 1280 / 1920</li>
+              <li><span>Responsive breakpoints adopted across Xbox support surfaces:</span> 360 / 768 / 1280 / 1920</li>
               <li>S / M / L / XL sizing model deployed on all SVA surfaces</li>
               <li>Consistent experience header on 100% of Xbox support pages</li>
-              <li>Entry engagement uplift attributable to consistency: +38%</li>
+              <li><span>Entry engagement uplift attributable to consistency:</span> +38%</li>
               <li>Component reuse across multiple independent product teams</li>
               <li>Accessibility requirements embedded in spec, not audited post-build</li>
             </ul>

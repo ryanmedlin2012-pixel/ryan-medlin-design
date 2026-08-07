@@ -22,7 +22,7 @@ export const ProjectThree = () => (
               I redesigned the charge agent using rich adaptive cards — contextual, action-oriented
               components that replaced generic links with specific, clearly labeled resolution paths.
             </p>
-            <h3>At a Glance</h3>
+            <h3>At a glance</h3>
             <ul>
               <li>Role: Senior UX Designer</li>
               <li>Surface: Web (OCC)</li>
@@ -75,15 +75,15 @@ export const ProjectThree = () => (
             </p>
             <h3>Card Architecture</h3>
             <p>
-              <strong>Check your order history:</strong> Links directly to purchase history
+              <span>Check your order history:</span> Links directly to purchase history
               filtered by the relevant billing period, not the generic order history page.
             </p>
             <p>
-              <strong>Dispute a charge:</strong> Deep-links to the dispute initiation flow with
+              <span>Dispute a charge:</span> Deep-links to the dispute initiation flow with
               transaction context pre-populated where available.
             </p>
             <p>
-              <strong>Contact your bank:</strong> Surfaces guidance on what information to have
+              <span>Contact your bank:</span> Surfaces guidance on what information to have
               ready, framed as a confident next step rather than a fallback of last resort.
             </p>
             <h3>Design Rationale</h3>

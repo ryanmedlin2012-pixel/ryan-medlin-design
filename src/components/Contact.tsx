@@ -8,6 +8,7 @@ export const Contact: React.FC = () => {
     <section id="contact" className={styles.contact}>
       <div className={styles.contentWrapper}>
         <div className={styles.container}>
+          <span className={styles.eyebrow}>Let&rsquo;s Connect</span>
           <h2
             className={styles.heading}
             data-section-heading="true"

@@ -6,6 +6,11 @@ export const SECTION_LABELS = ['Introduction', 'Projects', 'Skills', 'Contact'] 
 
 export type WheelHandler = (direction: number) => boolean;
 
+export interface SubProgress {
+  current: number;
+  total: number;
+}
+
 export interface LayoutContextType {
   currentSection: number;
   goToSection: (index: number) => void;
@@ -13,6 +18,8 @@ export interface LayoutContextType {
   isAnimating: boolean;
   sectionCount: number;
   wheelHandlersRef: MutableRefObject<Map<number, WheelHandler>>;
+  projectProgress: SubProgress | null;
+  setProjectProgress: (value: SubProgress | null) => void;
 }
 
 export const LayoutContext = createContext<LayoutContextType>({
@@ -22,6 +29,8 @@ export const LayoutContext = createContext<LayoutContextType>({
   isAnimating: false,
   sectionCount: SECTION_COUNT,
   wheelHandlersRef: { current: new Map() },
+  projectProgress: null,
+  setProjectProgress: () => {},
 });
 
 export const useLayout = () => useContext(LayoutContext);
@@ -33,6 +42,7 @@ export const LayoutProvider = ({ children }: { children: ReactNode }) => {
   const currentSectionRef = useRef(0);
   const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wheelHandlersRef = useRef<Map<number, WheelHandler>>(new Map());
+  const [projectProgress, setProjectProgress] = useState<SubProgress | null>(null);
 
   const setIsAnimating = useCallback((value: boolean) => {
     isAnimatingRef.current = value;
@@ -75,6 +85,8 @@ export const LayoutProvider = ({ children }: { children: ReactNode }) => {
         isAnimating,
         sectionCount: SECTION_COUNT,
         wheelHandlersRef,
+        projectProgress,
+        setProjectProgress,
       }}
     >
       {children}

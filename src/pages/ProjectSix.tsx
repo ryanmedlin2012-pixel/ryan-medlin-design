@@ -23,12 +23,12 @@ export const ProjectSix = () => (
               agent appearance — three interconnected systems that together made the SVA feel
               controllable, responsive, and intentional.
             </p>
-            <h3>At a Glance</h3>
+            <h3>At a glance</h3>
             <ul>
-              <li>Role: Senior UX Designer</li>
-              <li>Surface: Web (OCC)</li>
-              <li>Timeline: 2023</li>
-              <li>Partners: PM, Engineering, Content, Research</li>
+              <li><span>Role:</span> Senior UX Designer</li>
+              <li><span>Surface:</span> Web (OCC)</li>
+              <li><span>Timeline:</span> 2023</li>
+              <li><span>Partners:</span> PM, Engineering, Content, Research</li>
             </ul>
           </>
         ),
@@ -54,10 +54,10 @@ export const ProjectSix = () => (
             </p>
             <h3>Baseline Metrics</h3>
             <ul>
-              <li>Feedback rate: 2.1%</li>
-              <li>Audio feedback usage: 0.3%</li>
-              <li>Session restarts (user-initiated): 5.4%</li>
-              <li>CSAT: 3.5 / 5</li>
+              <li><span>Feedback rate:</span> 2.1%</li>
+              <li><span>Audio feedback usage:</span> 0.3%</li>
+              <li><span>Session restarts (user-initiated):</span> 5.4%</li>
+              <li><span>CSAT:</span> 3.5 / 5</li>
             </ul>
           </>
         ),
@@ -101,10 +101,10 @@ export const ProjectSix = () => (
         content: (
           <>
             <ul>
-              <li>Feedback rate: 2.1% to 7.8% (+5.7pp / +171%)</li>
-              <li>Audio feedback usage: 0.3% to 7.6% (+7.3pp)</li>
-              <li>Session restarts (user-initiated): 5.4% to 6.1% (+0.7pp / +13%)</li>
-              <li>CSAT: 3.5 to 4.2 / 5 (+0.7)</li>
+              <li><span>Feedback rate:</span> 2.1% to 7.8% (+5.7pp / +171%)</li>
+              <li><span>Audio feedback usage:</span> 0.3% to 7.6% (+7.3pp)</li>
+              <li><span>Session restarts (user-initiated):</span> 5.4% to 6.1% (+0.7pp / +13%)</li>
+              <li><span>CSAT:</span> 3.5 to 4.2 / 5 (+0.7)</li>
             </ul>
             <p>
               A 171% increase in feedback rate reflects both better placement (inline) and better

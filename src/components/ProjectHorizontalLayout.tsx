@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
 import styles from './ProjectHorizontalLayout.module.css';
 import { PanelImageSlot } from './PanelImageSlot';
 import type { ImageSlot } from './PanelImageSlot';
@@ -16,6 +15,8 @@ export interface PanelData {
 interface Props {
   panels: PanelData[];
 }
+
+const TRACK_TRANSITION = 'transform 0.7s cubic-bezier(0.77, 0, 0.175, 1)';
 
 // ─── Local progress bar ───────────────────────────────────────────────────────
 const ProgressBar = ({ current, total }: { current: number; total: number }) => {
@@ -62,11 +63,6 @@ const SectionDots = ({
 const PanelContent = ({ panel, index }: { panel: PanelData; index: number }) => (
   <div className={styles.panelInner}>
     <div className={styles.textColumn}>
-      {index === 0 && (
-        <Link to="/" className={styles.backLink}>
-          ← Portfolio
-        </Link>
-      )}
       <span className={styles.sectionLabel}>{panel.sectionLabel}</span>
       {index === 0 ? (
         <h1
@@ -101,6 +97,8 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
   const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
   const snapContainerRef = useRef<HTMLDivElement>(null);
   const cooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const resizeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isPointerFine = useMediaQuery('(pointer: fine)');
   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
@@ -261,6 +259,25 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
     if (heading) setTimeout(() => heading.focus({ preventScroll: true }), 720);
   }, [currentPanel, useJSMode]);
 
+  // Suppress the translateX transition while the window is being resized —
+  // 100vw recomputes continuously during a drag-resize, and an always-on
+  // transition makes the panel visibly lag/chase the window edge instead of
+  // tracking it live.
+  useEffect(() => {
+    const handleResize = () => {
+      if (trackRef.current) trackRef.current.style.transition = 'none';
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+      resizeTimeoutRef.current = setTimeout(() => {
+        if (trackRef.current) trackRef.current.style.transition = TRACK_TRANSITION;
+      }, 150);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+    };
+  }, []);
+
   // ─── Short landscape or mobile width: vertical fallback ──────────────────
   if (isShortLandscape || isMobileWidth) {
     return (
@@ -270,11 +287,6 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
             key={i}
             className={`${styles.verticalPanel} ${i === 0 ? styles.heroPanel : ''}`}
           >
-            {i === 0 && (
-              <Link to="/" className={styles.backLink}>
-                ← Portfolio
-              </Link>
-            )}
             <span className={styles.sectionLabel}>{panel.sectionLabel}</span>
             {i === 0 ? (
               <h1 className={styles.panelHeading}>{panel.heading}</h1>
@@ -319,10 +331,11 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
       <ProgressBar current={currentPanel} total={panels.length} />
       <div className={styles.viewport}>
         <div
+          ref={trackRef}
           className={styles.track}
           style={{
             transform: `translateX(calc(-${currentPanel} * 100vw))`,
-            transition: 'transform 0.7s cubic-bezier(0.77, 0, 0.175, 1)',
+            transition: TRACK_TRANSITION,
           }}
           onTransitionEnd={handleTrackTransitionEnd}
         >

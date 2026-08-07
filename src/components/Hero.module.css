@@ -1,6 +1,9 @@
 .hero {
-  background: radial-gradient(ellipse 200% 200% at 35% 40%, #fefefe 0%, #e8e8e8 22%, #b8b8b8 48%, #e0e0e0 76%, #f0f0f0 100%);
-  color: #473636;
+  background:
+    radial-gradient(ellipse 130% 85% at 88% 8%, rgba(157, 236, 83, 0.16) 0%, transparent 55%),
+    radial-gradient(ellipse 120% 90% at 8% 96%, rgba(84, 193, 5, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 200% 200% at 35% 40%, #fefefe 0%, #e8e8e8 22%, #b8b8b8 48%, #e0e0e0 76%, #f0f0f0 100%);
+  color: #39a503;
   height: 100%;
   display: flex;
   align-items: center;
@@ -22,13 +25,15 @@
 .title {
   font-size: 2.8rem;
   margin: 0 0 1.5rem 0;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.2;
+  color: #473636;
 }
 
 .subtitle {
   font-size: 1.25rem;
   margin: 0 0 2rem 0;
+  color: #473636;
   opacity: 0.95;
   max-width: 600px;
   margin-left: auto;
@@ -37,25 +42,28 @@
 }
 
 .cta {
-  background-color: white;
-  color: #5a5a5a;
-  border: none;
-  padding: 0.75rem 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  color: #39a503;
+  border: 2px solid #39a503;
+  padding: 0.625rem 1.25rem;
   font-size: 1rem;
   font-weight: 600;
   border-radius: 4px;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  background-color: #39a503;
+  color: white;
 }
 
-.cta:focus {
-  outline: 2px solid #5a5a5a;
-  outline-offset: 2px;
+.cta:focus-visible {
+  outline: 2px solid #39a503;
+  outline-offset: 3px;
 }
 
 @keyframes slideUp {

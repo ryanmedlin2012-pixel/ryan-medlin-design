@@ -1,6 +1,9 @@
 .contact {
-  background: linear-gradient(135deg, #4a4a4a 0%, #2a2a2a 100%);
-  color: white;
+  background:
+    radial-gradient(ellipse 130% 85% at 92% 4%, rgba(209, 184, 165, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 120% 90% at 4% 98%, rgba(57, 165, 3, 0.09) 0%, transparent 55%),
+    linear-gradient(135deg, #2b1f18 0%, #180f0a 100%);
+  color: #efe8e0;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -15,28 +18,40 @@
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
   text-align: center;
   width: 100%;
 }
 
+.eyebrow {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #d1b8a5;
+  margin-bottom: 0.625rem;
+}
+
 .heading {
   font-size: 2.5rem;
   margin: 0 0 1rem 0;
+  color: #efe8e0;
   outline: none;
 }
 
 .subtitle {
   font-size: 1.1rem;
   margin: 0 0 2.5rem 0;
-  opacity: 0.95;
+  color: #efe8e0;
+  opacity: 0.85;
 }
 
 .contactMethods {
   display: flex;
   justify-content: center;
-  gap: 2rem;
+  gap: 1rem;
   flex-wrap: wrap;
 }
 
@@ -44,22 +59,22 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: white;
+  color: #39a503;
   text-decoration: none;
   padding: 0.75rem 1.5rem;
-  border: 2px solid white;
+  border: 2px solid #39a503;
   border-radius: 4px;
-  transition: all 0.3s ease;
-  font-weight: 500;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  font-weight: 600;
 }
 
 .contactItem:hover {
-  background-color: white;
-  color: #5a5a5a;
+  background-color: #39a503;
+  color: #ffffff;
 }
 
-.contactItem:focus {
-  outline: 2px solid white;
+.contactItem:focus-visible {
+  outline: 2px solid #39a503;
   outline-offset: 2px;
 }
 
@@ -70,10 +85,11 @@
 
 /* Footer strip integrated into the Contact panel */
 .footer {
-  background-color: rgba(0, 0, 0, 0.25);
+  background-color: rgba(12, 7, 5, 0.45);
   padding: 1rem 2rem;
   text-align: center;
   font-size: 0.85rem;
+  color: #efe8e0;
   opacity: 0.75;
 }
 
@@ -87,7 +103,7 @@
   }
 
   .contactMethods {
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .contactItem {

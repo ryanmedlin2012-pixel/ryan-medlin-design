@@ -23,12 +23,12 @@ export const ProjectNine = () => (
               Asurion contact path at the right moment in the support conversation — when hardware
               topics are detected — with a direct call action and appropriate framing copy.
             </p>
-            <h3>At a Glance</h3>
+            <h3>At a glance</h3>
             <ul>
-              <li>Role: Senior UX Designer</li>
-              <li>Surface: Web (OCC)</li>
-              <li>Timeline: 2023</li>
-              <li>Partners: PM, Engineering, Content, Asurion (CSIA approval)</li>
+              <li><span>Role:</span> Senior UX Designer</li>
+              <li><span>Surface:</span> Web (OCC)</li>
+              <li><span>Timeline:</span> 2023</li>
+              <li><span>Partners:</span> PM, Engineering, Content, Asurion (CSIA approval)</li>
             </ul>
           </>
         ),
@@ -106,8 +106,8 @@ export const ProjectNine = () => (
         content: (
           <>
             <ul>
-              <li>Click-through rate: +28%</li>
-              <li>Successful call completions: +19%</li>
+              <li><span>Click-through rate:</span> +28%</li>
+              <li><span>Successful call completions:</span> +19%</li>
               <li>Players with hardware issues connecting to Asurion at higher rates</li>
               <li>Reduced misdirected contacts on hardware topics within Xbox SVA</li>
             </ul>

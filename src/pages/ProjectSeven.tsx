@@ -23,12 +23,12 @@ export const ProjectSeven = () => (
               that travels with the player across OCC pages, maintains session context, and minimizes
               to a recoverable state without ending the conversation.
             </p>
-            <h3>At a Glance</h3>
+            <h3>At a glance</h3>
             <ul>
-              <li>Role: Senior UX Designer</li>
-              <li>Surface: Web (OCC)</li>
-              <li>Timeline: 2022 – 2023</li>
-              <li>Partners: PM, Engineering, Research</li>
+              <li><span>Role:</span> Senior UX Designer</li>
+              <li><span>Surface:</span> Web (OCC)</li>
+              <li><span>Timeline:</span> 2022 – 2023</li>
+              <li><span>Partners:</span> PM, Engineering, Research</li>
             </ul>
           </>
         ),
@@ -109,10 +109,10 @@ export const ProjectSeven = () => (
         content: (
           <>
             <ul>
-              <li>Chat entry engagement: 4.2% to 8.7% (+4.5pp / +107%)</li>
-              <li>Sessions with page context utilized: 67% to 90% (+23pp)</li>
-              <li>Minimize and hide usage: 18% (healthy player control signal)</li>
-              <li>CSAT (floating experience): 3.7 to 4.4 / 5 (+0.7)</li>
+              <li><span>Chat entry engagement:</span> 4.2% to 8.7% (+4.5pp / +107%)</li>
+              <li><span>Sessions with page context utilized:</span> 67% to 90% (+23pp)</li>
+              <li><span>Minimize and hide usage:</span> 18% (healthy player control signal)</li>
+              <li><span>CSAT (floating experience):</span> 3.7 to 4.4 / 5 (+0.7)</li>
             </ul>
             <p>
               Doubling chat entry engagement while simultaneously improving session quality

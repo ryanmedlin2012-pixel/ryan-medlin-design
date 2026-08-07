@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import styles from './PanelImageSlot.module.css';
 
 export type ImageSlot =
@@ -37,10 +37,40 @@ export const PanelImageSlot = ({ slot }: Props) => {
     setTimeout(() => setIsTransitioning(false), 50);
   }, []);
 
+  const trackRef = useRef<HTMLDivElement>(null);
+  const resizeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Suppress the translateX transition while the window is being resized —
+  // the track's transform is percentage-based against its own box, which
+  // recomputes continuously during a drag-resize, and an always-on
+  // transition makes the slide visibly lag/chase instead of resizing live.
+  useEffect(() => {
+    const handleResize = () => {
+      if (trackRef.current) trackRef.current.style.transition = 'none';
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+      resizeTimeoutRef.current = setTimeout(() => {
+        if (trackRef.current) trackRef.current.style.transition = '';
+      }, 150);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
+    };
+  }, []);
+
   if (slot.type === 'placeholder') {
     return (
       <div className={styles.container}>
         <div className={styles.placeholder} aria-hidden="true" />
+        <a
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.figmaLink}
+        >
+          View in Figma
+        </a>
       </div>
     );
   }
@@ -49,6 +79,7 @@ export const PanelImageSlot = ({ slot }: Props) => {
     <div className={styles.container}>
       <div className={styles.viewport}>
         <div
+          ref={trackRef}
           className={styles.track}
           style={{ transform: `translateX(calc(-${currentIndex} * 100%))` }}
           onTransitionEnd={handleTransitionEnd}
@@ -93,6 +124,14 @@ export const PanelImageSlot = ({ slot }: Props) => {
           </>
         )}
       </div>
+      <a
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.figmaLink}
+      >
+        View in Figma
+      </a>
     </div>
   );
 };

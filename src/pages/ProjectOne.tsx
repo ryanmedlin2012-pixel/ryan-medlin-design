@@ -22,7 +22,7 @@ export const ProjectOne = () => (
               the Xbox Self-Service Virtual Agent (SVA) that allows players to photograph or upload
               their damaged code for automated extraction and validation.
             </p>
-            <h3>At a Glance</h3>
+            <h3>At a glance</h3>
             <ul>
               <li>Role: Senior UX Designer</li>
               <li>Surface: Web (OCC), Mobile</li>
@@ -73,16 +73,16 @@ export const ProjectOne = () => (
             </p>
             <h3>Three Distinct Error States</h3>
             <p>
-              <strong>Partially readable:</strong> OCR confidence above minimum threshold — prompts
+              <span>Partially readable:</span> OCR confidence above minimum threshold — prompts
               player to retake with specific framing guidance tailored to the failure mode.
             </p>
             <p>
-              <strong>Unreadable:</strong> OCR confidence below threshold — routes to assisted
+              <span>Unreadable:</span> OCR confidence below threshold — routes to assisted
               escalation with the image pre-attached for agent context, eliminating redundant data
               collection.
             </p>
             <p>
-              <strong>Disabled or already redeemed:</strong> Distinct messaging with a resolution
+              <span>Disabled or already redeemed:</span> Distinct messaging with a resolution
               path scoped to that specific code state, not a generic error screen.
             </p>
             <h3>Trust and Transparency</h3>

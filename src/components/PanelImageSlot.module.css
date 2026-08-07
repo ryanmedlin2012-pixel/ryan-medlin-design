@@ -1,6 +1,6 @@
 .container {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 100%;
   border-radius: 8px;
   overflow: hidden;
   background-color: #e9ecef;
@@ -11,6 +11,40 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(135deg, #e9ecef 0%, #d0d0d0 100%);
+}
+
+.figmaLink {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  z-index: 20;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #39a503;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #39a503;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.figmaLink:hover {
+  background-color: #39a503;
+  color: white;
+}
+
+.figmaLink:focus-visible {
+  outline: 2px solid #39a503;
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px), (orientation: landscape) and (max-height: 500px) {
+  .container {
+    display: block;
+    height: auto;
+    min-height: 400px;
+  }
 }
 
 /* Viewport clips overflow; track slides within it */
