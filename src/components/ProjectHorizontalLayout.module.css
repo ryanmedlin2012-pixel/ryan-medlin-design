@@ -38,20 +38,6 @@
     );
 }
 
-.heroPanel::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(71, 54, 54, 0.09) 0,
-    rgba(71, 54, 54, 0.09) 1px,
-    transparent 1px,
-    transparent 13px
-  );
-  pointer-events: none;
-}
-
 /* ── Panel inner (2-column grid) ──────────────────────────────────────── */
 
 .panelInner {
