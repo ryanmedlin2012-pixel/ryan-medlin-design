@@ -24,10 +24,10 @@ export const ProjectOne = () => (
             </p>
             <h3>At a glance</h3>
             <ul>
-              <li>Role: Senior UX Designer</li>
-              <li>Surface: Web (OCC), Mobile</li>
-              <li>Timeline: 2023</li>
-              <li>Partners: PM, Engineering, Data, Content</li>
+              <li><span>Role:</span> Senior UX Designer</li>
+              <li><span>Surface:</span> Web (OCC), Mobile</li>
+              <li><span>Timeline:</span> 2023</li>
+              <li><span>Partners:</span> PM, Engineering, Data, Content</li>
             </ul>
           </>
         ),
@@ -52,7 +52,7 @@ export const ProjectOne = () => (
             </p>
             <h3>Design Constraints</h3>
             <ul>
-              <li>Files: PNG, JPG up to 10 MB</li>
+              <li><span>Files:</span> PNG, JPG up to 10 MB</li>
               <li>Handle partial reads, unreadable images, and already-redeemed codes distinctly</li>
               <li>Escalation path must pre-attach image context to eliminate agent re-collection</li>
               <li>WCAG 2.1 AA compliance across all upload and error states</li>
@@ -102,8 +102,8 @@ export const ProjectOne = () => (
         content: (
           <>
             <ul>
-              <li>CSAT: 4.2 / 5 post-launch</li>
-              <li>Live agent escalations avoided on this contact type: -11%</li>
+              <li><span>CSAT:</span> 4.2 / 5 post-launch</li>
+              <li><span>Live agent escalations avoided on this contact type:</span> -11%</li>
               <li>Pre-attached image context on escalated cases reduces agent handle time</li>
               <li>Async resolution replaces real-time queue for this issue category</li>
             </ul>

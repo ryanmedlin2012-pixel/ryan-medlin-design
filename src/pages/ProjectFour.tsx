@@ -24,10 +24,10 @@ export const ProjectFour = () => (
             </p>
             <h3>At a glance</h3>
             <ul>
-              <li>Role: Senior UX Designer</li>
-              <li>Surface: Web (OCC), Game Bar, Player Profile</li>
-              <li>Timeline: 2022 – 2023</li>
-              <li>Partners: PM, Engineering, Research, Content, Trust and Safety</li>
+              <li><span>Role:</span> Senior UX Designer</li>
+              <li><span>Surface:</span> Web (OCC), Game Bar, Player Profile</li>
+              <li><span>Timeline:</span> 2022 – 2023</li>
+              <li><span>Partners:</span> PM, Engineering, Research, Content, Trust and Safety</li>
             </ul>
           </>
         ),
@@ -100,12 +100,12 @@ export const ProjectFour = () => (
         content: (
           <>
             <ul>
-              <li>Negative voice chat experiences: -5%</li>
-              <li>Player confidence in voice safety: +10%</li>
-              <li>Quiet accuracy (Flight Queue): +18%</li>
-              <li>Player report submission rate: +21%</li>
-              <li>Evidence attachments per report: +60%</li>
-              <li>Action rate on agent violators: +43%</li>
+              <li><span>Negative voice chat experiences:</span> -5%</li>
+              <li><span>Player confidence in voice safety:</span> +10%</li>
+              <li><span>Quiet accuracy (Flight Queue):</span> +18%</li>
+              <li><span>Player report submission rate:</span> +21%</li>
+              <li><span>Evidence attachments per report:</span> +60%</li>
+              <li><span>Action rate on agent violators:</span> +43%</li>
             </ul>
             <p>
               The +43% improvement in action rate on violators is the metric that matters most.

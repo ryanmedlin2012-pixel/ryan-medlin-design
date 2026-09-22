@@ -63,14 +63,6 @@ export const PanelImageSlot = ({ slot }: Props) => {
     return (
       <div className={styles.container}>
         <div className={styles.placeholder} aria-hidden="true" />
-        <a
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.figmaLink}
-        >
-          View in Figma
-        </a>
       </div>
     );
   }
@@ -124,14 +116,6 @@ export const PanelImageSlot = ({ slot }: Props) => {
           </>
         )}
       </div>
-      <a
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
-        className={styles.figmaLink}
-      >
-        View in Figma
-      </a>
     </div>
   );
 };

@@ -27,13 +27,13 @@
   margin: 0 0 1.5rem 0;
   font-weight: 400;
   line-height: 1.2;
-  color: #473636;
+  color: #362828;
 }
 
 .subtitle {
   font-size: 1.25rem;
   margin: 0 0 2rem 0;
-  color: #473636;
+  color: #362828;
   opacity: 0.95;
   max-width: 600px;
   margin-left: auto;
@@ -45,20 +45,24 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: transparent;
-  color: #39a503;
+  background-color: #39a503;
+  color: white;
   border: 2px solid #39a503;
   padding: 0.625rem 1.25rem;
   font-size: 1rem;
   font-weight: 600;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.1s ease;
 }
 
 .cta:hover {
-  background-color: #39a503;
-  color: white;
+  background-color: #2f8a02;
+  border-color: #2f8a02;
+}
+
+.cta:active {
+  transform: translateY(1px);
 }
 
 .cta:focus-visible {

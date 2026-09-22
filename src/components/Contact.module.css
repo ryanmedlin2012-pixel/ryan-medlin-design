@@ -64,13 +64,17 @@
   padding: 0.75rem 1.5rem;
   border: 2px solid #39a503;
   border-radius: 4px;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.25s ease, color 0.25s ease, transform 0.1s ease;
   font-weight: 600;
 }
 
 .contactItem:hover {
   background-color: #39a503;
   color: #ffffff;
+}
+
+.contactItem:active {
+  transform: translateY(1px);
 }
 
 .contactItem:focus-visible {

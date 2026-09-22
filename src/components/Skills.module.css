@@ -32,7 +32,7 @@
 .heading {
   font-size: 2rem;
   margin: 0 0 2rem 0;
-  color: #473636;
+  color: #362828;
   outline: none;
   text-align: center;
 }
@@ -68,7 +68,7 @@
   font-size: 1rem;
   font-weight: 500;
   margin: 0 0 1.25rem;
-  color: #473636;
+  color: #362828;
 }
 
 .itemsList {
@@ -89,7 +89,7 @@
 
 .skillName {
   font-size: 0.9rem;
-  color: #473636;
+  color: #362828;
 }
 
 .skillDots {

@@ -24,10 +24,10 @@ export const ProjectThree = () => (
             </p>
             <h3>At a glance</h3>
             <ul>
-              <li>Role: Senior UX Designer</li>
-              <li>Surface: Web (OCC)</li>
-              <li>Timeline: 2023</li>
-              <li>Partners: PM, Engineering</li>
+              <li><span>Role:</span> Senior UX Designer</li>
+              <li><span>Surface:</span> Web (OCC)</li>
+              <li><span>Timeline:</span> 2023</li>
+              <li><span>Partners:</span> PM, Engineering</li>
             </ul>
           </>
         ),
@@ -53,9 +53,9 @@ export const ProjectThree = () => (
             </p>
             <h3>MVP Metrics</h3>
             <ul>
-              <li>Click-through rate: 12.2%</li>
-              <li>Self-service resolution rate: 18.7%</li>
-              <li>CSAT (flow): 3.2 / 5</li>
+              <li><span>Click-through rate:</span> 12.2%</li>
+              <li><span>Self-service resolution rate:</span> 18.7%</li>
+              <li><span>CSAT (flow):</span> 3.2 / 5</li>
             </ul>
           </>
         ),
@@ -104,9 +104,9 @@ export const ProjectThree = () => (
           <>
             <h3>MVP vs. Phase 2 (Adaptive Cards)</h3>
             <ul>
-              <li>Click-through rate: 12.2% to 24.6% (+12.4pp / +102%)</li>
-              <li>Self-service resolution: 18.7% to 31.2% (+12.5pp / +66.8%)</li>
-              <li>CSAT (flow): 3.2 to 4.1 / 5 (+0.9)</li>
+              <li><span>Click-through rate:</span> 12.2% to 24.6% (+12.4pp / +102%)</li>
+              <li><span>Self-service resolution:</span> 18.7% to 31.2% (+12.5pp / +66.8%)</li>
+              <li><span>CSAT (flow):</span> 3.2 to 4.1 / 5 (+0.9)</li>
             </ul>
             <p>
               Doubling click-through rate while improving CSAT by nearly a full point demonstrates

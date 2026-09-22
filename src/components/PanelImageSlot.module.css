@@ -13,32 +13,6 @@
   background: linear-gradient(135deg, #e9ecef 0%, #d0d0d0 100%);
 }
 
-.figmaLink {
-  position: absolute;
-  bottom: 0.75rem;
-  right: 0.75rem;
-  z-index: 20;
-  padding: 0.5rem 0.875rem;
-  border: 1px solid #39a503;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #39a503;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background-color 0.25s ease, color 0.25s ease;
-}
-
-.figmaLink:hover {
-  background-color: #39a503;
-  color: white;
-}
-
-.figmaLink:focus-visible {
-  outline: 2px solid #39a503;
-  outline-offset: 3px;
-}
-
 @media (max-width: 767px), (orientation: landscape) and (max-height: 500px) {
   .container {
     display: block;
@@ -67,6 +41,17 @@
   flex: 0 0 100%;
   min-width: 0;
   height: 100%;
+  background:
+    radial-gradient(ellipse 130% 85% at 88% 8%, rgba(157, 236, 83, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 120% 90% at 8% 96%, rgba(84, 193, 5, 0.16) 0%, transparent 55%),
+    radial-gradient(
+      ellipse 200% 200% at 35% 40%,
+      #dcdcdc 0%,
+      #c2c2c2 22%,
+      #8c8c8c 48%,
+      #b6b6b6 76%,
+      #cccccc 100%
+    );
 }
 
 .image {
