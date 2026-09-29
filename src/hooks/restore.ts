@@ -12,7 +12,24 @@ const navigationType = (() => {
   const entry = performance.getEntriesByType('navigation')[0] as
     | PerformanceNavigationTiming
     | undefined;
-  return entry?.type ?? 'navigate';
+  const type = entry?.type ?? 'navigate';
+  // On GitHub Pages a project URL has no file of its own: a refresh there is
+  // served 404.html, which redirects here — so this load always reads as a
+  // fresh 'navigate'. 404.html notes its own (real) load type first; use it
+  // if it was left moments ago, and only once.
+  try {
+    const raw = sessionStorage.getItem('spa-redirect-nav');
+    if (raw) {
+      sessionStorage.removeItem('spa-redirect-nav');
+      const redirect = JSON.parse(raw) as { type?: string; at?: number };
+      if (type === 'navigate' && redirect.type && Date.now() - (redirect.at ?? 0) < 10000) {
+        return redirect.type;
+      }
+    }
+  } catch {
+    // Storage unavailable: treat as whatever the browser reported.
+  }
+  return type;
 })();
 
 const initialPath = typeof window === 'undefined' ? '' : window.location.pathname;

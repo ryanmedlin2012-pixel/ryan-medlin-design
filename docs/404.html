@@ -9,6 +9,17 @@
       // pathSegmentsToKeep = 1 preserves the /ryan-medlin-design/ repo segment.
       var pathSegmentsToKeep = 1;
       var l = window.location;
+      // The redirect below makes the app's own load look like a fresh visit,
+      // hiding that the reader actually refreshed (or went back/forward). Pass
+      // this load's real type across so the app can still restore positions
+      // (see src/hooks/restore.ts).
+      try {
+        var nav = performance.getEntriesByType('navigation')[0];
+        sessionStorage.setItem('spa-redirect-nav', JSON.stringify({
+          type: nav ? nav.type : 'navigate',
+          at: Date.now()
+        }));
+      } catch (e) {}
       l.replace(
         l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
         l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
