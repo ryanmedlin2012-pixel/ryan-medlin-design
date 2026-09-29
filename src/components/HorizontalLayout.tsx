@@ -1,7 +1,8 @@
 import { useEffect, useRef, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import styles from './HorizontalLayout.module.css';
-import { useLayout, SECTION_LABELS } from '../context/LayoutContext';
+import { useLayout, SECTION_LABELS, HOME_SECTION_KEY } from '../context/LayoutContext';
+import { saveRestorable } from '../hooks/restore';
 import { SectionDots } from './SectionDots';
 import { ProgressBar } from './ProgressBar';
 import { useMediaQuery } from '../hooks/useMediaQuery';
@@ -18,12 +19,7 @@ const SECTION_IDS = ['hero', 'projects', 'skills', 'contact'];
 
 export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
   const {
-    currentSection,
-    goToSection,
-    wheelHandlersRef,
-    isAnimating,
-    setIsAnimating,
-    sectionCount,
+    currentSection, goToSection, wheelHandlersRef, isAnimating, setIsAnimating, sectionCount,
   } = useLayout();
 
   // Responsive mode detection — reactive to viewport changes
@@ -40,6 +36,17 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
   const cooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const resizeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // The first positioning after load (e.g. a refresh restoring a section)
+  // jumps straight there; only later moves animate or scroll smoothly.
+  const initialPositionDoneRef = useRef(false);
+
+  // Remember the section for a refresh. In the vertical fallback the page is
+  // a plain scroll and currentSection doesn't follow it, so nothing's saved.
+  useEffect(() => {
+    if (isShortLandscape || isMobileWidth) return;
+    saveRestorable(HOME_SECTION_KEY, currentSection);
+  }, [currentSection, isShortLandscape, isMobileWidth]);
 
   // Stable refs to avoid stale closures in persistent event listeners
   const currentSectionRef = useRef(currentSection);
@@ -91,13 +98,15 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
       return;
     }
 
+    const instant = prefersReducedMotion || !initialPositionDoneRef.current;
+    initialPositionDoneRef.current = true;
     container.scrollTo({
       left: targetLeft,
-      behavior: prefersReducedMotion ? 'instant' : 'smooth',
+      behavior: instant ? 'instant' : 'smooth',
     });
 
     // Reset animating once scroll completes
-    const timer = setTimeout(() => setIsAnimating(false), 650);
+    const timer = setTimeout(() => setIsAnimating(false), instant ? 0 : 650);
     return () => clearTimeout(timer);
   }, [currentSection, useSnapMode, prefersReducedMotion, setIsAnimating]);
 
@@ -244,6 +253,13 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
   // else in this mode reacts to currentSection changes.
   useEffect(() => {
     if (!(isShortLandscape || isMobileWidth)) return;
+    // Not on first load: the page should open where the browser left it (a
+    // refresh restores the scroll position) rather than jump to the hero. A
+    // hash link on load still works — it moves currentSection, rerunning this.
+    if (!initialPositionDoneRef.current) {
+      initialPositionDoneRef.current = true;
+      return;
+    }
     const id = SECTION_IDS[currentSection];
     const target = id ? document.getElementById(id) : null;
     if (target) {

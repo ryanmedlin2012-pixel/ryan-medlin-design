@@ -17,7 +17,8 @@ export const Hero: React.FC = () => {
             UI / Interaction / Visual designer
           </h1>
           <p className={styles.subtitle}>
-            Crafting digital experiences that combine beautiful design with thoughtful product strategy
+            Crafting digital experiences that combine beautiful design with thoughtful product
+            strategy
           </p>
           <button
             className={styles.cta}

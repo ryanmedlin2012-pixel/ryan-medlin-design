@@ -1,18 +1,73 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import styles from './PanelImageSlot.module.css';
+import lightboxStyles from './ImageLightbox.module.css';
+import { ImageLightbox } from './ImageLightbox';
+import { ImageStrip } from './ImageStrip';
+import { readRestored, saveRestorable } from '../hooks/restore';
+import type { StripImage } from './ImageStrip';
 
 export type ImageSlot =
   | { type: 'placeholder' }
-  | { type: 'image'; src: string; alt: string }
-  | { type: 'carousel'; images: Array<{ src: string; alt: string }> };
+  /**
+   * `fit: 'contain'` scales the whole image down to fit rather than cropping it.
+   * `background` replaces the slot's default gradient — set it to the image's own
+   * backdrop colour so a contained image blends into the frame around it.
+   * `position` sets where the image sits in the slot (CSS object-position),
+   * e.g. 'top' to pin a contained image to the slot's top edge.
+   * `fullImage` adds a "See full diagram" button that opens it in a zoomable lightbox.
+   * `link` adds the same corner button as a link that opens in a new tab.
+   */
+  | {
+      type: 'image';
+      src: string;
+      alt: string;
+      fit?: 'cover' | 'contain';
+      background?: string;
+      position?: string;
+      fullImage?: { src: string; alt: string };
+      link?: { href: string; label: string };
+    }
+  | { type: 'carousel'; images: Array<{ src: string; alt: string }> }
+  /**
+   * A row of 16:9 screens that scrolls sideways. Put an `ImageStripNav` with the
+   * same `id` in the panel's text to drive it.
+   */
+  | { type: 'strip'; id: string; images: StripImage[] };
 
 interface Props {
   slot: ImageSlot;
 }
 
+// Refresh-restore keys, named by the slot's (first) image so each slot on a
+// page has its own.
+const slotKey = (slot: ImageSlot) =>
+  slot.type === 'carousel'
+    ? `carousel:${slot.images[0]?.src ?? ''}`
+    : slot.type === 'image'
+    ? `lightbox:${slot.fullImage?.src ?? slot.src}`
+    : '';
+
 export const PanelImageSlot = ({ slot }: Props) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const key = slotKey(slot);
+  // A refresh returns to the same slide, and reopens the full-diagram
+  // lightbox if it was open (the lightbox restores its own zoom and pan).
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    if (slot.type !== 'carousel') return 0;
+    const saved = readRestored<number>(key);
+    return typeof saved === 'number' && saved >= 0 && saved < slot.images.length ? saved : 0;
+  });
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(
+    () => slot.type === 'image' && !!slot.fullImage && readRestored<boolean>(key) === true
+  );
+
+  useEffect(() => {
+    if (slot.type === 'carousel') saveRestorable(key, currentIndex);
+  }, [slot.type, key, currentIndex]);
+
+  useEffect(() => {
+    if (slot.type === 'image' && slot.fullImage) saveRestorable(key, lightboxOpen);
+  }, [slot, key, lightboxOpen]);
 
   const images =
     slot.type === 'carousel'
@@ -22,6 +77,16 @@ export const PanelImageSlot = ({ slot }: Props) => {
       : [];
 
   const isCarousel = slot.type === 'carousel' && images.length > 1;
+  const background = slot.type === 'image' ? slot.background : undefined;
+  const fullImage = slot.type === 'image' ? slot.fullImage : undefined;
+  const position = slot.type === 'image' ? slot.position : undefined;
+  const link = slot.type === 'image' ? slot.link : undefined;
+  const imageStyle = position ? { objectPosition: position } : undefined;
+  const backgroundStyle = background ? { background } : undefined;
+  const imageClass =
+    slot.type === 'image' && slot.fit === 'contain'
+      ? `${styles.image} ${styles.imageContain}`
+      : styles.image;
 
   const goTo = useCallback(
     (index: number) => {
@@ -59,6 +124,14 @@ export const PanelImageSlot = ({ slot }: Props) => {
     };
   }, []);
 
+  if (slot.type === 'strip') {
+    return (
+      <div className={styles.stripSlot} data-strip-slot>
+        <ImageStrip id={slot.id} images={slot.images} />
+      </div>
+    );
+  }
+
   if (slot.type === 'placeholder') {
     return (
       <div className={styles.container}>
@@ -68,7 +141,7 @@ export const PanelImageSlot = ({ slot }: Props) => {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={backgroundStyle}>
       <div className={styles.viewport}>
         <div
           ref={trackRef}
@@ -77,8 +150,8 @@ export const PanelImageSlot = ({ slot }: Props) => {
           onTransitionEnd={handleTransitionEnd}
         >
           {images.map((img, i) => (
-            <div key={i} className={styles.slide}>
-              <img src={img.src} alt={img.alt} className={styles.image} />
+            <div key={i} className={styles.slide} style={backgroundStyle}>
+              <img src={img.src} alt={img.alt} className={imageClass} style={imageStyle} />
             </div>
           ))}
         </div>
@@ -115,7 +188,38 @@ export const PanelImageSlot = ({ slot }: Props) => {
             </div>
           </>
         )}
+
+        {fullImage && (
+          <button
+            type="button"
+            className={lightboxStyles.trigger}
+            onClick={() => setLightboxOpen(true)}
+            aria-haspopup="dialog"
+          >
+            See full diagram
+          </button>
+        )}
+
+        {link && !fullImage && (
+          <a
+            className={lightboxStyles.trigger}
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {link.label}
+            <span className={lightboxStyles.srOnly}> (opens in a new tab)</span>
+          </a>
+        )}
       </div>
+
+      {fullImage && lightboxOpen && (
+        <ImageLightbox
+          src={fullImage.src}
+          alt={fullImage.alt}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
     </div>
   );
 };

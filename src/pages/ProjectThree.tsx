@@ -13,14 +13,15 @@ export const ProjectThree = () => (
             </p>
             <p>
               An unrecognized charge is one of the highest-stress support contacts a player can
-              initiate. The stakes are real — potential fraud, disputed purchases, or billing errors —
-              and the time pressure is acute. When players arrived at the Unrecognized Charge Agent
-              in the Xbox SVA, the MVP experience gave them a list of plain text links. Click-through
-              rate was 12.2%, and self-service resolution sat at 18.7%.
+              initiate. The stakes are real — potential fraud, disputed purchases, or billing
+              errors — and the time pressure is acute. When players arrived at the Unrecognized
+              Charge Agent in the Xbox SVA, the MVP experience gave them a list of plain text
+              links. Click-through rate was 12.2%, and self-service resolution sat at 18.7%.
             </p>
             <p>
-              I redesigned the charge agent using rich adaptive cards — contextual, action-oriented
-              components that replaced generic links with specific, clearly labeled resolution paths.
+              I redesigned the charge agent using rich adaptive cards — contextual,
+              action-oriented components that replaced generic links with specific, clearly
+              labeled resolution paths.
             </p>
             <h3>At a glance</h3>
             <ul>
@@ -40,16 +41,16 @@ export const ProjectThree = () => (
           <>
             <p>
               The MVP launched with a plain-text response pattern: "We couldn't recognize this
-              charge. Here are some things you can try:" followed by three text links — Check your
-              order history, Dispute a charge, Contact your bank. The content was accurate.
+              charge. Here are some things you can try:" followed by three text links — Check
+              your order history, Dispute a charge, Contact your bank. The content was accurate.
               The presentation was inadequate.
             </p>
             <p>
-              Text links in a conversational chat interface carry no visual weight. In a moment of
-              financial stress, players needed immediate confidence that the system understood their
-              situation and was offering specific, relevant actions — not a generic list. Analytics
-              confirmed the pattern: most players either re-engaged the agent with follow-up
-              questions or escalated to live support.
+              Text links in a conversational chat interface carry no visual weight. In a moment
+              of financial stress, players needed immediate confidence that the system
+              understood their situation and was offering specific, relevant actions — not a
+              generic list. Analytics confirmed the pattern: most players either re-engaged the
+              agent with follow-up questions or escalated to live support.
             </p>
             <h3>MVP Metrics</h3>
             <ul>
@@ -68,10 +69,10 @@ export const ProjectThree = () => (
           <>
             <p>
               Adaptive cards are structured, visually distinct components that surface a title,
-              a brief description, and a primary action in a single scannable unit. For the charge
-              agent, each card maps to a specific resolution path — with an icon, a clear action
-              label, and enough supporting copy to let players self-triage without reading a wall
-              of text.
+              a brief description, and a primary action in a single scannable unit. For the
+              charge agent, each card maps to a specific resolution path — with an icon, a clear
+              action label, and enough supporting copy to let players self-triage without
+              reading a wall of text.
             </p>
             <h3>Card Architecture</h3>
             <p>
@@ -88,10 +89,10 @@ export const ProjectThree = () => (
             </p>
             <h3>Design Rationale</h3>
             <p>
-              The card format communicates specificity. A player who sees "Dispute a charge" as a
-              clearly labeled, visually distinct card understands immediately that this is a real
-              action, not a search result. The visual hierarchy does work that prose links cannot —
-              especially in a high-stakes, low-trust moment like a billing dispute.
+              The card format communicates specificity. A player who sees "Dispute a charge" as
+              a clearly labeled, visually distinct card understands immediately that this is a
+              real action, not a search result. The visual hierarchy does work that prose links
+              cannot — especially in a high-stakes, low-trust moment like a billing dispute.
             </p>
           </>
         ),
@@ -109,10 +110,10 @@ export const ProjectThree = () => (
               <li><span>CSAT (flow):</span> 3.2 to 4.1 / 5 (+0.9)</li>
             </ul>
             <p>
-              Doubling click-through rate while improving CSAT by nearly a full point demonstrates
-              that the card format was not just more clickable — it was more trustworthy. Players
-              who engaged with the adaptive cards resolved their issues at a meaningfully higher
-              rate, with fewer escalations to live support.
+              Doubling click-through rate while improving CSAT by nearly a full point
+              demonstrates that the card format was not just more clickable — it was more
+              trustworthy. Players who engaged with the adaptive cards resolved their issues at
+              a meaningfully higher rate, with fewer escalations to live support.
             </p>
             <p>
               The case study underscores a principle that applies broadly to conversational UI:

@@ -33,12 +33,84 @@
 .panelInner {
   display: grid;
   grid-template-columns: 55fr 45fr;
+  /* Cap the row at the panel's height so a long text column scrolls (it's
+     overflow-y: auto) instead of growing past the panel and being clipped. */
+  grid-template-rows: minmax(0, 1fr);
   height: 100%;
   padding: 5.5rem 3.5rem;
   gap: 3rem;
   max-width: 1440px;
   margin: 0 auto;
   background-color: #ffffff;
+}
+
+/* Media below: same padding, gap and max width as the default grid, but the
+   text runs in two columns across the top and the media fills the width
+   underneath, taking whatever height the text leaves. */
+.panelInnerMediaBelow {
+  /* minmax(0, …) stops the strip's row of screens from widening the column
+     past the panel; the strip scrolls inside it instead. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.panelInnerMediaBelow .textColumn {
+  display: grid;
+  /* A narrow text column on the left; the nav column takes the width its
+     steps need on one line and sits right beside it, one column gap away. */
+  grid-template-columns: minmax(0, 22rem) max-content;
+  grid-template-rows: auto auto auto 1fr;
+  column-gap: 3rem;
+  overflow: visible;
+  padding-right: 0;
+}
+
+/* Column 1: overline, headline, then the paragraph beneath them */
+.panelInnerMediaBelow .sectionLabel {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.panelInnerMediaBelow .panelHeading {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+/* The body's own children join the grid: paragraph under the headline,
+   nav in column 2 alongside the whole stack */
+.panelInnerMediaBelow .textContent {
+  display: contents;
+}
+
+.panelInnerMediaBelow .textContent > * {
+  margin-top: 0;
+}
+
+.panelInnerMediaBelow .textContent > :nth-child(1) {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.panelInnerMediaBelow .textContent > :nth-child(2) {
+  grid-column: 2;
+  grid-row: 1 / -1;
+  /* Hug the steps rather than stretching down the whole text row, so the
+     strip positioned under it lands right below the steps. */
+  align-self: start;
+}
+
+.panelInnerMediaBelow .imageColumn {
+  min-width: 0;
+  min-height: 0;
+  align-items: stretch;
+  padding-bottom: 0;
+}
+
+/* Width and left offset come from JS (matching the nav that drives it — see
+   useMatchStripWidthToNav) — this just stops the column stretching to the
+   panel's full width so it can sit directly under the nav. */
+.panelInnerMediaBelow .imageColumnStrip {
+  justify-self: start;
 }
 
 .textColumn {
@@ -59,9 +131,11 @@
   border-radius: 2px;
 }
 
+/* padding-bottom trims the image slot from the bottom; its top edge stays put */
 .imageColumn {
   display: flex;
   align-items: center;
+  padding-bottom: 200px;
 }
 
 /* ── Panel chrome ─────────────────────────────────────────────────────── */
@@ -135,15 +209,20 @@
   gap: 0.2rem;
 }
 
+/* Hanging indent: the dash sits in the gutter so wrapped lines align with
+   the first line of text rather than tucking under the marker. */
 .textContent li {
-  padding: 0.125rem 0 0.125rem 4px;
+  position: relative;
+  padding: 0.125rem 0 0.125rem calc(4px + 0.9em);
   font-size: 0.95rem;
   color: #5a5a5a;
   line-height: 1.5;
 }
 
 .textContent li::before {
-  content: '\2013\00a0';
+  content: '\2013';
+  position: absolute;
+  left: 4px;
   color: #5a5a5a;
 }
 
@@ -179,7 +258,7 @@
 }
 
 .atAGlance li {
-  padding: 0 0 0 4px;
+  padding: 0 0 0 calc(4px + 0.9em);
   font-size: 0.8rem;
   color: #362828;
   line-height: 1.4;
@@ -321,12 +400,45 @@
 }
 
 .verticalPanel {
-  padding: 3rem 1.5rem;
-  border-bottom: 1px solid #e9ecef;
-  background-color: #ffffff;
+  position: relative;
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+/* An image strip bleeds past the right padding to the window edge, so the
+   peeking next screen is only cut off by the browser. --strip-bleed tells the
+   strip how much of its width is bleed, so screens keep their size. */
+.verticalPanel > [data-strip-slot] {
+  /* Stretch across the panel (not size to the strip's wide content), then
+     extend past the right padding. */
+  align-self: stretch;
+  width: auto;
+  margin-right: -1.5rem;
+  --strip-bleed: 1.5rem;
+}
+
+/* The strip's step nav likewise scrolls out to the window edge. */
+.verticalPanel [data-strip-nav] {
+  --nav-bleed: 1.5rem;
+}
+
+/* Divider between sections, inset to line up with the section's content */
+.verticalPanel:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 1.5rem;
+  right: 1.5rem;
+  bottom: 0;
+  height: 2px;
+  background-color: rgba(54, 40, 40, 0.6);
+}
+
+/* The panel's 1rem flex gap stacks on the label's own margin; pull the heading
+   back up so the pair sits as close as it does in the two-column layout. */
+.verticalPanel .sectionLabel {
+  margin-bottom: -0.375rem;
 }
 
 .verticalPanel.heroPanel {
@@ -343,6 +455,22 @@
   }
 }
 
+/* Media below, narrower screens: a 22rem text column plus the one-line nav no
+   longer fit side by side, so the nav drops under the paragraph and the strip
+   follows it (JS keeps the strip just below the nav, full width). */
+@media (max-width: 960px) {
+  .panelInnerMediaBelow .textColumn {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto 1fr;
+  }
+
+  .panelInnerMediaBelow .textContent > :nth-child(2) {
+    grid-column: 1;
+    grid-row: 4;
+    margin-top: 0.5rem;
+  }
+}
+
 /* ── Responsive: tablet / large phone ────────────────────────────────── */
 
 @media (max-width: 860px) {
@@ -350,6 +478,14 @@
     grid-template-columns: 2fr 1fr;
     padding: 2rem 1.5rem 4rem;
     gap: 1.5rem;
+  }
+
+  .panelInnerMediaBelow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panelInnerMediaBelow .textColumn {
+    column-gap: 1.5rem;
   }
 
   .panelHeading {

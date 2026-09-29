@@ -1,0 +1,268 @@
+/* ── Strip (image column) ─────────────────────────────────────────────── */
+
+.strip {
+  /* Width of one screen. Set per layout below; used by the screens and by the
+     end spacer, so the last screen can scroll to where the first one sits. */
+  --item-size: 88%;
+  --item-gap: 16px;
+  position: relative;
+  display: flex;
+  gap: var(--item-gap);
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  /* Reaching either end doesn't hand the swipe on to the page's panels. */
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(54, 40, 40, 0.25) transparent;
+  padding-bottom: 0.75rem;
+}
+
+/* The strip runs to the window edge, where it would otherwise stop in a hard
+   vertical line (most visible as the page's sections slide past). Fade its
+   last few rem out to the page's white: the peeking screen, already washed
+   to 70% white, ramps smoothly to 100% at the edge. The mask stays put while
+   the strip scrolls, so it always sits on the visible edge. */
+.strip {
+  /* Desktop layouts size the peek from this (see --min-peek), so the fade
+     always falls on the peeking screen and never on the fully visible one. */
+  --edge-fade: 8rem;
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - var(--edge-fade)),
+    rgba(0, 0, 0, 0.35) calc(100% - var(--edge-fade) * 0.7),
+    transparent 100%
+  );
+}
+
+.strip::-webkit-scrollbar {
+  height: 4px;
+}
+
+.strip::-webkit-scrollbar-thumb {
+  background-color: rgba(54, 40, 40, 0.25);
+  border-radius: 2px;
+}
+
+.strip:focus-visible {
+  outline: 2px solid #39a503;
+  outline-offset: 4px;
+}
+
+/* Each screen is a little narrower than the column so the next one peeks in,
+   which shows at a glance that the strip scrolls. */
+.item {
+  flex: 0 0 var(--item-size);
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+/* Trailing space after the last screen: exactly enough that scrolling to the
+   end puts the last screen at the strip's start, where the first one sits on
+   load, instead of stopping with it pushed to the right. */
+.strip::after {
+  content: '';
+  flex: 0 0 max(0px, calc(100% - var(--item-size) - var(--item-gap)));
+}
+
+/* The 16:9 screen itself; the caption sits outside it, underneath. */
+.frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #e9ecef;
+}
+
+/* Screens cut off by the right edge (marked by the strip's script) are washed
+   out toward the page's white so the fully visible one reads as current. */
+.frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.item[data-cropped] .frame::after {
+  opacity: 1;
+}
+
+/* Fade the caption to match its washed-out screen */
+.item .caption {
+  transition: opacity 0.3s ease;
+}
+
+.item[data-cropped] .caption {
+  opacity: 0.35;
+}
+
+.caption {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #6a6a6a;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e9ecef 0%, #d0d0d0 100%);
+  color: #6a6a6a;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* ── Nav (text column) ────────────────────────────────────────────────── */
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.navSteps {
+  /* Steps run in a row, each carrying its own segment of the track (the 8px
+     gaps cut it). When the row is wider than its column — on phones — it
+     scrolls sideways by touch, running out to the window edge (--nav-bleed,
+     set by the layout) so every step stays reachable. */
+  position: relative;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  margin-right: calc(-1 * var(--nav-bleed, 0px));
+  padding-right: var(--nav-bleed, 0px);
+}
+
+.navSteps::-webkit-scrollbar {
+  display: none;
+}
+
+/* When the row overflows it can be grabbed with a mouse and dragged sideways
+   (see ImageStripNav); steps keep their pointer cursor so they still read
+   as clickable. */
+.navStepsDraggable {
+  cursor: grab;
+}
+
+.navStepsDragging,
+.navStepsDragging .navStep {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.navStep {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  /* Number circle sits on the step's left edge (and so the nav's). */
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  border: none;
+  border-bottom: 2px solid #e9ecef;
+  background: none;
+  color: #6a6a6a;
+  font: inherit;
+  font-size: 0.9375rem;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.navStep:hover {
+  color: #362828;
+}
+
+.navStep:focus-visible {
+  outline: 2px solid #39a503;
+  outline-offset: -2px;
+}
+
+.navStepActive {
+  color: #362828;
+  border-bottom-color: #39a503;
+  font-weight: 600;
+}
+
+/* Every label reserves its bold width with a hidden bold copy, so a step is
+   the same width whether it's active or not and nothing shifts when the
+   active step changes on click. */
+.navLabel {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.navLabel::after {
+  content: attr(data-text);
+  font-weight: 600;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.navNumber {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #e9ecef;
+  color: #5a5a5a;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.navStepActive .navNumber {
+  background-color: #39a503;
+  color: white;
+}
+
+/* In a media-below panel the strip fills the height left under the nav. Each
+   screen takes the smaller of: the strip height less room for its caption
+   (at 16:9), or 88% of the strip's width, so a screen is never cut off and
+   the next one peeks in. The strip is a size container so its screens can
+   measure it in cq units. */
+:global([data-layout='mediaBelow']) .strip {
+  --caption-room: 5.5rem;
+  /* Peek is always at least as wide as the edge fade, plus the gap. */
+  --min-peek: calc(var(--edge-fade) + var(--item-gap));
+  /* As tall as the strip allows (at 16:9, leaving room for the caption), but
+     never so wide that less than --min-peek of the next screen shows before
+     the window edge (the strip runs to it). The cq units resolve where the
+     variable is used — in the strip's children — against the strip itself. */
+  --item-size: min(100cqw - var(--min-peek), (100cqh - var(--caption-room)) * 16 / 9);
+  height: 100%;
+  container-type: size;
+  align-items: flex-start;
+}
+
+/* Stacked layout: the column is narrow, so show more of each screen. */
+@media (max-width: 767px) {
+  .strip {
+    --item-size: calc((100% - var(--strip-bleed, 0px)) * 0.92);
+    /* Phones peek only ~35px of the next screen; keep the fade inside it. */
+    --edge-fade: 2rem;
+  }
+}

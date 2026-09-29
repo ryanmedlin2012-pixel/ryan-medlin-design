@@ -12,15 +12,16 @@ export const ProjectOne = () => (
               Helping players get back to their games faster when codes fail
             </p>
             <p>
-              Xbox redemption codes are 25-character alphanumeric tokens (5x5 format) used to unlock
-              games, DLC, subscriptions, and currency. When a code is physically damaged, poorly
-              photographed, or partially obscured, the standard redemption flow fails with no recovery
-              path — sending players to live support for what is fundamentally a data-retrieval problem.
+              Xbox redemption codes are 25-character alphanumeric tokens (5x5 format) used to
+              unlock games, DLC, subscriptions, and currency. When a code is physically damaged,
+              poorly photographed, or partially obscured, the standard redemption flow fails
+              with no recovery path — sending players to live support for what is fundamentally
+              a data-retrieval problem.
             </p>
             <p>
-              I designed the Token Redemption Agent: an AI-assisted image upload flow embedded within
-              the Xbox Self-Service Virtual Agent (SVA) that allows players to photograph or upload
-              their damaged code for automated extraction and validation.
+              I designed the Token Redemption Agent: an AI-assisted image upload flow embedded
+              within the Xbox Self-Service Virtual Agent (SVA) that allows players to photograph
+              or upload their damaged code for automated extraction and validation.
             </p>
             <h3>At a glance</h3>
             <ul>
@@ -39,16 +40,17 @@ export const ProjectOne = () => (
         content: (
           <>
             <p>
-              The 5x5 code format has zero tolerance for character error — a single misread (O for 0,
-              I for 1, Q for 0) causes a hard failure with no indication of which character is wrong.
-              Players had two options: attempt every likely substitution manually, or contact live
-              support. For a player mid-session, neither was acceptable.
+              The 5x5 code format has zero tolerance for character error — a single misread (O
+              for 0, I for 1, Q for 0) causes a hard failure with no indication of which
+              character is wrong. Players had two options: attempt every likely substitution
+              manually, or contact live support. For a player mid-session, neither was
+              acceptable.
             </p>
             <p>
               Support queues were absorbing high-volume, repetitive contacts that had a clear
-              self-service solution. Designing for this meant understanding not just the happy path —
-              code parsed, issue resolved — but every degraded state where image quality, code damage,
-              or prior redemption sent the flow sideways.
+              self-service solution. Designing for this meant understanding not just the happy
+              path — code parsed, issue resolved — but every degraded state where image quality,
+              code damage, or prior redemption sent the flow sideways.
             </p>
             <h3>Design Constraints</h3>
             <ul>
@@ -68,8 +70,8 @@ export const ProjectOne = () => (
           <>
             <p>
               The core flow moves through file selection, image preview, submission, async
-              processing, then result. Guidance copy at the capture stage helps players frame the
-              code correctly, reducing re-submission rate.
+              processing, then result. Guidance copy at the capture stage helps players frame
+              the code correctly, reducing re-submission rate.
             </p>
             <h3>Three Distinct Error States</h3>
             <p>
@@ -78,8 +80,8 @@ export const ProjectOne = () => (
             </p>
             <p>
               <span>Unreadable:</span> OCR confidence below threshold — routes to assisted
-              escalation with the image pre-attached for agent context, eliminating redundant data
-              collection.
+              escalation with the image pre-attached for agent context, eliminating redundant
+              data collection.
             </p>
             <p>
               <span>Disabled or already redeemed:</span> Distinct messaging with a resolution
@@ -88,9 +90,9 @@ export const ProjectOne = () => (
             <h3>Trust and Transparency</h3>
             <p>
               File type and size constraints surface before upload, not after. All error states
-              distinguish between user error and system limitation. The interface communicates what
-              is happening and why at every step — critical for a high-stakes moment where a player
-              is trying to access content they already paid for.
+              distinguish between user error and system limitation. The interface communicates
+              what is happening and why at every step — critical for a high-stakes moment where
+              a player is trying to access content they already paid for.
             </p>
           </>
         ),

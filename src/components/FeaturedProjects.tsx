@@ -4,6 +4,7 @@ import styles from './FeaturedProjects.module.css';
 import { useLayout } from '../context/LayoutContext';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import escalationFlow from '../assets/Escalation_1400x1400_b.png';
+import { readRestored, saveRestorable } from '../hooks/restore';
 
 interface Project {
   id: number;
@@ -62,6 +63,7 @@ const projects: Project[] = [
 export const SECTION_INDEX = 1;
 
 const TRACK_TRANSITION = 'transform 0.6s cubic-bezier(0.77, 0, 0.175, 1)';
+const CARD_KEY = 'featuredCard';
 
 function padNum(n: number) {
   return String(n).padStart(2, '0');
@@ -74,14 +76,19 @@ export const FeaturedProjects: React.FC = () => {
   const isNarrowViewport = useMediaQuery('(max-width: 767px)');
   const useCarousel = isPointerFine && !prefersReducedMotion && !isNarrowViewport;
 
-  const [currentCard, setCurrentCard] = useState(0);
-  const currentCardRef = useRef(0);
+  // A refresh returns to the card the reader was on.
+  const [currentCard, setCurrentCard] = useState(() => {
+    const saved = readRestored<number>(CARD_KEY);
+    return typeof saved === 'number' && saved >= 0 && saved < projects.length ? saved : 0;
+  });
+  const currentCardRef = useRef(currentCard);
   const isCardAnimatingRef = useRef(false);
   const trackRef = useRef<HTMLDivElement>(null);
   const resizeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     currentCardRef.current = currentCard;
+    saveRestorable(CARD_KEY, currentCard);
   }, [currentCard]);
 
   // Report this section's carousel position into the macro progress bar —

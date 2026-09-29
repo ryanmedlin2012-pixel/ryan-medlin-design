@@ -12,16 +12,17 @@ export const ProjectSix = () => (
               Control, transparency, and humanized AI
             </p>
             <p>
-              As Xbox's Self-Service Virtual Agent (SVA) matured from a functional tool to a primary
-              support surface used by millions of players, two gaps became clear: players had no way
-              to personalize or control the experience, and the agent itself had no visible identity.
-              Both gaps eroded trust. Players who encountered a frustrating interaction had no
-              recourse. And a faceless bot inspired less confidence than one that felt deliberately designed.
+              As Xbox's Self-Service Virtual Agent (SVA) matured from a functional tool to a
+              primary support surface used by millions of players, two gaps became clear:
+              players had no way to personalize or control the experience, and the agent itself
+              had no visible identity. Both gaps eroded trust. Players who encountered a
+              frustrating interaction had no recourse. And a faceless bot inspired less
+              confidence than one that felt deliberately designed.
             </p>
             <p>
-              This project introduced a settings panel, an inline feedback model, and a humanized
-              agent appearance — three interconnected systems that together made the SVA feel
-              controllable, responsive, and intentional.
+              This project introduced a settings panel, an inline feedback model, and a
+              humanized agent appearance — three interconnected systems that together made the
+              SVA feel controllable, responsive, and intentional.
             </p>
             <h3>At a glance</h3>
             <ul>
@@ -40,17 +41,17 @@ export const ProjectSix = () => (
         content: (
           <>
             <p>
-              Before this project, the SVA offered no user controls. Players could not adjust language
-              preferences, opt out of audio feedback, clear a session mid-conversation, or provide
-              feedback on individual responses. The thumbs up/down mechanism existed in name only —
-              it was not surfaced in a way that players engaged with, and the data it generated was
-              too sparse to calibrate the model meaningfully.
+              Before this project, the SVA offered no user controls. Players could not adjust
+              language preferences, opt out of audio feedback, clear a session mid-conversation,
+              or provide feedback on individual responses. The thumbs up/down mechanism existed
+              in name only — it was not surfaced in a way that players engaged with, and the
+              data it generated was too sparse to calibrate the model meaningfully.
             </p>
             <p>
               The agent appearance was similarly underdeveloped. There was no avatar, no persona
-              consistency, and no visual signal distinguishing the AI from a generic chat widget.
-              On a platform where player identity is richly expressed through gamertags, avatars,
-              and achievement cards, an anonymous support bot felt out of place.
+              consistency, and no visual signal distinguishing the AI from a generic chat
+              widget. On a platform where player identity is richly expressed through gamertags,
+              avatars, and achievement cards, an anonymous support bot felt out of place.
             </p>
             <h3>Baseline Metrics</h3>
             <ul>
@@ -70,19 +71,19 @@ export const ProjectSix = () => (
           <>
             <h3>Settings Panel</h3>
             <p>
-              The settings panel exposes four controls: language selection, audio feedback toggle,
-              privacy options, and a "Clear conversation" action. Each control is explained inline —
-              not as help text, but as part of the label — so players understand what they are
-              changing without leaving the panel. The panel is accessible from a persistent icon
-              in the chat header, not buried in a menu.
+              The settings panel exposes four controls: language selection, audio feedback
+              toggle, privacy options, and a "Clear conversation" action. Each control is
+              explained inline — not as help text, but as part of the label — so players
+              understand what they are changing without leaving the panel. The panel is
+              accessible from a persistent icon in the chat header, not buried in a menu.
             </p>
             <h3>Inline Feedback</h3>
             <p>
-              Thumbs up and down were redesigned to appear inline within individual agent responses,
-              not at the end of a session. This contextualizes the feedback to a specific message
-              rather than the entire conversation, generating higher-fidelity calibration data.
-              Post-thumbs-down, a micro-prompt asks what was unhelpful — free text or categorized —
-              without interrupting the conversation flow.
+              Thumbs up and down were redesigned to appear inline within individual agent
+              responses, not at the end of a session. This contextualizes the feedback to a
+              specific message rather than the entire conversation, generating higher-fidelity
+              calibration data. Post-thumbs-down, a micro-prompt asks what was unhelpful — free
+              text or categorized — without interrupting the conversation flow.
             </p>
             <h3>Agent Appearance</h3>
             <p>
@@ -107,12 +108,12 @@ export const ProjectSix = () => (
               <li><span>CSAT:</span> 3.5 to 4.2 / 5 (+0.7)</li>
             </ul>
             <p>
-              A 171% increase in feedback rate reflects both better placement (inline) and better
-              design (clear affordance). The audio feedback usage jump from 0.3% to 7.6% suggests
-              that this feature had latent demand that was invisible before the settings panel made
-              it discoverable. The CSAT improvement (+0.7) in the same period suggests that giving
-              players control of the experience meaningfully improves their perception of it —
-              not just their ability to use it.
+              A 171% increase in feedback rate reflects both better placement (inline) and
+              better design (clear affordance). The audio feedback usage jump from 0.3% to 7.6%
+              suggests that this feature had latent demand that was invisible before the
+              settings panel made it discoverable. The CSAT improvement (+0.7) in the same
+              period suggests that giving players control of the experience meaningfully
+              improves their perception of it — not just their ability to use it.
             </p>
           </>
         ),

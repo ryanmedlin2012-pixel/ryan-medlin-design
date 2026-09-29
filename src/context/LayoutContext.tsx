@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useRef, useCallback } from 'react';
 import type { MutableRefObject, ReactNode } from 'react';
+import { readRestored } from '../hooks/restore';
 
 export const SECTION_COUNT = 4;
 export const SECTION_LABELS = ['Introduction', 'Projects', 'Skills', 'Contact'] as const;
@@ -35,11 +36,18 @@ export const LayoutContext = createContext<LayoutContextType>({
 
 export const useLayout = () => useContext(LayoutContext);
 
+/** Home page section saved by HorizontalLayout, when this load is a refresh of it. */
+export const HOME_SECTION_KEY = 'homeSection';
+const restoredHomeSection = () => {
+  const saved = readRestored<number>(HOME_SECTION_KEY);
+  return typeof saved === 'number' && saved >= 0 && saved < SECTION_COUNT ? saved : 0;
+};
+
 export const LayoutProvider = ({ children }: { children: ReactNode }) => {
-  const [currentSection, setCurrentSection] = useState(0);
+  const [currentSection, setCurrentSection] = useState(restoredHomeSection);
   const [isAnimating, setIsAnimatingState] = useState(false);
   const isAnimatingRef = useRef(false);
-  const currentSectionRef = useRef(0);
+  const currentSectionRef = useRef(currentSection);
   const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wheelHandlersRef = useRef<Map<number, WheelHandler>>(new Map());
   const [projectProgress, setProjectProgress] = useState<SubProgress | null>(null);
