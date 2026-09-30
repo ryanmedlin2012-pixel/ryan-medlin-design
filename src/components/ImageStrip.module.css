@@ -87,6 +87,15 @@
   transition: opacity 0.3s ease;
 }
 
+/* Peeking screens can be clicked to bring them into view (see ImageStrip). */
+.item[data-cropped] {
+  cursor: pointer;
+}
+
+.item[data-cropped]:hover .frame::after {
+  opacity: 0.75;
+}
+
 .item[data-cropped] .frame::after {
   opacity: 1;
 }

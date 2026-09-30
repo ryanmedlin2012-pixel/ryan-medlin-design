@@ -168,7 +168,16 @@ export const ImageStrip = ({ id, images }: { id: string; images: StripImage[] })
       aria-label="Screens, scroll sideways to see more"
     >
       {images.map((image, i) => (
-        <figure key={i} className={styles.item}>
+        // A screen peeking in from the right (marked data-cropped) slides into
+        // place when clicked, the same as choosing its step in the nav.
+        // Keyboard users have the nav's buttons for this.
+        <figure
+          key={i}
+          className={styles.item}
+          onClick={(e) => {
+            if (e.currentTarget.hasAttribute('data-cropped')) scrollToIndex(id, i);
+          }}
+        >
           <div className={styles.frame}>
             {image.src ? (
               <img src={image.src} alt={image.alt} className={styles.image} draggable={false} />
