@@ -6,9 +6,9 @@ import type { RefObject } from 'react';
 // the hero's edges, which they may slip partly past before turning back. The
 // mouse pushes nearby blobs away. A gentle pull toward a cruising speed keeps
 // the field alive without letting it get frantic: pushes and bounces liven
-// it up for a moment, then it settles back to a steady drift. Hits make a
-// blob squish: it squashes along the line of impact and wobbles back into
-// shape like jelly, more for harder hits.
+// it up for a moment, then it settles back to a steady drift. Hits are soft:
+// blobs meet and ease apart, giving a little along the line of impact and
+// settling back into shape, a touch more for harder hits.
 //
 // Blobs bounce the moment their outer outlines meet: each frame reads every
 // blob's current morph (the CSS animation's rotate/squash) and squish, and
@@ -23,6 +23,9 @@ import type { RefObject } from 'react';
 // blobs are simply placed, and stay still.
 
 const TUNING = {
+  /** Pace of everything — drift, pushes, bounces, squish (1 = the values
+      below as written; 0.6 = 40% slower). */
+  timeScale: 0.6,
   /** Speed the field settles back to (px/frame). */
   cruise: 0.35,
   /** How quickly speeds return to cruise (0–1 per frame). */
@@ -30,7 +33,7 @@ const TUNING = {
   /** Top speed (px/frame). */
   maxSpeed: 4.5,
   /** How much speed survives a bounce (1 = perfectly elastic). */
-  restitution: 0.92,
+  restitution: 0.6,
   /** How far past the hero's edge a blob may slip, as a share of its size. */
   edgeBleed: 0.3,
   /** How far beyond a blob's edge the pointer starts to push it (px). */
@@ -43,12 +46,12 @@ const TUNING = {
   /** Grid positions snap to under the stepped and pixel treatments (px). */
   lofiSnap: 2,
   /** Squish per unit of impact speed. */
-  squishKick: 0.09,
+  squishKick: 0.04,
   /** How firmly a squished blob springs back, and how quickly the wobble dies. */
-  squishSpring: 0.07,
-  squishDamping: 0.1,
+  squishSpring: 0.05,
+  squishDamping: 0.2,
   /** Deepest squish (share of size). */
-  maxSquish: 0.13,
+  maxSquish: 0.07,
 };
 
 interface Body {
@@ -174,8 +177,9 @@ export const useOrbField = (layerRef: RefObject<HTMLElement | null>) => {
     const step = (time: number) => {
       // Frames since the last step (1 at 60fps; 0.5 at 120fps), so motion
       // keeps the same pace on any display and through a dropped frame.
-      const dt = lastTime ? Math.min(3, Math.max(0.25, (time - lastTime) / (1000 / 60))) : 1;
+      const frames = lastTime ? Math.min(3, Math.max(0.25, (time - lastTime) / (1000 / 60))) : 1;
       lastTime = time;
+      const dt = frames * TUNING.timeScale;
 
       // Where each blob's outline is right now: read its morph animation's
       // current transform (reads first, before this frame's writes).
@@ -265,7 +269,7 @@ export const useOrbField = (layerRef: RefObject<HTMLElement | null>) => {
         }
       }
 
-      // Squished blobs spring back, overshooting a little — a jelly wobble.
+      // Squished blobs ease back into shape.
       for (const b of bodies) {
         b.squishV += (-b.squish * TUNING.squishSpring - b.squishV * TUNING.squishDamping) * dt;
         b.squish = Math.max(

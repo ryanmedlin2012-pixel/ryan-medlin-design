@@ -43,7 +43,8 @@ const loadOrbs: Orb[] = SIZES.map((size, i) => ({
   tone: i % 5 === 3 ? 'pale' : pick<Tone>(['dark', 'mid', 'light']),
   size,
   shape: pick<Orb['shape']>([0, 1, 2]),
-  duration: Math.round(between(5, 9)),
+  // Slow, to match the field's pace (useOrbField's timeScale).
+  duration: Math.round(between(8.5, 15)),
   delay: -Math.round(between(0, 14) * 10) / 10,
 }));
 

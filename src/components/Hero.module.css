@@ -59,11 +59,11 @@
    vertical padding closes the gap between lines, so wrapped lines stack into
    one continuous stepped shape: half the space the line height leaves around
    the glyphs (1lh is the line's height), plus half a pixel so neighbouring
-   lines just overlap — no hairline between them. Opaque, so that overlap
-   doesn't show and nothing behind can reduce contrast: the brown text on
-   this warm off-white is about 13:1, past WCAG AAA (7:1). */
+   lines just overlap — no hairline between them. 88% opaque: over even the
+   greyest part of the hero the brown text keeps about 12.5:1 contrast,
+   past WCAG AAA (7:1). */
 .fill {
-  background-color: #fbfaf7;
+  background-color: rgba(251, 250, 247, 0.88);
   padding-inline: 0.4em;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
