@@ -16,12 +16,12 @@ export const Hero: React.FC = () => {
             data-section-heading="true"
             tabIndex={-1}
           >
-            <span className={styles.fill}>UI / Interaction / Visual designer</span>
+            <span className={styles.fill}>Multidisciplinary designer</span>
           </h1>
           <p className={styles.subtitle}>
             <span className={styles.fill}>
-              Crafting digital experiences that combine beautiful design with thoughtful product
-              strategy
+              Crafting digital experiences and communication that combine beautiful design and
+              thoughtful strategy
             </span>
           </p>
           <button
