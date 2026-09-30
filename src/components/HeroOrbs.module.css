@@ -1,0 +1,180 @@
+/* ── Layer ─────────────────────────────────────────────────────────────── */
+
+/* Fills the hero behind its content; transparent everywhere but the blobs. */
+.orbs {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  /* Base blob size: scales with the smaller screen dimension, within limits. */
+  --s: clamp(120px, 21vmin, 260px);
+  /* How strongly the whole layer shows over the hero: 1 = fully, lower lets
+     it recede into the background. */
+  --presence: 0.9;
+  opacity: var(--presence);
+}
+
+/* Holds the SVG filter used by the pixel treatment; takes no space. */
+.filters {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* ── One blob: an outline only ─────────────────────────────────────────── */
+
+.orb {
+  --d: calc(var(--s) * var(--size));
+  /* Placed from the hero's top-left corner; useOrbField moves each one
+     (translate) and squishes it on impact (scale). */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--d);
+  height: var(--d);
+  box-sizing: border-box;
+  /* A heavier line on bigger blobs: about 1.2px on the smallest, 2.6px on
+     the largest. */
+  border: calc(1px + var(--size) * 1.2px) solid var(--stroke);
+  background: none;
+  animation-duration: var(--duration);
+  animation-delay: var(--delay);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: border-radius, transform;
+}
+
+/* ── Tones: stroke greys ───────────────────────────────────────────────── */
+
+.dark {
+  --stroke: #6e6e6e;
+}
+
+.mid {
+  --stroke: #929292;
+}
+
+.light {
+  --stroke: #b4b4b4;
+}
+
+.pale {
+  --stroke: #cdcdcd;
+}
+
+/* ── Organic, squishy outlines ─────────────────────────────────────────── */
+/* Three morph cycles between strongly lopsided outlines, with a gentle
+   squash-and-stretch and a turn, so the blobs read as soft and pliable and
+   neighbours never share a shape or a rhythm. (Impacts add their own squish
+   on top — see useOrbField.) */
+
+.shape0 {
+  border-radius: 63% 37% 54% 46% / 42% 58% 38% 62%;
+  animation-name: morph0;
+}
+
+.shape1 {
+  border-radius: 38% 62% 45% 55% / 60% 38% 62% 40%;
+  animation-name: morph1;
+}
+
+.shape2 {
+  border-radius: 52% 48% 66% 34% / 36% 62% 40% 64%;
+  animation-name: morph2;
+}
+
+@keyframes morph0 {
+  0%,
+  100% {
+    border-radius: 63% 37% 54% 46% / 42% 58% 38% 62%;
+    transform: rotate(0deg) scale(1, 1);
+  }
+  25% {
+    border-radius: 40% 60% 66% 34% / 60% 36% 64% 40%;
+    transform: rotate(6deg) scale(1.048, 0.952);
+  }
+  50% {
+    border-radius: 55% 45% 36% 64% / 34% 66% 45% 55%;
+    transform: rotate(-3deg) scale(0.964, 1.042);
+  }
+  75% {
+    border-radius: 36% 64% 48% 52% / 58% 42% 60% 40%;
+    transform: rotate(4deg) scale(1.03, 0.97);
+  }
+}
+
+@keyframes morph1 {
+  0%,
+  100% {
+    border-radius: 38% 62% 45% 55% / 60% 38% 62% 40%;
+    transform: rotate(0deg) scale(1, 1);
+  }
+  30% {
+    border-radius: 62% 38% 58% 42% / 38% 64% 36% 62%;
+    transform: rotate(-7deg) scale(0.952, 1.048);
+  }
+  60% {
+    border-radius: 46% 54% 34% 66% / 64% 44% 56% 36%;
+    transform: rotate(3deg) scale(1.042, 0.964);
+  }
+  85% {
+    border-radius: 58% 42% 52% 48% / 40% 60% 42% 58%;
+    transform: rotate(-2deg) scale(0.982, 1.018);
+  }
+}
+
+@keyframes morph2 {
+  0%,
+  100% {
+    border-radius: 52% 48% 66% 34% / 36% 62% 40% 64%;
+    transform: rotate(0deg) scale(1, 1);
+  }
+  22% {
+    border-radius: 34% 66% 44% 56% / 62% 40% 60% 38%;
+    transform: rotate(5deg) scale(0.958, 1.042);
+  }
+  55% {
+    border-radius: 64% 36% 38% 62% / 46% 56% 36% 64%;
+    transform: rotate(-6deg) scale(1.054, 0.952);
+  }
+  80% {
+    border-radius: 44% 56% 60% 40% / 56% 38% 64% 42%;
+    transform: rotate(2deg) scale(0.988, 1.024);
+  }
+}
+
+/* ── Lo-fi treatments (data-lofi on the layer; see HeroOrbs.tsx) ────────── */
+
+/* Stepped and pixel morph at a slightly stepped frame rate. */
+.orbs[data-lofi='stepped'] .orb,
+.orbs[data-lofi='pixel'] .orb {
+  animation-timing-function: steps(24, jump-none);
+}
+
+/* Pixel: the whole layer sampled in chunky 6px blocks. */
+.orbs[data-lofi='pixel'] {
+  filter: url('#hero-orbs-pixelate');
+}
+
+/* ── Motion preferences ────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .orb {
+    animation: none;
+  }
+}
+
+/* ── Small screens ─────────────────────────────────────────────────────── */
+
+/* The phone hero is short: fewer, smaller blobs. */
+@media (max-width: 767px) {
+  .orbs {
+    /* 90px on a typical phone, a little smaller on the narrowest. */
+    --s: clamp(76px, 23vw, 90px);
+  }
+
+  .orb:nth-child(n + 12) {
+    display: none;
+  }
+}

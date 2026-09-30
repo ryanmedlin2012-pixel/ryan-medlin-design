@@ -1,12 +1,14 @@
 import React from 'react';
 import styles from './Hero.module.css';
 import { useLayout } from '../context/LayoutContext';
+import { HeroOrbs } from './HeroOrbs';
 
 export const Hero: React.FC = () => {
   const { goToSection } = useLayout();
 
   return (
     <section id="hero" className={styles.hero}>
+      <HeroOrbs />
       <div className={styles.container}>
         <div className={styles.content}>
           <h1
@@ -14,11 +16,13 @@ export const Hero: React.FC = () => {
             data-section-heading="true"
             tabIndex={-1}
           >
-            UI / Interaction / Visual designer
+            <span className={styles.fill}>UI / Interaction / Visual designer</span>
           </h1>
           <p className={styles.subtitle}>
-            Crafting digital experiences that combine beautiful design with thoughtful product
-            strategy
+            <span className={styles.fill}>
+              Crafting digital experiences that combine beautiful design with thoughtful product
+              strategy
+            </span>
           </p>
           <button
             className={styles.cta}

@@ -1,16 +1,23 @@
 .hero {
+  /* Neutral greys only: the section's one colour is its call to action. */
   background:
-    radial-gradient(ellipse 130% 85% at 88% 8%, rgba(157, 236, 83, 0.16) 0%, transparent 55%),
-    radial-gradient(ellipse 120% 90% at 8% 96%, rgba(84, 193, 5, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 130% 85% at 88% 8%, rgba(255, 255, 255, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse 120% 90% at 8% 96%, rgba(0, 0, 0, 0.05) 0%, transparent 55%),
     radial-gradient(ellipse 200% 200% at 35% 40%, #fefefe 0%, #e8e8e8 22%, #b8b8b8 48%, #e0e0e0 76%, #f0f0f0 100%);
   color: #39a503;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Holds the decorative orbs (HeroOrbs), clipped to the hero. */
+  position: relative;
+  overflow: hidden;
 }
 
 .container {
+  /* Above the orbs. */
+  position: relative;
+  z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
   padding: 4rem 2rem;
@@ -26,19 +33,50 @@
   font-size: 2.8rem;
   margin: 0 0 1.5rem 0;
   font-weight: 400;
-  line-height: 1.2;
+  /* Room between wrapped lines so each line's fill stays separate. */
+  line-height: 1.5;
   color: #362828;
+  /* Focus is moved here programmatically (so screen readers announce the
+     section); it isn't interactive, so no focus ring — as with the other
+     sections' headings. */
+  outline: none;
 }
 
 .subtitle {
   font-size: 1.25rem;
   margin: 0 0 2rem 0;
   color: #362828;
-  opacity: 0.95;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
-  line-height: 1.8rem;
+  line-height: 2rem;
+}
+
+/* A fill behind each line of text, hugging it (box-decoration-break gives
+   every wrapped line its own padded rectangle rather than one block). The
+   vertical padding closes the gap between lines, so wrapped lines stack into
+   one continuous stepped shape: half the space the line height leaves around
+   the glyphs (1lh is the line's height), plus half a pixel so neighbouring
+   lines just overlap — no hairline between them. Opaque, so that overlap
+   doesn't show and nothing behind can reduce contrast: the brown text on
+   this warm off-white is about 13:1, past WCAG AAA (7:1). */
+.fill {
+  background-color: #fbfaf7;
+  padding-inline: 0.4em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Glyph boxes measured at 1.2em (heading serif) and 1.15em (subtitle sans);
+   the fixed values are fallbacks for browsers without the lh unit. */
+.title .fill {
+  padding-block: 0.16em;
+  padding-block: calc((1lh - 1.2em) / 2 + 0.5px);
+}
+
+.subtitle .fill {
+  padding-block: 0.3em;
+  padding-block: calc((1lh - 1.15em) / 2 + 0.5px);
 }
 
 .cta {
