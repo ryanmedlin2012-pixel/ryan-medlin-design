@@ -202,7 +202,9 @@ export const ImageStripNav = ({ id, images }: { id: string; images: StripImage[]
     const steps = stepsRef.current;
     if (!steps) return;
     const saved = readRestored<number>(navStorageKey);
-    if (typeof saved === 'number') {
+    // A saved 0 means "not scrolled": nothing to put back, so let the row
+    // bring the active step into view as usual.
+    if (typeof saved === 'number' && saved > 0) {
       holdFollowUntilRef.current = performance.now() + 1000;
       steps.scrollLeft = saved;
       requestAnimationFrame(() => {

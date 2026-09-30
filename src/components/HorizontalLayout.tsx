@@ -3,6 +3,9 @@ import type { ReactNode } from 'react';
 import styles from './HorizontalLayout.module.css';
 import { useLayout, SECTION_LABELS, HOME_SECTION_KEY } from '../context/LayoutContext';
 import { saveRestorable } from '../hooks/restore';
+import { holdScroll } from '../hooks/holdScroll';
+import type { ScrollHold } from '../hooks/holdScroll';
+import { readingSectionIndex, onWindowScrollFrame } from '../hooks/readingSection';
 import { SectionDots } from './SectionDots';
 import { ProgressBar } from './ProgressBar';
 import { useMediaQuery } from '../hooks/useMediaQuery';
@@ -19,7 +22,8 @@ const SECTION_IDS = ['hero', 'projects', 'skills', 'contact'];
 
 export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
   const {
-    currentSection, goToSection, wheelHandlersRef, isAnimating, setIsAnimating, sectionCount,
+    currentSection, goToSection, syncSection, wheelHandlersRef, isAnimating, setIsAnimating,
+    sectionCount,
   } = useLayout();
 
   // Responsive mode detection — reactive to viewport changes
@@ -40,6 +44,11 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
   // The first positioning after load (e.g. a refresh restoring a section)
   // jumps straight there; only later moves animate or scroll smoothly.
   const initialPositionDoneRef = useRef(false);
+  // The snap container last positioned — a new one (the layout just swapped
+  // into snap mode) is put in place instantly rather than animated.
+  const positionedSnapContainerRef = useRef<HTMLDivElement | null>(null);
+  const isVerticalRef = useRef(isShortLandscape || isMobileWidth);
+  isVerticalRef.current = isShortLandscape || isMobileWidth;
 
   // Remember the section for a refresh. In the vertical fallback the page is
   // a plain scroll and currentSection doesn't follow it, so nothing's saved.
@@ -91,6 +100,8 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
     if (!useSnapMode || !snapContainerRef.current) return;
     const container = snapContainerRef.current;
     const targetLeft = currentSection * window.innerWidth;
+    const freshContainer = positionedSnapContainerRef.current !== container;
+    positionedSnapContainerRef.current = container;
 
     if (Math.abs(container.scrollLeft - targetLeft) < 5) {
       // Already at position — clear animating immediately
@@ -98,7 +109,7 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
       return;
     }
 
-    const instant = prefersReducedMotion || !initialPositionDoneRef.current;
+    const instant = prefersReducedMotion || !initialPositionDoneRef.current || freshContainer;
     initialPositionDoneRef.current = true;
     container.scrollTo({
       left: targetLeft,
@@ -166,7 +177,10 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
 
   // Keyboard navigation (all modes except short landscape)
   useEffect(() => {
-    if (isShortLandscape) return;
+    // The stacked layout is an ordinary scrolling page: leave the arrow keys
+    // to scroll it (and section tracking to follow), rather than turning
+    // them into panel moves that don't scroll anything.
+    if (isShortLandscape || isMobileWidth) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -192,7 +206,7 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isShortLandscape, goToSection, wheelHandlersRef]);
+  }, [isShortLandscape, isMobileWidth, goToSection, wheelHandlersRef]);
 
   // Hash navigation (supports nav links when coming from other pages)
   useEffect(() => {
@@ -247,40 +261,90 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
     }
   }, [currentSection, useJSMode]);
 
-  // Vertical fallback (mobile / short landscape): this mode is a plain
-  // scrolling page with no transform-based positioning, so nav clicks that
-  // update currentSection need to be turned into an actual scroll — nothing
-  // else in this mode reacts to currentSection changes.
+  // Vertical fallback (mobile / short landscape): a plain scrolling page with
+  // no transform-based positioning. Three things move the reader here:
+  //  - arriving from a side-by-side layout mid-visit (the window was resized
+  //    down): hold on the section being read rather than start at the top;
+  //  - a nav click (currentSection changes): scroll there smoothly;
+  //  - the first load: nothing, so the browser's own scroll restoration (or
+  //    a hash link, which moves currentSection) decides.
+  // And the reader's own scrolling updates currentSection, so resizing back
+  // up lands on the section they'd reached.
+  const isVertical = isShortLandscape || isMobileWidth;
+  const hasShownHorizontalRef = useRef(!isVertical);
+  const verticalHoldRef = useRef<ScrollHold | null>(null);
+  const sectionFromScrollRef = useRef<number | null>(null);
   useEffect(() => {
-    if (!(isShortLandscape || isMobileWidth)) return;
-    // Not on first load: the page should open where the browser left it (a
-    // refresh restores the scroll position) rather than jump to the hero. A
-    // hash link on load still works — it moves currentSection, rerunning this.
-    if (!initialPositionDoneRef.current) {
-      initialPositionDoneRef.current = true;
-      return;
-    }
-    const id = SECTION_IDS[currentSection];
+    if (!isVertical) hasShownHorizontalRef.current = true;
+  }, [isVertical]);
+
+  const verticalSectionTop = useCallback((index: number) => {
+    const id = SECTION_IDS[index];
     const target = id ? document.getElementById(id) : null;
-    if (target) {
-      // scrollIntoView's block:'start' aligns the section's top edge with
-      // the viewport's top edge — but the fixed nav bar covers that strip,
-      // so the section heading would land hidden underneath it. Offset by
-      // the nav height plus a little breathing room instead.
-      const navHeight = parseFloat(
-        getComputedStyle(document.documentElement).getPropertyValue('--nav-height')
-      ) || 64;
-      const offset = navHeight + 24;
-      const top = target.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({
-        top,
-        behavior: prefersReducedMotion ? 'auto' : 'smooth',
-      });
-    }
-  }, [currentSection, isShortLandscape, isMobileWidth, prefersReducedMotion]);
+    if (!target || index === 0) return 0;
+    // Offset by the fixed nav bar plus a little breathing room so the
+    // section heading doesn't land hidden underneath it.
+    const navHeight =
+      parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-height')) ||
+      64;
+    return target.getBoundingClientRect().top + window.scrollY - (navHeight + 24);
+  }, []);
+
+  // Swapped in from a side-by-side layout.
+  useEffect(() => {
+    if (!isVertical || !hasShownHorizontalRef.current) return;
+    const target = currentSectionRef.current;
+    const container = document.getElementById(SECTION_IDS[0])?.parentElement?.parentElement ?? null;
+    let tornDown = false;
+    // Section tracking is paused during the hold, so once it ends check
+    // which section the reader is actually on.
+    const syncToScrollPosition = () => {
+      if (tornDown) return;
+      const index = readingSectionIndex(SECTION_IDS.map((id) => document.getElementById(id)));
+      sectionFromScrollRef.current = index;
+      syncSection(index);
+    };
+    // Everything's already loaded mid-visit, so this settles fast.
+    const hold = holdScroll(() => verticalSectionTop(target), container, {
+      maxMs: 1000,
+      onEnd: syncToScrollPosition,
+    });
+    verticalHoldRef.current = hold;
+    return () => {
+      tornDown = true;
+      hold.cancel();
+      verticalHoldRef.current = null;
+    };
+  }, [isVertical, verticalSectionTop, syncSection]);
+
+  // Nav clicks.
+  const lastSectionRef = useRef(currentSection);
+  useEffect(() => {
+    if (currentSection === lastSectionRef.current) return;
+    lastSectionRef.current = currentSection;
+    if (!isVerticalRef.current) return;
+    // Changes that came from the reader's own scrolling need no scroll.
+    if (sectionFromScrollRef.current === currentSection) return;
+    verticalHoldRef.current?.cancel();
+    window.scrollTo({
+      top: verticalSectionTop(currentSection),
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    });
+  }, [currentSection, prefersReducedMotion, verticalSectionTop]);
+
+  // The reader's scrolling moves the current section (see readingSectionIndex).
+  useEffect(() => {
+    if (!isVertical) return;
+    return onWindowScrollFrame(() => {
+      if (verticalHoldRef.current?.active()) return;
+      const index = readingSectionIndex(SECTION_IDS.map((id) => document.getElementById(id)));
+      sectionFromScrollRef.current = index;
+      syncSection(index);
+    });
+  }, [isVertical, syncSection]);
 
   // ─── Short landscape or mobile width → vertical fallback ──────────────────
-  if (isShortLandscape || isMobileWidth) {
+  if (isVertical) {
     return (
       <div className={styles.verticalContainer}>
         {sections.map((section, i) => (

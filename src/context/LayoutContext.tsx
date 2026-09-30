@@ -15,6 +15,8 @@ export interface SubProgress {
 export interface LayoutContextType {
   currentSection: number;
   goToSection: (index: number) => void;
+  /** Record the section the reader has scrolled to, without animating there. */
+  syncSection: (index: number) => void;
   setIsAnimating: (value: boolean) => void;
   isAnimating: boolean;
   sectionCount: number;
@@ -26,6 +28,7 @@ export interface LayoutContextType {
 export const LayoutContext = createContext<LayoutContextType>({
   currentSection: 0,
   goToSection: () => {},
+  syncSection: () => {},
   setIsAnimating: () => {},
   isAnimating: false,
   sectionCount: SECTION_COUNT,
@@ -84,11 +87,20 @@ export const LayoutProvider = ({ children }: { children: ReactNode }) => {
     }, 1500);
   }, []);
 
+  // The stacked (phone) layout is a plain scroll: the reader moves between
+  // sections themselves, so there's nothing to animate or lock.
+  const syncSection = useCallback((index: number) => {
+    if (index < 0 || index >= SECTION_COUNT || index === currentSectionRef.current) return;
+    currentSectionRef.current = index;
+    setCurrentSection(index);
+  }, []);
+
   return (
     <LayoutContext.Provider
       value={{
         currentSection,
         goToSection,
+        syncSection,
         setIsAnimating,
         isAnimating,
         sectionCount: SECTION_COUNT,

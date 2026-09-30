@@ -4,6 +4,11 @@
 // *read back* on a reload or back/forward load, and only for the page that
 // load landed on: clicking around the site afterwards still starts each
 // section fresh.
+//
+// Separately, values saved during the current page view are kept in memory,
+// so a component rebuilt mid-visit — the layout swapping between desktop and
+// stacked as the window is resized — picks up where it was. That memory is
+// dropped as soon as the reader moves to another page.
 
 const VERSION = 1;
 
@@ -41,26 +46,47 @@ const storageKey = (key: string, path = window.location.pathname) =>
 /** True while the page first loaded is still showing and was a reload/back-forward. */
 export const canRestore = () => restoreWindowOpen && window.location.pathname === initialPath;
 
-/** Called on the first in-app route change: later pages start fresh. */
+// This page view's saved values. Checked against the current path on every
+// use, so it empties the moment the route changes — even during the first
+// render of the next page, before any effect has run.
+const memory = new Map<string, string>();
+let memoryPath = initialPath;
+const syncMemoryToPath = () => {
+  if (window.location.pathname !== memoryPath) {
+    memory.clear();
+    memoryPath = window.location.pathname;
+  }
+};
+
+/** Called on in-app route changes: later pages start fresh. */
 export const closeRestoreWindow = () => {
+  syncMemoryToPath();
   if (window.location.pathname !== initialPath) restoreWindowOpen = false;
 };
 
-/** The saved value for `key` on this page, if this load should restore it. */
+/**
+ * The saved value for `key` on this page: from earlier in this page view if
+ * there is one (a component rebuilt by a layout swap), otherwise from storage
+ * if this load was a refresh or back/forward.
+ */
 export const readRestored = <T>(key: string): T | null => {
-  if (!canRestore()) return null;
+  syncMemoryToPath();
   try {
-    const raw = sessionStorage.getItem(storageKey(key));
+    const raw =
+      memory.get(key) ?? (canRestore() ? sessionStorage.getItem(storageKey(key)) : null);
     return raw ? (JSON.parse(raw) as T) : null;
   } catch {
     return null;
   }
 };
 
-/** Save `value` for `key` on this page, for the next reload to pick up. */
+/** Save `value` for `key` on this page: for the rest of this visit, and the next reload. */
 export const saveRestorable = (key: string, value: unknown) => {
+  syncMemoryToPath();
+  const raw = JSON.stringify(value);
+  memory.set(key, raw);
   try {
-    sessionStorage.setItem(storageKey(key), JSON.stringify(value));
+    sessionStorage.setItem(storageKey(key), raw);
   } catch {
     // Storage unavailable (private mode, quota): nothing to restore next time.
   }

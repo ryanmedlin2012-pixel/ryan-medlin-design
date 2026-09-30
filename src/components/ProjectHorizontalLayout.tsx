@@ -5,6 +5,11 @@ import { PanelImageSlot } from './PanelImageSlot';
 import type { ImageSlot } from './PanelImageSlot';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { readRestored, saveRestorable } from '../hooks/restore';
+import { holdScroll } from '../hooks/holdScroll';
+import type { ScrollHold } from '../hooks/holdScroll';
+import { readingSectionIndex, onWindowScrollFrame } from '../hooks/readingSection';
+import { anchorAtLine, anchorOffsetFromLine } from '../hooks/readingAnchor';
+import type { ReadingAnchor } from '../hooks/readingAnchor';
 
 export interface PanelData {
   sectionLabel: string;
@@ -200,7 +205,7 @@ const PanelContent = ({ panel, index }: { panel: PanelData; index: number }) => 
       : styles.panelInner;
   return (
     <div ref={containerRef} className={innerClass} data-layout={panel.layout ?? 'default'}>
-      <div ref={textColumnRef} className={styles.textColumn}>
+      <div ref={textColumnRef} className={styles.textColumn} data-text-column>
         <span className={styles.sectionLabel}>{panel.sectionLabel}</span>
         {index === 0 ? (
           <h1
@@ -219,7 +224,9 @@ const PanelContent = ({ panel, index }: { panel: PanelData; index: number }) => 
             {panel.heading}
           </h2>
         )}
-        <div className={styles.textContent}>{panel.content}</div>
+        <div className={styles.textContent} data-section-text>
+              {panel.content}
+            </div>
       </div>
       <div
         ref={imageColumnRef}
@@ -261,6 +268,9 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
   // The first positioning after load jumps straight to the section from the
   // hash; only later moves animate.
   const initialPositionDoneRef = useRef(false);
+  // The snap container last positioned — a new one (the layout just swapped
+  // into snap mode) is put in place instantly rather than animated.
+  const positionedSnapContainerRef = useRef<HTMLDivElement | null>(null);
   const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
   const snapContainerRef = useRef<HTMLDivElement>(null);
   const cooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -303,16 +313,20 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
   // scrolling the window to it (clear of the fixed nav bar).
   const navHeight = () =>
     parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-height')) || 64;
-  // `offset` is how far into the section to land, in px below its top.
+  // Window scroll position that puts `offset` px into section `index` just
+  // below the nav bar.
+  const verticalSectionTop = useCallback((index: number, offset = 0) => {
+    const target = verticalPanelRefs.current[index];
+    if (!target) return window.scrollY;
+    const sectionTop =
+      index === 0 ? 0 : target.getBoundingClientRect().top + window.scrollY - navHeight();
+    return sectionTop + offset;
+  }, []);
   const scrollToVerticalSection = useCallback(
     (index: number, behavior: ScrollBehavior, offset = 0) => {
-      const target = verticalPanelRefs.current[index];
-      if (!target) return;
-      const sectionTop =
-        index === 0 ? 0 : target.getBoundingClientRect().top + window.scrollY - navHeight();
-      window.scrollTo({ top: sectionTop + offset, behavior });
+      window.scrollTo({ top: verticalSectionTop(index, offset), behavior });
     },
-    []
+    [verticalSectionTop]
   );
 
   // A hash typed into the address bar (or a same-page link) moves there.
@@ -370,11 +384,14 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
     if (!useSnapMode || !snapContainerRef.current) return;
     const container = snapContainerRef.current;
     const targetLeft = currentPanel * window.innerWidth;
+    const freshContainer = positionedSnapContainerRef.current !== container;
+    positionedSnapContainerRef.current = container;
     if (Math.abs(container.scrollLeft - targetLeft) < 5) {
       isAnimatingRef.current = false;
+      initialPositionDoneRef.current = true;
       return;
     }
-    const instant = prefersReducedMotion || !initialPositionDoneRef.current;
+    const instant = prefersReducedMotion || !initialPositionDoneRef.current || freshContainer;
     initialPositionDoneRef.current = true;
     container.scrollTo({
       left: targetLeft,
@@ -391,16 +408,180 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
   const isVertical = isShortLandscape || isMobileWidth;
   const isVerticalRef = useRef(isVertical);
   isVerticalRef.current = isVertical;
+  // Whether a side-by-side layout has been shown this visit — only then is
+  // arriving in the stacked layout a swap (the window resized down) rather
+  // than its first load.
+  const hasShownHorizontalRef = useRef(!isVertical);
+  useEffect(() => {
+    if (!isVertical) hasShownHorizontalRef.current = true;
+  }, [isVertical]);
+
+  // ── Keeping the reader's place within a section across a layout swap ──
+  // As the reader scrolls (the window when stacked, a section's text column
+  // side by side), note which text element is at the top of their view. A
+  // swap then puts that same element back at the top in the new layout.
+  const anchorRef = useRef<ReadingAnchor>({ section: currentPanel, element: -1, fraction: 0 });
+  // From the moment a swap renders until the new layout has been positioned,
+  // the page under the reader is in flux — keep the last good anchor.
+  const layoutKind = isVertical ? 'stacked' : 'panels';
+  const renderedLayoutRef = useRef(layoutKind);
+  const swapPendingRef = useRef(false);
+  if (renderedLayoutRef.current !== layoutKind) {
+    renderedLayoutRef.current = layoutKind;
+    swapPendingRef.current = true;
+  }
+  const captureAnchor = useCallback(() => {
+    if (swapPendingRef.current) return;
+    if (isVerticalRef.current) {
+      // The section under the nav bar, and the element at that line.
+      const line = navHeight();
+      const sections = verticalPanelRefs.current;
+      const index = sections.findIndex((s) => s && s.getBoundingClientRect().bottom > line);
+      const section = sections[index];
+      if (section) anchorRef.current = { section: index, ...anchorAtLine(section, line) };
+    } else {
+      const index = currentPanelRef.current;
+      const panel = panelRefs.current[index];
+      const column = panel?.querySelector<HTMLElement>('[data-text-column]');
+      if (!panel || !column) return;
+      anchorRef.current =
+        column.scrollTop < 2
+          ? { section: index, element: -1, fraction: 0 }
+          : { section: index, ...anchorAtLine(panel, column.getBoundingClientRect().top) };
+    }
+  }, []);
+  // Any scroll — the window or a text column (scroll events don't bubble,
+  // so listen in the capture phase) — and any change of panel.
+  useEffect(() => {
+    let frame = 0;
+    const handle = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(captureAnchor);
+    };
+    document.addEventListener('scroll', handle, { capture: true, passive: true });
+    return () => {
+      document.removeEventListener('scroll', handle, { capture: true });
+      cancelAnimationFrame(frame);
+    };
+  }, [captureAnchor]);
+  useEffect(() => {
+    if (!isVertical) captureAnchor();
+  }, [currentPanel, isVertical, captureAnchor]);
+
+  // Swapped into side-by-side panels: scroll the current section's text
+  // column so the anchored element is at its top. Two frames on, so it lands
+  // after the column's own restore of its last scroll position (which runs a
+  // frame after mount — and, in React's dev mode, after a second mount).
+  useEffect(() => {
+    if (isVertical || !swapPendingRef.current) return;
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(apply);
+    });
+    const apply = () => {
+      const index = currentPanelRef.current;
+      const panel = panelRefs.current[index];
+      const column = panel?.querySelector<HTMLElement>('[data-text-column]');
+      const anchor = anchorRef.current;
+      if (panel && column) {
+        const offset =
+          anchor.section === index && anchor.element >= 0
+            ? anchorOffsetFromLine(panel, anchor, column.getBoundingClientRect().top)
+            : null;
+        if (offset !== null) column.scrollTop += offset;
+        else column.scrollTop = 0;
+      }
+      swapPendingRef.current = false;
+      captureAnchor();
+    };
+    return () => cancelAnimationFrame(frame);
+  }, [isVertical, captureAnchor]);
+
+  // Sliding panels are positioned by their transform from the first frame,
+  // so in that mode the initial positioning is already done.
+  useEffect(() => {
+    if (useJSMode) initialPositionDoneRef.current = true;
+  }, [useJSMode]);
+
+  // A layout swap mid-move (e.g. resizing during a slide) never gets the
+  // transition's end event; don't leave navigation locked waiting for it.
+  useEffect(() => {
+    isAnimatingRef.current = false;
+  }, [useJSMode, useSnapMode, isVertical]);
+
   useEffect(() => {
     if (!isVertical) return;
     const sections = verticalPanelRefs.current.filter(Boolean) as HTMLDivElement[];
-    const cleanups: (() => void)[] = [];
-    // While the page above the target section is still loading (images
-    // arriving push it down), hold the target in place rather than letting
-    // it drift — and don't let the drift rewrite the hash. Any real scroll by
-    // the reader, or 2.5s, ends the hold.
-    let settling = false;
-    if (!initialPositionDoneRef.current) {
+    const container = sections[0]?.parentElement ?? null;
+    // While the page is still settling (images arriving above the target, or
+    // the stacked layout having just been built), hold the target in place
+    // rather than letting it drift — and don't let the drift rewrite the
+    // hash. Any real input from the reader, or 2.5s, ends the hold.
+    let hold: ScrollHold | null = null;
+    let holdIsInitial = false;
+    let tornDown = false;
+    const settling = () => hold?.active() ?? false;
+    // Track the section being read as the reader scrolls (paused during a
+    // hold, and re-checked when one ends).
+    const syncToScrollPosition = () => {
+      if (tornDown) return;
+      const index = readingSectionIndex(sections);
+      if (index !== currentPanelRef.current) {
+        currentPanelRef.current = index;
+        setCurrentPanel(index);
+      }
+    };
+    // Save where the reader is: the section whose top has passed under the
+    // nav bar, and how far into it they've scrolled.
+    const savePosition = () => {
+      if (tornDown) return;
+      const line = navHeight() + 1;
+      let index = 0;
+      sections.forEach((section, i) => {
+        if (section.getBoundingClientRect().top <= line) index = i;
+      });
+      const sectionTop =
+        index === 0 ? 0 : sections[index].getBoundingClientRect().top + window.scrollY - navHeight();
+      saveRestorable(VERTICAL_POSITION_KEY, {
+        index,
+        offset: Math.round(window.scrollY - sectionTop),
+      });
+    };
+    const onHoldEnd = () => {
+      syncToScrollPosition();
+      savePosition();
+    };
+    if (initialPositionDoneRef.current) {
+      // Mid-visit swap from a side-by-side layout (the window was resized
+      // down): stay on the section being read instead of starting at the top.
+      // (Otherwise this is React's dev-mode second run of a stacked first
+      // load, which has nothing more to do.)
+      if (hasShownHorizontalRef.current) {
+        const target = currentPanelRef.current;
+        const anchor = anchorRef.current;
+        // The anchored text element just under the nav bar, else the
+        // section's top.
+        const anchoredTop = () => {
+          const section = verticalPanelRefs.current[target];
+          const offset =
+            section && anchor.section === target && anchor.element >= 0
+              ? anchorOffsetFromLine(section, anchor, navHeight())
+              : null;
+          return offset !== null ? window.scrollY + offset : verticalSectionTop(target);
+        };
+        // Everything's already loaded mid-visit, so this settles fast.
+        hold = holdScroll(anchoredTop, container, {
+          maxMs: 1000,
+          onEnd: () => {
+            if (tornDown) return;
+            swapPendingRef.current = false;
+            onHoldEnd();
+            captureAnchor();
+          },
+        });
+      } else {
+        swapPendingRef.current = false;
+      }
+    } else {
       initialPositionDoneRef.current = true;
       // On a refresh, return to the exact spot saved as the reader scrolled
       // (it also tracks moves made by typing a hash, so it's never staler
@@ -412,79 +593,37 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
       const target = savedIndex ?? fromHash;
       const offset = savedIndex !== null ? Math.max(0, saved!.offset) : 0;
       if (target > 0 || offset > 0) {
-        settling = true;
         currentPanelRef.current = target;
         if (target !== fromHash) setCurrentPanel(target);
-        const hold = () => {
-          if (settling) scrollToVerticalSection(target, 'instant', offset);
-        };
-        hold();
-        const resizeObserver = new ResizeObserver(hold);
-        const container = sections[0]?.parentElement;
-        if (container) resizeObserver.observe(container);
-        const userEvents = ['wheel', 'touchstart', 'keydown', 'mousedown'] as const;
-        const stop = () => {
-          settling = false;
-          resizeObserver.disconnect();
-          userEvents.forEach((type) => window.removeEventListener(type, stop));
-        };
-        userEvents.forEach((type) => window.addEventListener(type, stop, { passive: true }));
-        const timer = setTimeout(stop, 2500);
-        cleanups.push(() => {
-          // Torn down mid-hold (React dev mode runs effects twice, or a
-          // layout mode switch): let the next run start the hold again.
-          if (settling) initialPositionDoneRef.current = false;
-          clearTimeout(timer);
-          stop();
+        hold = holdScroll(() => verticalSectionTop(target, offset), container, {
+          onEnd: onHoldEnd,
         });
+        holdIsInitial = true;
       }
     }
-    // A section counts as current once it crosses a line 30% down the screen.
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (settling) return;
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const index = sections.indexOf(entry.target as HTMLDivElement);
-          if (index !== -1 && index !== currentPanelRef.current) {
-            currentPanelRef.current = index;
-            setCurrentPanel(index);
-          }
-        });
-      },
-      { rootMargin: '-30% 0px -69% 0px' }
-    );
-    sections.forEach((section) => observer.observe(section));
+    const stopTracking = onWindowScrollFrame(() => {
+      if (!settling()) syncToScrollPosition();
+    });
 
-    // Save where the reader is: the section whose top has passed under the
-    // nav bar, and how far into it they've scrolled.
     let saveTimer: ReturnType<typeof setTimeout> | undefined;
     const handleScroll = () => {
-      if (settling) return;
+      if (settling()) return;
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => {
-        const line = navHeight() + 1;
-        let index = 0;
-        sections.forEach((section, i) => {
-          if (section.getBoundingClientRect().top <= line) index = i;
-        });
-        const sectionTop =
-          index === 0 ? 0 : sections[index].getBoundingClientRect().top + window.scrollY - navHeight();
-        saveRestorable(VERTICAL_POSITION_KEY, {
-          index,
-          offset: Math.round(window.scrollY - sectionTop),
-        });
-      }, 150);
+      saveTimer = setTimeout(savePosition, 150);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
-      observer.disconnect();
+      stopTracking();
       window.removeEventListener('scroll', handleScroll);
       clearTimeout(saveTimer);
-      cleanups.forEach((cleanup) => cleanup());
+      // Torn down mid-hold (React dev mode runs effects twice): let the next
+      // run start the initial hold again rather than treat it as a swap.
+      if (holdIsInitial && settling()) initialPositionDoneRef.current = false;
+      tornDown = true;
+      hold?.cancel();
     };
-  }, [isVertical, scrollToVerticalSection]);
+  }, [isVertical, verticalSectionTop, captureAnchor]);
 
   // Snap mode: sync currentPanel on manual swipe
   useEffect(() => {
@@ -557,7 +696,10 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
 
   // Keyboard navigation
   useEffect(() => {
-    if (isShortLandscape) return;
+    // The stacked layout is an ordinary scrolling page: leave the arrow keys
+    // to scroll it (and section tracking to follow), rather than turning
+    // them into panel moves that don't scroll anything.
+    if (isShortLandscape || isMobileWidth) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return;
@@ -580,7 +722,7 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isShortLandscape, goToPanel]);
+  }, [isShortLandscape, isMobileWidth, goToPanel]);
 
   // Focus management: move focus to panel heading after transition
   useEffect(() => {
@@ -627,7 +769,9 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
             ) : (
               <h2 className={styles.panelHeading}>{panel.heading}</h2>
             )}
-            <div className={styles.textContent}>{panel.content}</div>
+            <div className={styles.textContent} data-section-text>
+              {panel.content}
+            </div>
             <PanelImageSlot slot={panel.imageSlot} />
           </div>
         ))}
