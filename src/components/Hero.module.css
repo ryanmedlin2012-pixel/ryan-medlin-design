@@ -1,9 +1,11 @@
 .hero {
-  /* Neutral greys only: the section's one colour is its call to action. */
+  /* Neutral greys only: the section's one colour is its call to action.
+     Screened back — a narrow band of light greys, low in contrast — so the
+     ground sits quietly behind the text's fills. */
   background:
-    radial-gradient(ellipse 130% 85% at 88% 8%, rgba(255, 255, 255, 0.35) 0%, transparent 55%),
-    radial-gradient(ellipse 120% 90% at 8% 96%, rgba(0, 0, 0, 0.05) 0%, transparent 55%),
-    radial-gradient(ellipse 200% 200% at 35% 40%, #fefefe 0%, #e8e8e8 22%, #b8b8b8 48%, #e0e0e0 76%, #f0f0f0 100%);
+    radial-gradient(ellipse 130% 85% at 88% 8%, rgba(255, 255, 255, 0.3) 0%, transparent 55%),
+    radial-gradient(ellipse 120% 90% at 8% 96%, rgba(0, 0, 0, 0.025) 0%, transparent 55%),
+    radial-gradient(ellipse 200% 200% at 35% 40%, #f7f7f7 0%, #efefef 22%, #dedede 48%, #eaeaea 76%, #f1f1f1 100%);
   color: #39a503;
   height: 100%;
   display: flex;

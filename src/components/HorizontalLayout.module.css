@@ -40,6 +40,13 @@
   overflow-x: hidden;
 }
 
+/* The hero's frame (the first section's) is squarer than the others', with
+   no outline. */
+.panelFrameHero {
+  border: none;
+  border-radius: 4px;
+}
+
 /* ── CSS snap mode: touch / reduced-motion ────────────────────────────── */
 
 .snapContainer {

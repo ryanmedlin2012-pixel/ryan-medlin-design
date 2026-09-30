@@ -400,7 +400,11 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
               role="region"
               aria-label={SECTION_LABELS[i]}
             >
-              <div className={styles.panelFrame}>
+              <div
+                className={
+                  i === 0 ? `${styles.panelFrame} ${styles.panelFrameHero}` : styles.panelFrame
+                }
+              >
                 {section}
               </div>
             </div>

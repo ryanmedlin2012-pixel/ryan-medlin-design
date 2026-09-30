@@ -9,8 +9,8 @@ import { useOrbField } from '../hooks/useOrbField';
 // look is CSS; the movement is useOrbField. Still for readers who prefer
 // reduced motion.
 //
-// A light lo-fi treatment gives it an old-school digital touch; add
-// ?lofi=<name> to the URL to compare the options (see LOFI_STYLES).
+// Smooth by default; add ?lofi=<name> to the URL to try an old-school
+// digital treatment (see LOFI_STYLES).
 
 type Tone = 'dark' | 'mid' | 'light' | 'pale';
 
@@ -56,7 +56,7 @@ const loadOrbs: Orb[] = SIZES.map((size, i) => ({
  */
 const LOFI_STYLES = ['stepped', 'pixel', 'smooth'] as const;
 type LofiStyle = (typeof LOFI_STYLES)[number];
-const DEFAULT_LOFI: LofiStyle = 'stepped';
+const DEFAULT_LOFI: LofiStyle = 'smooth';
 
 const lofiStyle = ((): LofiStyle => {
   const requested = new URLSearchParams(window.location.search).get('lofi');

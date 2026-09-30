@@ -11,7 +11,8 @@
   --s: clamp(120px, 21vmin, 260px);
   /* How strongly the whole layer shows over the hero: 1 = fully, lower lets
      it recede into the background. */
-  --presence: 0.9;
+  /* Screened back to faint lines, matching the washed-out background. */
+  --presence: 0.5;
   opacity: var(--presence);
 }
 

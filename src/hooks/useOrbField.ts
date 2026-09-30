@@ -10,6 +10,12 @@ import type { RefObject } from 'react';
 // blob squish: it squashes along the line of impact and wobbles back into
 // shape like jelly, more for harder hits.
 //
+// Blobs bounce the moment their outer outlines meet: each frame reads every
+// blob's current morph (the CSS animation's rotate/squash) and squish, and
+// works out how far its edge reaches toward each neighbour. Motion is
+// scaled by the real time between frames, so it runs at the same pace — and
+// as smoothly — on any display.
+//
 // Positions and squish are applied with the CSS `translate` and `scale`
 // properties, so they combine with the blobs' morph animation (which uses
 // `transform`). The loop pauses
@@ -31,10 +37,10 @@ const TUNING = {
   reach: 100,
   /** Push strength at the blob's edge (px/frame²), fading to 0 at `reach`. */
   push: 0.55,
-  /** Share of the blobs' diameter treated as solid when they meet — a little
-      under 1, so soft outlines can touch before bouncing. */
-  solidity: 0.94,
-  /** Grid positions snap to under a lo-fi treatment (px). */
+  /** Extra space kept between outlines when they meet (px) — covers the
+      lopsided corners bulging slightly past the smooth shape reach() uses. */
+  contactMargin: 1,
+  /** Grid positions snap to under the stepped and pixel treatments (px). */
   lofiSnap: 2,
   /** Squish per unit of impact speed. */
   squishKick: 0.09,
@@ -47,7 +53,10 @@ const TUNING = {
 
 interface Body {
   el: HTMLElement;
+  /** Radius to the outer edge of the outline, before morph and squish. */
   r: number;
+  /** The morph animation's current transform (a, b, c, d of its matrix). */
+  morph: [number, number, number, number];
   mass: number;
   /** Centre, in hero coordinates. */
   x: number;
@@ -60,6 +69,27 @@ interface Body {
   /** Whether the last impact came mostly from the side (else from above/below). */
   squishSideways: boolean;
 }
+
+/** Squish scale factors (x, y) for a blob's current squish. */
+const squishScale = (b: Body): [number, number] => {
+  const along = 1 - b.squish;
+  const across = 1 + b.squish * 0.85;
+  return b.squishSideways ? [along, across] : [across, along];
+};
+
+/**
+ * How far a blob's outline reaches from its centre in direction (nx, ny):
+ * its outer radius through the squish and the morph. For a circle under a
+ * linear transform M that's |Mᵀ n| — exact for the transform, a touch under
+ * for the outline's lopsided corners.
+ */
+const reach = (b: Body, nx: number, ny: number) => {
+  const [kx, ky] = squishScale(b);
+  const sx = nx * kx;
+  const sy = ny * ky;
+  const [a, bb, c, d] = b.morph;
+  return b.r * Math.hypot(a * sx + bb * sy, c * sx + d * sy);
+};
 
 /** Squish a blob with a hit of `speed` along direction (nx, ny). */
 const jolt = (b: Body, speed: number, nx: number, ny: number) => {
@@ -74,7 +104,7 @@ export const useOrbField = (layerRef: RefObject<HTMLElement | null>) => {
     if (!layer || !hero) return;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const lofi = layer.dataset.lofi;
-    const snap = lofi && lofi !== 'smooth' ? TUNING.lofiSnap : 0;
+    const snap = lofi === 'stepped' || lofi === 'pixel' ? TUNING.lofiSnap : 0;
 
     let width = hero.clientWidth;
     let height = hero.clientHeight;
@@ -87,12 +117,13 @@ export const useOrbField = (layerRef: RefObject<HTMLElement | null>) => {
     const bodies: Body[] = Array.from(layer.querySelectorAll<HTMLElement>('span'))
       .filter((el) => getComputedStyle(el).display !== 'none')
       .map((el) => {
-        const r = (el.offsetWidth / 2) * TUNING.solidity;
+        const r = el.offsetWidth / 2;
         const angle = Math.random() * Math.PI * 2;
         const speed = TUNING.cruise * (0.6 + Math.random() * 0.8);
         return {
           el,
           r,
+          morph: [1, 0, 0, 1] as [number, number, number, number],
           mass: r * r,
           x: 0,
           y: 0,
@@ -134,23 +165,39 @@ export const useOrbField = (layerRef: RefObject<HTMLElement | null>) => {
         b.el.style.translate = `${x.toFixed(2)}px ${y.toFixed(2)}px`;
         // Flatten along the impact axis, bulging a little the other way.
         const squash = b.squish;
-        const along = (1 - squash).toFixed(3);
-        const across = (1 + squash * 0.85).toFixed(3);
-        b.el.style.scale =
-          Math.abs(squash) < 0.002 ? '' : b.squishSideways ? `${along} ${across}` : `${across} ${along}`;
+        const [kx, ky] = squishScale(b);
+        b.el.style.scale = Math.abs(squash) < 0.002 ? '' : `${kx.toFixed(3)} ${ky.toFixed(3)}`;
       }
     };
 
-    const step = () => {
+    let lastTime = 0;
+    const step = (time: number) => {
+      // Frames since the last step (1 at 60fps; 0.5 at 120fps), so motion
+      // keeps the same pace on any display and through a dropped frame.
+      const dt = lastTime ? Math.min(3, Math.max(0.25, (time - lastTime) / (1000 / 60))) : 1;
+      lastTime = time;
+
+      // Where each blob's outline is right now: read its morph animation's
+      // current transform (reads first, before this frame's writes).
+      for (const b of bodies) {
+        const t = getComputedStyle(b.el).transform;
+        if (t && t !== 'none') {
+          const m = new DOMMatrixReadOnly(t);
+          b.morph = [m.a, m.b, m.c, m.d];
+        } else {
+          b.morph = [1, 0, 0, 1];
+        }
+      }
+
       for (const b of bodies) {
         // The pointer pushes away, harder the closer it is.
         if (pointer) {
           const dx = b.x - pointer.x;
           const dy = b.y - pointer.y;
           const dist = Math.hypot(dx, dy) || 0.001;
-          const reach = b.r + TUNING.reach;
-          if (dist < reach) {
-            const strength = TUNING.push * (1 - dist / reach);
+          const range = b.r + TUNING.reach;
+          if (dist < range) {
+            const strength = TUNING.push * (1 - dist / range) * dt;
             b.vx += (dx / dist) * strength;
             b.vy += (dy / dist) * strength;
             jolt(b, strength * 0.6, dx / dist, dy / dist);
@@ -158,18 +205,19 @@ export const useOrbField = (layerRef: RefObject<HTMLElement | null>) => {
         }
         // Ease back toward cruising speed, keeping direction.
         const speed = Math.hypot(b.vx, b.vy) || 0.001;
-        const target = speed + (TUNING.cruise - speed) * TUNING.settle;
-        const capped = Math.min(target, TUNING.maxSpeed);
-        b.vx = (b.vx / speed) * capped;
-        b.vy = (b.vy / speed) * capped;
-        b.x += b.vx;
-        b.y += b.vy;
+        const ease = 1 - Math.pow(1 - TUNING.settle, dt);
+        const target = Math.min(speed + (TUNING.cruise - speed) * ease, TUNING.maxSpeed);
+        b.vx = (b.vx / speed) * target;
+        b.vy = (b.vy / speed) * target;
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
         // Bounce off the hero's edges, allowing a partial slip past them.
-        const bleed = b.r * 2 * TUNING.edgeBleed;
-        const minX = b.r - bleed;
-        const maxX = width - b.r + bleed;
-        const minY = b.r - bleed;
-        const maxY = height - b.r + bleed;
+        const rx = reach(b, 1, 0);
+        const ry = reach(b, 0, 1);
+        const minX = rx - rx * 2 * TUNING.edgeBleed;
+        const maxX = width - rx + rx * 2 * TUNING.edgeBleed;
+        const minY = ry - ry * 2 * TUNING.edgeBleed;
+        const maxY = height - ry + ry * 2 * TUNING.edgeBleed;
         if (b.x < minX || b.x > maxX) {
           jolt(b, Math.abs(b.vx), 1, 0);
           b.x = b.x < minX ? minX : maxX;
@@ -182,7 +230,8 @@ export const useOrbField = (layerRef: RefObject<HTMLElement | null>) => {
         }
       }
 
-      // Blobs that meet bounce apart, as if they had weight.
+      // Blobs bounce apart the moment their outlines meet, as if they had
+      // weight.
       for (let i = 0; i < bodies.length; i++) {
         for (let j = i + 1; j < bodies.length; j++) {
           const a = bodies[i];
@@ -190,12 +239,14 @@ export const useOrbField = (layerRef: RefObject<HTMLElement | null>) => {
           const dx = b.x - a.x;
           const dy = b.y - a.y;
           const dist = Math.hypot(dx, dy) || 0.001;
-          const overlap = a.r + b.r - dist;
-          if (overlap <= 0) continue;
+          // Quick reject: too far apart to touch even at their largest.
+          if (dist > (a.r + b.r) * 1.3) continue;
           const nx = dx / dist;
           const ny = dy / dist;
+          const overlap = reach(a, nx, ny) + reach(b, nx, ny) + TUNING.contactMargin - dist;
+          if (overlap <= 0) continue;
           const total = a.mass + b.mass;
-          // Separate them, the lighter one moving further.
+          // Set them edge to edge, the lighter one moving further.
           a.x -= nx * overlap * (b.mass / total);
           a.y -= ny * overlap * (b.mass / total);
           b.x += nx * overlap * (a.mass / total);
@@ -216,8 +267,11 @@ export const useOrbField = (layerRef: RefObject<HTMLElement | null>) => {
 
       // Squished blobs spring back, overshooting a little — a jelly wobble.
       for (const b of bodies) {
-        b.squishV += -b.squish * TUNING.squishSpring - b.squishV * TUNING.squishDamping;
-        b.squish = Math.max(-TUNING.maxSquish, Math.min(TUNING.maxSquish, b.squish + b.squishV));
+        b.squishV += (-b.squish * TUNING.squishSpring - b.squishV * TUNING.squishDamping) * dt;
+        b.squish = Math.max(
+          -TUNING.maxSquish,
+          Math.min(TUNING.maxSquish, b.squish + b.squishV * dt)
+        );
       }
 
       render();
@@ -232,6 +286,8 @@ export const useOrbField = (layerRef: RefObject<HTMLElement | null>) => {
     const stop = () => {
       cancelAnimationFrame(frame);
       frame = 0;
+      // Don't treat the pause as one long frame when it resumes.
+      lastTime = 0;
     };
 
     render();
@@ -268,7 +324,7 @@ export const useOrbField = (layerRef: RefObject<HTMLElement | null>) => {
       for (const b of bodies) {
         b.x *= newWidth / width;
         b.y *= newHeight / height;
-        b.r = (b.el.offsetWidth / 2) * TUNING.solidity;
+        b.r = b.el.offsetWidth / 2;
         b.mass = b.r * b.r;
       }
       width = newWidth;
