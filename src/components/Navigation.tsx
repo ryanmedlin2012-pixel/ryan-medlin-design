@@ -29,7 +29,16 @@ export const Navigation: React.FC = () => {
   const { goToSection } = useLayout();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  // The Projects panel (desktop). This one state opens it and turns its
+  // chevron, so the two always agree. A mouse opens it by hovering ('hover':
+  // it closes again as the pointer leaves); clicking the chevron, or using
+  // it from the keyboard or by touch, opens it until it's dismissed
+  // ('pinned').
+  const [projectsPanel, setProjectsPanel] = useState<'hover' | 'pinned' | null>(null);
+  const projectsOpen = projectsPanel !== null;
+  const setProjectsOpen = (open: boolean) => setProjectsPanel(open ? 'pinned' : null);
   const navRef = useRef<HTMLElement>(null);
+  const projectsToggleRef = useRef<HTMLButtonElement>(null);
   const isHomePage = pathname === '/';
 
   // Close menu on outside click
@@ -37,6 +46,7 @@ export const Navigation: React.FC = () => {
     const handleClickOutside = (e: MouseEvent) => {
       if (navRef.current && !navRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
+        setProjectsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -44,7 +54,10 @@ export const Navigation: React.FC = () => {
   }, []);
 
   // Close menu on route change
-  useEffect(() => setMenuOpen(false), [pathname]);
+  useEffect(() => {
+    setMenuOpen(false);
+    setProjectsOpen(false);
+  }, [pathname]);
 
   const handleSectionLink = (
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -98,7 +111,28 @@ export const Navigation: React.FC = () => {
               Home
             </a>
           </li>
-          <li className={styles.dropdown}>
+          <li
+            className={`${styles.dropdown} ${projectsOpen ? styles.dropdownOpen : ''}`}
+            // Escape closes it, back to the toggle; so does focus moving on
+            // past it.
+            onPointerEnter={(e) => {
+              if (e.pointerType === 'mouse') setProjectsPanel((p) => p ?? 'hover');
+            }}
+            onPointerLeave={(e) => {
+              if (e.pointerType === 'mouse') setProjectsPanel((p) => (p === 'hover' ? null : p));
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape' && projectsOpen) {
+                setProjectsOpen(false);
+                projectsToggleRef.current?.focus();
+              }
+            }}
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                setProjectsOpen(false);
+              }
+            }}
+          >
             <a
               href="/#projects"
               onClick={(e) => handleSectionLink(e, '/#projects')}
@@ -106,14 +140,34 @@ export const Navigation: React.FC = () => {
             >
               Projects
             </a>
-            <div className={styles.dropdownMenu}>
+            {/* Opens the list without leaving the page (the link above goes
+                to the Projects section). */}
+            <button
+              ref={projectsToggleRef}
+              type="button"
+              className={styles.dropdownToggle}
+              aria-label="Project list"
+              aria-expanded={projectsOpen}
+              aria-controls="nav-projects"
+              // Opened by hovering, a click keeps it open (the pointer is
+              // already there, so it wants the list); otherwise it toggles.
+              onClick={() => setProjectsPanel((p) => (p === 'hover' ? 'pinned' : p ? null : 'pinned'))}
+            >
+              <svg viewBox="0 0 10 6" width="10" height="6" aria-hidden="true" focusable="false">
+                <path d="M1 1l4 4 4-4" />
+              </svg>
+            </button>
+            <div id="nav-projects" className={styles.dropdownMenu}>
               {projects.map((project) => (
                 <Link
                   key={project.path}
                   to={project.path}
                   className={styles.dropdownItem}
                   style={{ textDecoration: 'none', color: 'inherit' }}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setProjectsOpen(false);
+                  }}
                 >
                   {project.title}
                 </Link>

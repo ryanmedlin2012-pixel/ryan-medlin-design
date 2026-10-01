@@ -60,6 +60,8 @@
 .links {
   list-style: none;
   display: flex;
+  /* On one line, whatever their heights (Projects has its chevron). */
+  align-items: center;
   gap: 2rem;
   margin: 0;
   padding: 0;
@@ -85,6 +87,8 @@
 
 .dropdown {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .dropdown::before {
@@ -101,10 +105,48 @@
   align-items: center;
 }
 
+/* The chevron beside "Projects" that opens the list (for keyboard and
+   touch). A 24px target around a small chevron, tucked up to the word. */
+.dropdownToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: 2px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: #5a5a5a;
+  cursor: pointer;
+}
+
+.dropdownToggle svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s ease;
+}
+
+.dropdownOpen .dropdownToggle svg {
+  transform: rotate(180deg);
+}
+
+.dropdownToggle:focus-visible {
+  outline: 2px solid #5a5a5a;
+  outline-offset: 0;
+}
+
 .dropdownMenu {
   position: absolute;
   top: 100%;
-  left: -12px;
+  /* Hangs from the right edge of "Projects" and its chevron (12px past it,
+     as breathing room), opening leftward: the nav sits a fixed distance
+     from the window's right edge, so this always fits, at every width. */
+  right: -12px;
   background-color: #ffffff;
   border-radius: 4px;
   min-width: 320px;
@@ -119,7 +161,9 @@
   margin-top: 12px;
 }
 
-.dropdown:hover .dropdownMenu {
+/* Open — by hovering, the chevron, or the keyboard (Navigation keeps one
+   state for all of them, which also turns the chevron). */
+.dropdownOpen .dropdownMenu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -172,6 +216,7 @@
     background-color: #ffffff;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     flex-direction: column;
+    align-items: stretch;
     gap: 0;
     padding: 0.5rem 0;
     /* Hidden by default */
@@ -193,6 +238,16 @@
   .links a {
     display: block;
     padding: 0.875rem 1.5rem;
+  }
+
+  /* In the phone menu the list is always shown, under "Projects": no
+     toggle. */
+  .dropdown {
+    display: block;
+  }
+
+  .dropdownToggle {
+    display: none;
   }
 
   .dropdown .dropdownMenu {

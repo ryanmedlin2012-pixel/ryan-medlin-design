@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import './App.css'
 import { LayoutProvider } from './context/LayoutContext'
@@ -24,10 +24,22 @@ import { ProjectEleven } from './pages/ProjectEleven'
 
 function HomePage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { goToSection } = useLayout();
 
+  // Arriving from another page at a section (the nav's section links pass
+  // it along). It's a one-time instruction: cleared from this history entry
+  // as soon as it's read, or a later refresh would read it again and jump
+  // back to that section, wherever the reader had moved to since. (Where
+  // they were is remembered separately, for refreshes and Back/Forward.)
   useEffect(() => {
     const state = location.state as { section?: number } | null;
+    if (state?.section !== undefined) {
+      navigate(
+        { pathname: location.pathname, search: location.search, hash: location.hash },
+        { replace: true, state: null }
+      );
+    }
     if (state?.section !== undefined && state.section > 0) {
       const idx = state.section;
       // Defer until after HorizontalLayout has mounted and registered handlers
