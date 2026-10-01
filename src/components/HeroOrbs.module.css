@@ -46,22 +46,40 @@
   will-change: border-radius, transform;
 }
 
-/* ── Tones: stroke greys ───────────────────────────────────────────────── */
+/* ── Colour: a hue, then how strong a tint of it ───────────────────────── */
+/* Each blob is drawn in the site's green (#39a503) or brown (#362828), as
+   one of four tints (the colour mixed with white). The brown's deepest tint
+   is lifted a quarter of the way to white: at full strength it's near-black
+   and would outweigh the green. */
+
+.green {
+  --tint-dark: #39a503;
+  --tint-mid: #6abc42;
+  --tint-light: #92ce74;
+  --tint-pale: #bae0a7;
+}
+
+.brown {
+  --tint-dark: #685e5e;
+  --tint-mid: #908989;
+  --tint-light: #b9b4b4;
+  --tint-pale: #d7d4d4;
+}
 
 .dark {
-  --stroke: #6e6e6e;
+  --stroke: var(--tint-dark);
 }
 
 .mid {
-  --stroke: #929292;
+  --stroke: var(--tint-mid);
 }
 
 .light {
-  --stroke: #b4b4b4;
+  --stroke: var(--tint-light);
 }
 
 .pale {
-  --stroke: #cdcdcd;
+  --stroke: var(--tint-pale);
 }
 
 /* ── Organic, squishy outlines ─────────────────────────────────────────── */

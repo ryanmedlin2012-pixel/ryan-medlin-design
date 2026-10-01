@@ -1,17 +1,27 @@
 .hero {
-  /* Neutral greys only: the section's one colour is its call to action.
-     Screened back — a narrow band of light greys, low in contrast — so the
-     ground sits quietly behind the text's fills. */
+  /* A lighter, richer take on the first featured project's image ground
+     (FeaturedProjects .cardVisualDimmed): the same field, lit from the top
+     right and bottom left by glows, but kept near white and warmed toward
+     the site's brown, with only a hint of green. More going on in it than
+     the original — a brown warmth top left and low on the right, a faint
+     green sweep across, and a soft lift behind the text — but every layer
+     is faint, so the text's fills and the forms over it stay the focus. */
   background:
-    radial-gradient(ellipse 130% 85% at 88% 8%, rgba(255, 255, 255, 0.3) 0%, transparent 55%),
-    radial-gradient(ellipse 120% 90% at 8% 96%, rgba(0, 0, 0, 0.025) 0%, transparent 55%),
-    radial-gradient(ellipse 200% 200% at 35% 40%, #f7f7f7 0%, #efefef 22%, #dedede 48%, #eaeaea 76%, #f1f1f1 100%);
+    radial-gradient(ellipse 34% 30% at 50% 47%, rgba(255, 255, 255, 0.5) 0%, transparent 70%),
+    radial-gradient(ellipse 72% 58% at 88% 8%, rgba(157, 236, 83, 0.08) 0%, transparent 62%),
+    radial-gradient(ellipse 62% 70% at 6% 94%, rgba(84, 193, 5, 0.05) 0%, transparent 62%),
+    radial-gradient(ellipse 50% 44% at 76% 90%, rgba(54, 40, 40, 0.06) 0%, transparent 66%),
+    radial-gradient(ellipse 52% 48% at 10% 10%, rgba(54, 40, 40, 0.08) 0%, transparent 66%),
+    linear-gradient(118deg, transparent 28%, rgba(157, 236, 83, 0.025) 48%, transparent 68%),
+    radial-gradient(ellipse 200% 200% at 35% 40%, #fcfbfa 0%, #f3f0ef 22%, #e4dfdd 48%, #eeeae9 76%, #f5f2f1 100%);
   color: #39a503;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Holds the decorative orbs (HeroOrbs), clipped to the hero. */
+  /* Fills its panel, which is the whole viewport below the nav (see
+     HorizontalLayout's full-bleed sections). Holds the decorative orbs
+     (HeroOrbs), clipped to the hero. */
   position: relative;
   overflow: hidden;
 }
@@ -33,7 +43,9 @@
 
 .title {
   font-size: 2.8rem;
-  margin: 0 0 1.5rem 0;
+  /* No margin: the space below it belongs to what comes after (.after), so
+     that on its own it sits exactly in the middle. */
+  margin: 0;
   font-weight: 400;
   /* Room between wrapped lines so each line's fill stays separate. */
   line-height: 1.5;
@@ -52,6 +64,8 @@
   margin-left: auto;
   margin-right: auto;
   line-height: 2rem;
+  /* Even lines, rather than a long one and a short one. */
+  text-wrap: balance;
 }
 
 /* A fill behind each line of text, hugging it (box-decoration-break gives
@@ -79,6 +93,180 @@
 .subtitle .fill {
   padding-block: 0.3em;
   padding-block: calc((1lh - 1.15em) / 2 + 0.5px);
+}
+
+/* ── Typed heading (HeroTitle) ─────────────────────────────────────────── */
+
+/* The live animation sits exactly over an invisible copy of the finished
+   heading, which sets the size — so nothing below moves as it types. */
+.typedTitle {
+  display: grid;
+  justify-items: center;
+}
+
+.typedGhost,
+.typedLive {
+  grid-area: 1 / 1;
+}
+
+.typedGhost {
+  visibility: hidden;
+}
+
+.typedLive {
+  align-self: start;
+}
+
+/* The word being replaced, always bold. Carries the strike, drawn over the
+   word. An inline block, so the strike can size itself to the word (a single
+   word never wraps). */
+.typedWord {
+  position: relative;
+  display: inline-block;
+  font-weight: 700;
+}
+
+/* The final word's finish (see HeroTitle): leaning to the italic's angle,
+   then the bold italic itself. */
+.wordLeaning {
+  /* Its lean (and narrowing) is set by HeroTitle; leaning from the
+     baseline's left end, as italic letters do. */
+  white-space: nowrap;
+  transform-origin: 0 80%;
+  transition:
+    transform 160ms cubic-bezier(0.4, 0, 0.6, 1),
+    width 160ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.finalWord {
+  font-weight: 700;
+  font-style: italic;
+}
+
+/* A hand-drawn line through the word: a pen-stroke green, drawn left to
+   right. Sized and freshly wobbled for each word (see HeroTitle). */
+.strike {
+  position: absolute;
+  top: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.strike path {
+  fill: none;
+  stroke: #39a503;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: strikeDraw 260ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes strikeDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* The strike fading out before the word is deleted. */
+.strikeLeaving {
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+
+/* The typing caret. It takes up no width (the negative margin cancels its
+   own), like a real text caret, so moving it between words never shifts the
+   letters. HeroTitle shows and hides it — including its blink, which it keeps
+   in step with everything else. */
+.caret {
+  display: inline-block;
+  width: 0.06em;
+  height: 0.9em;
+  margin-right: -0.06em;
+  vertical-align: -0.08em;
+  background: #362828;
+}
+
+.caretOff {
+  opacity: 0;
+}
+
+/* Read by screen readers, not shown. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The subtitle and button, below the heading. The heading, subtitle and
+   button are centred in the hero as one group (see .hero). While the heading
+   types, this takes no height, so the heading alone is centred; then it
+   opens to its full height, and the group re-centres around all three —
+   the heading easing up — as they come in. */
+.after {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.55s cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+/* (Also opened by focus, should someone tab to the button first.) */
+.afterShown,
+.after:focus-within {
+  grid-template-rows: 1fr;
+}
+
+.afterInner {
+  /* Lets the row close to nothing (its content is invisible until then).
+     The space above the subtitle is its margin, held inside (flow-root),
+     as padding here would keep the row from closing fully. */
+  min-height: 0;
+  display: flow-root;
+}
+
+.afterInner > .subtitle {
+  margin-top: 1.5rem;
+}
+
+/* The subtitle and button come in as the heading finishes typing (see
+   Hero): risen slightly and faded up, the button just after the subtitle.
+   Only their look is held back — the subtitle is read by screen readers
+   from the start, and the button shows at once if it's focused before
+   then. */
+.reveal {
+  opacity: 0;
+}
+
+.revealed,
+.reveal:focus-visible {
+  opacity: 1;
+}
+
+/* A one-off animation rather than a transition, so it leaves nothing behind
+   to slow the button's own hover and press feedback. */
+.revealed {
+  animation: revealIn 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s backwards;
+}
+
+.cta.revealed {
+  animation-delay: 0.35s;
+}
+
+@keyframes revealIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .revealed {
+    animation: none;
+  }
 }
 
 .cta {

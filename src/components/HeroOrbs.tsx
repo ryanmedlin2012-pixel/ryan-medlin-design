@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import styles from './HeroOrbs.module.css';
 import { useOrbField } from '../hooks/useOrbField';
 
-// A field of outlined greyscale blobs filling the hero, drifting and
+// A field of outlined blobs, in tints of the site's green and brown, filling the hero, drifting and
 // bouncing off one another behind the text (whose fills keep the copy
 // legible over them). Each outline squishes as it morphs, and again when it
 // hits something, so it reads as soft and organic rather than geometric. The
@@ -12,9 +12,12 @@ import { useOrbField } from '../hooks/useOrbField';
 // Smooth by default; add ?lofi=<name> to the URL to try an old-school
 // digital treatment (see LOFI_STYLES).
 
+type Hue = 'green' | 'brown';
 type Tone = 'dark' | 'mid' | 'light' | 'pale';
 
 interface Orb {
+  hue: Hue;
+  /** How strong a tint of the hue. */
   tone: Tone;
   /** Width as a multiple of the base size (--s). */
   size: number;
@@ -36,10 +39,12 @@ const SIZES = [
 const between = (min: number, max: number) => min + Math.random() * (max - min);
 const pick = <T,>(options: T[]) => options[Math.floor(Math.random() * options.length)];
 
-// Every load gives each blob a fresh tone, outline and rhythm (the
+// Every load gives each blob a fresh colour, outline and rhythm (the
 // field hook scatters them and sets them moving). Chosen once per page load.
 const loadOrbs: Orb[] = SIZES.map((size, i) => ({
-  // A few pale ones, for air; the rest a random mix of greys.
+  // Green or brown, about half and half; a few pale ones, for air, and the
+  // rest a random mix of tints.
+  hue: pick<Hue>(['green', 'brown']),
   tone: i % 5 === 3 ? 'pale' : pick<Tone>(['dark', 'mid', 'light']),
   size,
   shape: pick<Orb['shape']>([0, 1, 2]),
@@ -65,6 +70,11 @@ const lofiStyle = ((): LofiStyle => {
     ? (requested as LofiStyle)
     : DEFAULT_LOFI;
 })();
+
+const hueClass: Record<Hue, string> = {
+  green: styles.green,
+  brown: styles.brown,
+};
 
 const toneClass: Record<Tone, string> = {
   dark: styles.dark,
@@ -94,7 +104,9 @@ export const HeroOrbs = () => {
       {loadOrbs.map((orb, i) => (
         <span
           key={i}
-          className={`${styles.orb} ${toneClass[orb.tone]} ${shapeClass[orb.shape]}`}
+          className={`${styles.orb} ${hueClass[orb.hue]} ${toneClass[orb.tone]} ${
+            shapeClass[orb.shape]
+          }`}
           style={
             {
               '--size': orb.size,

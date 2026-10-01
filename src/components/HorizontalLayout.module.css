@@ -40,11 +40,18 @@
   overflow-x: hidden;
 }
 
-/* The hero's frame (the first section's) is squarer than the others', with
-   no outline. */
-.panelFrameHero {
+/* A full-bleed section (the hero): the whole viewport below the nav, with no
+   inset, outline or rounding — its own background runs to the window's
+   edges. The section dots float over it. */
+.panel.panelFullBleed {
+  height: 100%;
+  padding: 0;
+}
+
+.panelFrameFullBleed {
+  max-width: none;
   border: none;
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 /* ── CSS snap mode: touch / reduced-motion ────────────────────────────── */
@@ -82,4 +89,18 @@
 
 .verticalContainer {
   padding-top: var(--nav-height, 64px);
+}
+
+/* A full-bleed section fills at least the screen below the nav (and grows if
+   its content needs more). svh: the height with the browser's toolbars
+   showing, so it never runs under them. */
+.verticalFullBleed {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--nav-height, 64px));
+  min-height: calc(100svh - var(--nav-height, 64px));
+}
+
+.verticalFullBleed > * {
+  flex: 1;
 }

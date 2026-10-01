@@ -20,6 +20,11 @@ const TRACK_TRANSITION = 'transform 0.7s cubic-bezier(0.77, 0, 0.175, 1)';
 // (Hero, FeaturedProjects, Skills, Contact), in currentSection order.
 const SECTION_IDS = ['hero', 'projects', 'skills', 'contact'];
 
+// Sections that fill the whole viewport below the nav, edge to edge, rather
+// than sitting in the inset, outlined frame the others use (the hero: its
+// background and forms run to the window's edges).
+const FULL_BLEED_SECTIONS = new Set([0]);
+
 export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
   const {
     currentSection, goToSection, syncSection, wheelHandlersRef, isAnimating, setIsAnimating,
@@ -348,7 +353,9 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
     return (
       <div className={styles.verticalContainer}>
         {sections.map((section, i) => (
-          <div key={i}>{section}</div>
+          <div key={i} className={FULL_BLEED_SECTIONS.has(i) ? styles.verticalFullBleed : undefined}>
+            {section}
+          </div>
         ))}
       </div>
     );
@@ -396,13 +403,17 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
             <div
               key={i}
               ref={(el) => { panelRefs.current[i] = el; }}
-              className={styles.panel}
+              className={
+                FULL_BLEED_SECTIONS.has(i) ? `${styles.panel} ${styles.panelFullBleed}` : styles.panel
+              }
               role="region"
               aria-label={SECTION_LABELS[i]}
             >
               <div
                 className={
-                  i === 0 ? `${styles.panelFrame} ${styles.panelFrameHero}` : styles.panelFrame
+                  FULL_BLEED_SECTIONS.has(i)
+                    ? `${styles.panelFrame} ${styles.panelFrameFullBleed}`
+                    : styles.panelFrame
                 }
               >
                 {section}
