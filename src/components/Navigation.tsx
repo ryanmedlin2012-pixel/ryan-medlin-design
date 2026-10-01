@@ -14,8 +14,14 @@ const projects = [
   { title: 'Asurion Hardware Card', path: '/project/asurion-hardware-card' },
   { title: 'Floating SVA & the Front Door', path: '/project/floating-sva-front-door' },
   { title: 'XDS Design System Contributions', path: '/project/xds-design-system' },
-  { title: 'Scrolling Article — 10-Foot Experience', path: '/project/scrolling-article-10-foot-experience' },
+  {
+    title: 'Scrolling Article — 10-Foot Experience',
+    path: '/project/scrolling-article-10-foot-experience',
+  },
 ];
+
+// The flyout lists the first few; "More projects" shows the rest.
+const PROJECTS_SHOWN = 5;
 
 const SECTION_HASHES: Record<string, number> = {
   '/#hero': 0,
@@ -37,8 +43,18 @@ export const Navigation: React.FC = () => {
   const [projectsPanel, setProjectsPanel] = useState<'hover' | 'pinned' | null>(null);
   const projectsOpen = projectsPanel !== null;
   const setProjectsOpen = (open: boolean) => setProjectsPanel(open ? 'pinned' : null);
+  // The rest of the list, above "More projects"; collapsed again each time
+  // the panel (desktop) or the menu (phone) opens.
+  const [moreProjects, setMoreProjects] = useState(false);
+  useEffect(() => {
+    if (projectsOpen) setMoreProjects(false);
+  }, [projectsOpen]);
+  useEffect(() => {
+    if (menuOpen) setMoreProjects(false);
+  }, [menuOpen]);
   const navRef = useRef<HTMLElement>(null);
   const projectsToggleRef = useRef<HTMLButtonElement>(null);
+  const moreProjectsRef = useRef<HTMLDivElement>(null);
   const isHomePage = pathname === '/';
 
   // Close menu on outside click
@@ -59,10 +75,22 @@ export const Navigation: React.FC = () => {
     setProjectsOpen(false);
   }, [pathname]);
 
-  const handleSectionLink = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    href: string
-  ) => {
+  const projectLink = (project: (typeof projects)[number]) => (
+    <Link
+      key={project.path}
+      to={project.path}
+      className={styles.dropdownItem}
+      style={{ textDecoration: 'none', color: 'inherit' }}
+      onClick={() => {
+        setMenuOpen(false);
+        setProjectsOpen(false);
+      }}
+    >
+      {project.title}
+    </Link>
+  );
+
+  const handleSectionLink = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     const index = SECTION_HASHES[href] ?? 0;
     setMenuOpen(false);
@@ -104,10 +132,7 @@ export const Navigation: React.FC = () => {
           role="list"
         >
           <li>
-            <a
-              href="/#hero"
-              onClick={(e) => handleSectionLink(e, '/#hero')}
-            >
+            <a href="/#hero" onClick={(e) => handleSectionLink(e, '/#hero')}>
               Home
             </a>
           </li>
@@ -151,42 +176,73 @@ export const Navigation: React.FC = () => {
               aria-controls="nav-projects"
               // Opened by hovering, a click keeps it open (the pointer is
               // already there, so it wants the list); otherwise it toggles.
-              onClick={() => setProjectsPanel((p) => (p === 'hover' ? 'pinned' : p ? null : 'pinned'))}
+              onClick={() =>
+                setProjectsPanel((p) => (p === 'hover' ? 'pinned' : p ? null : 'pinned'))
+              }
             >
               <svg viewBox="0 0 10 6" width="10" height="6" aria-hidden="true" focusable="false">
                 <path d="M1 1l4 4 4-4" />
               </svg>
             </button>
             <div id="nav-projects" className={styles.dropdownMenu}>
-              {projects.map((project) => (
-                <Link
-                  key={project.path}
-                  to={project.path}
-                  className={styles.dropdownItem}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                  onClick={() => {
-                    setMenuOpen(false);
-                    setProjectsOpen(false);
+              {/* The list is grouped by discipline (one group so far). */}
+              <div role="group" aria-labelledby="nav-projects-interaction">
+                <div id="nav-projects-interaction" className={styles.groupHeading}>
+                  Interaction
+                </div>
+                {projects.slice(0, PROJECTS_SHOWN).map(projectLink)}
+                {/* The rest open above the control, so it always sits at the
+                    foot of the list it shows and hides. */}
+                <div
+                  id="nav-projects-more"
+                  className={`${styles.moreProjects} ${moreProjects ? styles.moreProjectsOpen : ''}`}
+                >
+                  <div ref={moreProjectsRef} className={styles.moreProjectsInner}>
+                    {projects.slice(PROJECTS_SHOWN).map(projectLink)}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className={styles.moreToggle}
+                  aria-expanded={moreProjects}
+                  aria-controls="nav-projects-more"
+                  onClick={(e) => {
+                    const opening = !moreProjects;
+                    setMoreProjects(opening);
+                    // Using the panel keeps it open, even if a hover opened
+                    // it. (In the phone menu there's no panel to keep.)
+                    setProjectsPanel((p) => (p === 'hover' ? 'pinned' : p));
+                    // From the keyboard (a click with no pointer), opening
+                    // moves to the first project it reveals — they're above
+                    // the control, so Tab alone would skip past them.
+                    if (opening && e.detail === 0) {
+                      requestAnimationFrame(() =>
+                        moreProjectsRef.current?.querySelector('a')?.focus()
+                      );
+                    }
                   }}
                 >
-                  {project.title}
-                </Link>
-              ))}
+                  {moreProjects ? 'Fewer projects' : 'More projects'}
+                  <svg
+                    viewBox="0 0 10 6"
+                    width="10"
+                    height="6"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path d="M1 1l4 4 4-4" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </li>
           <li>
-            <a
-              href="/#skills"
-              onClick={(e) => handleSectionLink(e, '/#skills')}
-            >
+            <a href="/#skills" onClick={(e) => handleSectionLink(e, '/#skills')}>
               Skills
             </a>
           </li>
           <li>
-            <a
-              href="/#contact"
-              onClick={(e) => handleSectionLink(e, '/#contact')}
-            >
+            <a href="/#contact" onClick={(e) => handleSectionLink(e, '/#contact')}>
               Contact
             </a>
           </li>

@@ -188,9 +188,12 @@
   border-bottom: none;
 }
 
-.dropdownItem:hover {
-  background-color: #f8f8f8;
-  color: #6a6a6a;
+/* (Only with a mouse: a tap would leave it highlighted.) */
+@media (hover: hover) {
+  .dropdownItem:hover {
+    background-color: #f8f8f8;
+    color: #6a6a6a;
+  }
 }
 
 .dropdownItem:focus {
@@ -201,6 +204,95 @@
 .dropdownItem:focus-visible {
   box-shadow: inset 0 0 0 2px #5a5a5a;
   outline: none;
+}
+
+/* A group's heading ("Interaction"): a small label over its projects,
+   lined up with their titles. Not a link. */
+.groupHeading {
+  /* Sits a little low, nearer the list it heads. */
+  padding: calc(0.875rem + 8px) 1rem 0 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  /* The site's brown (#362828), lifted to the same darkness as before. */
+  color: #534747;
+  cursor: default;
+}
+
+/* "More projects": a row at the foot of the list, with a chevron that
+   turns as the rest open above it. */
+.moreToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  /* Tucked up under the last project showing (no rule between them). */
+  padding: calc(0.75rem - 4px) 1rem 0.75rem 12px;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #5a5a5a;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* No rule between the last project showing and "More projects": while
+   the rest are closed, that's the last of the first few. (Open, the last of
+   the rest has none already.) */
+.dropdownItem:has(+ .moreProjects:not(.moreProjectsOpen)) {
+  border-bottom: none;
+}
+
+@media (hover: hover) {
+  .moreToggle:hover {
+    background-color: #f8f8f8;
+  }
+}
+
+.moreToggle:focus-visible {
+  box-shadow: inset 0 0 0 2px #5a5a5a;
+  outline: none;
+}
+
+.moreToggle svg {
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s ease;
+}
+
+[aria-expanded='true'].moreToggle svg {
+  transform: rotate(180deg);
+}
+
+/* The rest, opening to their full height (and out of the keyboard's way
+   while closed). */
+.moreProjects {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows 0.3s cubic-bezier(0.3, 0, 0.2, 1),
+    visibility 0s linear 0.3s;
+}
+
+.moreProjectsOpen {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition: grid-template-rows 0.3s cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.moreProjectsInner {
+  min-height: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {
@@ -219,6 +311,11 @@
     align-items: stretch;
     gap: 0;
     padding: 0.5rem 0;
+    /* Scrolls if it's taller than the screen below the nav. */
+    max-height: calc(100vh - var(--nav-height, 64px));
+    max-height: calc(100dvh - var(--nav-height, 64px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
     /* Hidden by default */
     display: none;
   }
@@ -241,13 +338,21 @@
   }
 
   /* In the phone menu the list is always shown, under "Projects": no
-     toggle. */
+     toggle (but the same "More projects"). */
   .dropdown {
     display: block;
   }
 
   .dropdownToggle {
     display: none;
+  }
+
+  .groupHeading {
+    padding: calc(0.875rem + 8px) 1.5rem 0;
+  }
+
+  .moreToggle {
+    padding: calc(0.875rem - 4px) 1.5rem 0.875rem;
   }
 
   .dropdown .dropdownMenu {
@@ -259,5 +364,8 @@
     pointer-events: auto;
     border-top: 1px solid #f0f0f0;
     margin-top: 0;
+    /* The menu itself scrolls, not the list within it. */
+    max-height: none;
+    overflow: visible;
   }
 }
