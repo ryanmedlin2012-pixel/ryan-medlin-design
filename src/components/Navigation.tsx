@@ -23,6 +23,9 @@ const projects = [
 // The flyout lists the first few; "More projects" shows the rest.
 const PROJECTS_SHOWN = 5;
 
+// Graphic design work, by kind. No pages yet, so listed but not linked.
+const graphicDesign = ['Editorial', 'Posters', 'Ephemera'];
+
 const SECTION_HASHES: Record<string, number> = {
   '/#hero': 0,
   '/#projects': 1,
@@ -185,7 +188,7 @@ export const Navigation: React.FC = () => {
               </svg>
             </button>
             <div id="nav-projects" className={styles.dropdownMenu}>
-              {/* The list is grouped by discipline (one group so far). */}
+              {/* The list is grouped by discipline. */}
               <div role="group" aria-labelledby="nav-projects-interaction">
                 <div id="nav-projects-interaction" className={styles.groupHeading}>
                   Interaction
@@ -223,18 +226,33 @@ export const Navigation: React.FC = () => {
                   }}
                 >
                   <span className={styles.moreLabel}>
-                    {moreProjects ? 'Fewer interaction projects' : 'More interaction projects'}
+                    {/* An arrow before the words: down to show more, up to
+                        show fewer. */}
+                    <svg
+                      className={styles.moreArrow}
+                      viewBox="0 0 10 10"
+                      width="10"
+                      height="10"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="M5 1v8M1.5 5.5L5 9l3.5-3.5" />
+                    </svg>
+                    <span className={styles.moreText}>
+                      {moreProjects ? 'fewer interaction projects' : 'more interaction projects'}
+                    </span>
                   </span>
-                  <svg
-                    viewBox="0 0 10 6"
-                    width="10"
-                    height="6"
-                    aria-hidden="true"
-                    focusable="false"
-                  >
-                    <path d="M1 1l4 4 4-4" />
-                  </svg>
                 </button>
+              </div>
+              <div role="group" aria-labelledby="nav-projects-graphic">
+                <div id="nav-projects-graphic" className={styles.groupHeading}>
+                  Graphic design
+                </div>
+                {graphicDesign.map((kind) => (
+                  <div key={kind} className={`${styles.dropdownItem} ${styles.dropdownItemPending}`}>
+                    {kind}
+                  </div>
+                ))}
               </div>
             </div>
           </li>

@@ -51,10 +51,13 @@
 }
 
 .logo {
-  font-size: 1.75rem;
-  font-weight: 900;
+  /* The site's sans (the body's). */
+  font-size: 1.3125rem;
+  font-weight: 600;
+  /* A little nearer the left edge than the nav's padding alone. */
+  margin-left: -6px;
   color: #39a503;
-  font-family: 'Ancizar Serif', serif;
+  font-family: inherit;
 }
 
 .links {
@@ -64,7 +67,12 @@
   align-items: center;
   gap: 2rem;
   margin: 0;
-  padding: 0;
+  /* Desktop: room on the right for the Projects panel, which opens
+     rightward from "Projects". From "Projects" to the end of "Contact" is
+     about 249px; the panel reaches 308px past "Projects" (320px wide, from
+     12px before it). The difference keeps the panel's right edge on the
+     nav's own right margin. (The phone menu resets this.) */
+  padding: 0 59px 0 0;
 }
 
 .links a {
@@ -143,13 +151,13 @@
 .dropdownMenu {
   position: absolute;
   top: 100%;
-  /* Hangs from the right edge of "Projects" and its chevron (12px past it,
-     as breathing room), opening leftward: the nav sits a fixed distance
-     from the window's right edge, so this always fits, at every width. */
-  right: -12px;
+  /* Opens rightward from "Projects", starting 12px before it — the items'
+     own inset — so every title lines up with the word "Projects". The nav
+     leaves room for it on the right (see .links), so it always fits. */
+  left: -12px;
   background-color: #ffffff;
   border-radius: 4px;
-  min-width: 320px;
+  width: 320px;
   max-height: calc(100vh - 80px);
   overflow-y: auto;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
@@ -176,21 +184,16 @@
 
 .dropdownItem {
   display: block;
-  padding: 0.75rem 1rem 0.75rem 12px;
+  padding: 0.5rem 1rem 0.5rem 12px;
   color: #5a5a5a;
   text-decoration: none;
   font-weight: 400;
   transition: background-color 0.2s ease, color 0.2s ease;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.dropdownItem:last-child {
-  border-bottom: none;
 }
 
 /* (Only with a mouse: a tap would leave it highlighted.) */
 @media (hover: hover) {
-  .dropdownItem:hover {
+  .dropdownItem:not(.dropdownItemPending):hover {
     background-color: #f8f8f8;
     color: #6a6a6a;
   }
@@ -210,7 +213,8 @@
    lined up with their titles. Not a link. */
 .groupHeading {
   /* Sits a little low, nearer the list it heads. */
-  padding: calc(0.875rem + 8px) 1rem 0 12px;
+  /* Below it, the same gap (text to text) as between its items. */
+  padding: 0.875rem 1rem 8px 12px;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -220,45 +224,50 @@
   cursor: default;
 }
 
-/* "More interaction projects": a row at the foot of the list, with a
-   chevron that turns as the rest open above it. Its states are a link's
+/* A later group starts a little apart from the one above it. */
+[role='group'] + [role='group'] > .groupHeading {
+  padding-top: 1rem;
+}
+
+/* Listed, but not yet a link (no page yet): no hover or pointer. */
+.dropdownItemPending {
+  cursor: default;
+}
+
+/* "More interaction projects": a row at the foot of the list, its arrow
+   turning as the rest open above it. Its states are a link's
    (like the nav's own): underlined on hover and press, outlined on keyboard
    focus — no fill. */
 .moreToggle {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
   width: 100%;
-  /* Tucked up under the last project showing (no rule between them). */
-  padding: calc(0.75rem - 4px) 1rem 0.75rem 12px;
+  /* The same size and spacing as the projects: one more line in the list. */
+  padding: 0.5rem 1rem 0.5rem 12px;
   background: none;
   border: none;
   font: inherit;
   font-size: 0.875rem;
-  font-weight: 600;
+  /* A shade heavier than the projects, to set it apart as a control. */
+  font-weight: 500;
   color: #5a5a5a;
   text-align: left;
   cursor: pointer;
 }
 
-/* No rule between the last project showing and "More projects": while
-   the rest are closed, that's the last of the first few. (Open, the last of
-   the rest has none already.) */
-.dropdownItem:has(+ .moreProjects:not(.moreProjectsOpen)) {
-  border-bottom: none;
-}
-
 /* (Hover only with a mouse: a tap would leave it underlined.) */
 @media (hover: hover) {
-  .moreToggle:hover .moreLabel {
+  .moreToggle:hover .moreText {
     text-decoration-line: underline;
   }
 }
 
 .moreToggle:active .moreLabel {
-  text-decoration-line: underline;
   color: #362828;
+}
+
+.moreToggle:active .moreText {
+  text-decoration-line: underline;
 }
 
 /* Keyboard focus: an outline, as the nav's links have, drawn just inside
@@ -269,14 +278,25 @@
   border-radius: 4px;
 }
 
-.moreToggle:focus-visible .moreLabel {
+.moreToggle:focus-visible .moreText {
   text-decoration-line: underline;
 }
 
-/* Its underline, when it shows: clear of the letters, at a hairline. */
+/* The arrow, then the words (only the words underline). */
 .moreLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.moreText {
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
+}
+
+.moreToggle .moreArrow {
+  flex-shrink: 0;
+  stroke-width: 1.4;
 }
 
 .moreToggle svg {
@@ -289,7 +309,7 @@
   transition: transform 0.3s ease;
 }
 
-[aria-expanded='true'].moreToggle svg {
+[aria-expanded='true'].moreToggle .moreArrow {
   transform: rotate(180deg);
 }
 
@@ -330,7 +350,7 @@
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    padding: 0.5rem 0;
+    padding: 0.25rem 0;
     /* Scrolls if it's taller than the screen below the nav. */
     max-height: calc(100vh - var(--nav-height, 64px));
     max-height: calc(100dvh - var(--nav-height, 64px));
@@ -354,7 +374,7 @@
 
   .links a {
     display: block;
-    padding: 0.875rem 1.5rem;
+    padding: 0.625rem 1.5rem;
   }
 
   /* In the phone menu the list is always shown, under "Projects": no
@@ -371,19 +391,30 @@
      projects and "More projects" alike. */
   .groupHeading {
     /* Close under "Projects" (whose own padding gives the gap). */
-    padding: 0.5rem 1.5rem 0 2.25rem;
+    padding: calc(0.25rem + 6px) 1.5rem 10px 2.25rem;
   }
 
-  /* No rules between the projects here (the menu's own sections keep
-     theirs). */
   .dropdown .dropdownItem {
-    border-bottom: none;
     padding-left: 2.25rem;
   }
 
   .moreToggle {
-    /* A little extra room before the rule that closes the group. */
-    padding: calc(0.875rem - 4px) 1.5rem calc(0.875rem + 10px) 2.25rem;
+    padding: 0.625rem 1.5rem 0.625rem 2.25rem;
+  }
+
+  /* The next group's heading, a little below "More interaction projects". */
+  [role='group'] + [role='group'] > .groupHeading {
+    padding-top: calc(0.25rem + 6px);
+  }
+
+  /* Listed (not linked) items, spaced as the menu's links are. */
+  .dropdown .dropdownItemPending {
+    padding: 0.625rem 1.5rem 0.625rem 2.25rem;
+  }
+
+  /* A little extra room before the rule that closes Projects. */
+  .dropdownMenu > [role='group']:last-child > :last-child {
+    padding-bottom: calc(0.625rem + 10px);
   }
 
   .dropdown .dropdownMenu {
@@ -396,7 +427,8 @@
     /* Runs straight on from "Projects", no rule between. */
     border-top: none;
     margin-top: 0;
-    /* The menu itself scrolls, not the list within it. */
+    /* The full width of the menu, which itself scrolls (not the list). */
+    width: auto;
     max-height: none;
     overflow: visible;
   }
