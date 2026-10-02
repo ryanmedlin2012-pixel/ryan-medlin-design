@@ -1,8 +1,17 @@
 .contact {
+  /* Fills the whole window below the nav (a full-bleed section), with the
+     hero's treatment (Hero.module.css .hero) after dark: the same layout of
+     glows — green from the top right and bottom left, a warm sand trace in
+     the other corners, a faint green sweep, a soft lift behind the text —
+     over a radial field of the site's deep brown instead of grey. */
   background:
-    radial-gradient(ellipse 130% 85% at 92% 4%, rgba(209, 184, 165, 0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 120% 90% at 4% 98%, rgba(57, 165, 3, 0.09) 0%, transparent 55%),
-    linear-gradient(135deg, #2b1f18 0%, #180f0a 100%);
+    radial-gradient(ellipse 34% 30% at 50% 45%, rgba(239, 232, 224, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 72% 58% at 88% 8%, rgba(57, 165, 3, 0.14) 0%, transparent 62%),
+    radial-gradient(ellipse 62% 70% at 6% 94%, rgba(84, 193, 5, 0.08) 0%, transparent 62%),
+    radial-gradient(ellipse 50% 44% at 76% 90%, rgba(209, 184, 165, 0.05) 0%, transparent 66%),
+    radial-gradient(ellipse 52% 48% at 10% 10%, rgba(209, 184, 165, 0.07) 0%, transparent 66%),
+    linear-gradient(118deg, transparent 28%, rgba(57, 165, 3, 0.04) 48%, transparent 68%),
+    radial-gradient(ellipse 200% 200% at 35% 40%, #3a2b22 0%, #2e2119 22%, #1e150f 48%, #261b14 76%, #2c2018 100%);
   color: #efe8e0;
   height: 100%;
   display: flex;
@@ -90,7 +99,8 @@
 /* Footer strip integrated into the Contact panel */
 .footer {
   background-color: rgba(12, 7, 5, 0.45);
-  padding: 1rem 2rem;
+  /* Room at the bottom for the section dots, which float over it. */
+  padding: 1rem 2rem 3.25rem;
   text-align: center;
   font-size: 0.85rem;
   color: #efe8e0;
@@ -104,6 +114,11 @@
 @media (max-width: 768px) {
   .heading {
     font-size: 2rem;
+  }
+
+  /* (Phones have no section dots.) */
+  .footer {
+    padding-bottom: 1rem;
   }
 
   .contactMethods {

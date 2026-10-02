@@ -21,9 +21,9 @@ const TRACK_TRANSITION = 'transform 0.7s cubic-bezier(0.77, 0, 0.175, 1)';
 const SECTION_IDS = ['hero', 'projects', 'skills', 'contact'];
 
 // Sections that fill the whole viewport below the nav, edge to edge, rather
-// than sitting in the inset, outlined frame the others use (the hero: its
-// background and forms run to the window's edges).
-const FULL_BLEED_SECTIONS = new Set([0]);
+// than sitting in the inset, outlined frame the others use: their own
+// backgrounds run to the window's edges (the hero, Skills and Contact).
+const FULL_BLEED_SECTIONS = new Set([0, 2, 3]);
 
 export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
   const {
