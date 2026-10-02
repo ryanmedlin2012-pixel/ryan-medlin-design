@@ -222,7 +222,9 @@ export const Navigation: React.FC = () => {
                     }
                   }}
                 >
-                  {moreProjects ? 'Fewer projects' : 'More projects'}
+                  <span className={styles.moreLabel}>
+                    {moreProjects ? 'Fewer interaction projects' : 'More interaction projects'}
+                  </span>
                   <svg
                     viewBox="0 0 10 6"
                     width="10"
