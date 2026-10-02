@@ -58,7 +58,7 @@
 
 .subtitle {
   font-size: 1.25rem;
-  margin: 0 0 2rem 0;
+  margin: 0 0 1rem 0;
   color: #362828;
   max-width: 600px;
   margin-left: auto;
@@ -66,6 +66,52 @@
   line-height: 2rem;
   /* Even lines, rather than a long one and a short one. */
   text-wrap: balance;
+}
+
+/* The intro line above the heading ("Hi, I'm Ryan and I'm a ..."): the
+   subtitle's face, lighter and a step smaller, and screened back — the
+   site's brown lifted toward white, so it recedes behind the heading. In
+   rem, so it still grows with the reader's own text size; on its fill it
+   keeps about 5.2:1 contrast even over the hero's darkest ground, past
+   WCAG AA (4.5:1). */
+.intro {
+  font-size: 1.125rem;
+  font-weight: 300;
+  line-height: 2rem;
+  color: #6e6464;
+  margin: 0;
+}
+
+/* The heading's row, under the intro. Closed (no height) while the intro
+   types, so the intro alone sits in the middle; then it opens, and the
+   group re-centres around both — the intro easing up — as the heading
+   types. (As .after does for the subtitle and button.) */
+.titleRow {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.55s cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+.titleRowOpen {
+  grid-template-rows: 1fr;
+}
+
+/* While closed, the heading's (empty) animation isn't drawn — its fill
+   would otherwise peek out under the intro. Screen readers still have the
+   heading. */
+.titleRow:not(.titleRowOpen) .typedLive {
+  visibility: hidden;
+}
+
+.titleRowInner {
+  /* Lets the row close to nothing; the gap above the heading is its
+     margin, held inside (flow-root) so the row can close fully. */
+  min-height: 0;
+  display: flow-root;
+}
+
+.titleRowInner > .title {
+  margin-top: 0;
 }
 
 /* A fill behind each line of text, hugging it (box-decoration-break gives
@@ -90,7 +136,8 @@
   padding-block: calc((1lh - 1.2em) / 2 + 0.5px);
 }
 
-.subtitle .fill {
+.subtitle .fill,
+.intro .fill {
   padding-block: 0.3em;
   padding-block: calc((1lh - 1.15em) / 2 + 0.5px);
 }
@@ -228,8 +275,11 @@
   display: flow-root;
 }
 
+/* The subtitle sits as far below the heading as the intro sits above it
+   (fill to fill), with the button well below, set apart. */
 .afterInner > .subtitle {
-  margin-top: 1.5rem;
+  margin-top: -1.5px;
+  margin-bottom: 5.5rem;
 }
 
 /* The subtitle and button come in as the heading finishes typing (see
@@ -252,8 +302,14 @@
   animation: revealIn 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s backwards;
 }
 
+/* The subtitle drifts in slowly… */
+.subtitle.revealed {
+  animation-duration: 1.2s;
+}
+
+/* …and the button follows after a pause, once it has settled. */
 .cta.revealed {
-  animation-delay: 0.35s;
+  animation-delay: 2.4s;
 }
 
 @keyframes revealIn {
@@ -316,6 +372,15 @@
 
   .subtitle {
     font-size: 1rem;
+  }
+
+  /* (The phone's smaller type needs less pulled in to match.) */
+  .afterInner > .subtitle {
+    margin-top: 2px;
+  }
+
+  .intro {
+    font-size: 0.9375rem;
   }
 
   .hero {

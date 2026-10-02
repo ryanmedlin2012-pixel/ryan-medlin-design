@@ -15,6 +15,10 @@ const STRUCK = ['UX', 'UI', 'Product', 'Graphic'];
 const FINAL = 'Multidisciplinary';
 const SUFFIX = ' designer';
 const FINAL_TEXT = `${FINAL}${SUFFIX}`;
+/** The line above the heading, typed first. */
+/** …typed in phrases, with a beat (the caret blinking) between them. */
+const INTRO_PHRASES = ['Hi,', ' I’m Ryan', ' and I’m a ...'];
+const INTRO = INTRO_PHRASES.join('');
 
 // The caret's blink (ms): on for half of each cycle, then off for half.
 // The sequence keeps this blink itself (rather than CSS), so every change to
@@ -51,8 +55,14 @@ const TIMING = {
   // Then "Multidisciplinary" (bold, as every word there is) turns italic.
   /** Pause after the caret's gone, before it leans (ms). */
   beforeLean: 200,
+  /** Whole blinks the caret gives at each beat in the intro (after "Hi,"
+      and after "I’m Ryan") before typing on. */
+  introBeatBlinks: 1,
+  /** How long the heading's row takes to open below the intro, once the
+      intro is typed (ms; matches the CSS transition). */
+  titleOpen: 550,
   /** Pause once it's italic, before what's below the heading comes in (ms). */
-  beforeDone: 300,
+  beforeDone: 1400,
   /** How long it takes to lean to the italic's angle (ms; matches the CSS
       transition), when it becomes the italic proper. */
   lean: 160,
@@ -85,15 +95,24 @@ const strikeFor = (wordWidth: number, wordHeight: number, fontSize: number): Str
   const wobble = fontSize * 0.05;
   const y0 = mid + r(wobble);
   const y1 = mid + r(wobble * 1.4);
-  const d = `M ${(fontSize * 0.04).toFixed(1)} ${y0.toFixed(1)} C ${(width * 0.3 + r(width * 0.06)).toFixed(
-    1
+  const d = `M ${(fontSize * 0.04).toFixed(1)} ${y0.toFixed(1)} C ${(
+    width * 0.3 +
+    r(width * 0.06)
+  ).toFixed(
+    1,
   )} ${(y0 - wobble + r(wobble)).toFixed(1)}, ${(width * 0.68 + r(width * 0.06)).toFixed(1)} ${(
-    y1 + wobble + r(wobble)
+    y1 +
+    wobble +
+    r(wobble)
   ).toFixed(1)}, ${(width - fontSize * 0.04).toFixed(1)} ${y1.toFixed(1)}`;
   return { width, height: wordHeight, overshoot, stroke: fontSize * 0.075, d };
 };
 
 interface Frame {
+  /** The intro line above the heading, as typed so far. */
+  intro: string;
+  /** Whether the heading's row has opened (below the intro, once typed). */
+  titleOpen: boolean;
   /** The word before " designer", as typed so far. */
   word: string;
   /** How much of " designer" is showing (it's typed once, then stays). */
@@ -112,12 +131,15 @@ interface Frame {
       to fit — so it arrives at the italic's width, and becoming the italic
       moves nothing. */
   lean: { width: number; squeeze: number } | null;
-  /** Where the caret sits: after the word, or at the end of the line (while
-      typing " designer", the first time). */
-  caretAt: 'word' | 'end';
+  /** Where the caret sits: after the intro (while typing it), after the
+      word, or at the end of the line (while typing " designer", the first
+      time). */
+  caretAt: 'intro' | 'word' | 'end';
 }
 
 const finished: Frame = {
+  intro: INTRO,
+  titleOpen: true,
   word: FINAL,
   suffix: SUFFIX,
   strike: null,
@@ -159,16 +181,27 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
   const [frame, setFrame] = useState<Frame>(
     skip
       ? finished
-      : { word: '', suffix: '', strike: null, strikeLeaving: false, caret: false, style: 'upright', lean: null, caretAt: 'word' }
+      : {
+          intro: '',
+          titleOpen: false,
+          word: '',
+          suffix: '',
+          strike: null,
+          strikeLeaving: false,
+          caret: false,
+          style: 'upright',
+          lean: null,
+          caretAt: 'intro',
+        },
   );
-  const headingRef = useRef<HTMLHeadingElement>(null);
+  const introRef = useRef<HTMLParagraphElement>(null);
   const wordRef = useRef<HTMLSpanElement>(null);
   const italicRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     if (skip) return;
-    const heading = headingRef.current;
-    if (!heading) return;
+    const intro = introRef.current;
+    if (!intro) return;
     let cancelled = false;
     const timers: ReturnType<typeof setTimeout>[] = [];
     const wait = (ms: number) =>
@@ -195,19 +228,22 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
       const tick = (half: number) => {
         const at = blinkStart + half * BLINK_ON;
         timers.push(
-          setTimeout(() => {
-            if (!blinking || cancelled) return;
-            const on = half % 2 === 0;
-            if (!on && blinkEnd && --blinkEnd.count === 0) {
-              blinking = false;
-              const { resolve } = blinkEnd;
-              blinkEnd = null;
-              resolve();
-              return;
-            }
-            show({ caret: on });
-            tick(half + 1);
-          }, Math.max(0, at - performance.now()))
+          setTimeout(
+            () => {
+              if (!blinking || cancelled) return;
+              const on = half % 2 === 0;
+              if (!on && blinkEnd && --blinkEnd.count === 0) {
+                blinking = false;
+                const { resolve } = blinkEnd;
+                blinkEnd = null;
+                resolve();
+                return;
+              }
+              show({ caret: on });
+              tick(half + 1);
+            },
+            Math.max(0, at - performance.now()),
+          ),
         );
       };
       const blink = () => {
@@ -222,10 +258,41 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
           blinkEnd = { count, resolve };
         });
 
-      // The caret appears and blinks once, then starts typing as its next
-      // "on" ends.
+      // The caret appears and blinks once, then starts typing the intro as
+      // its next "on" ends.
       blink();
       await untilBlinkEnds(2);
+      if (cancelled) return;
+      let introTyped = '';
+      for (const [i, phrase] of INTRO_PHRASES.entries()) {
+        for (const ch of phrase) {
+          await wait(typeDelay());
+          if (cancelled) return;
+          introTyped += ch;
+          show({ intro: introTyped });
+        }
+        // A beat between phrases, as someone typing pauses: the caret
+        // blinks (on, off) and typing resumes as the next "on" ends.
+        if (i < INTRO_PHRASES.length - 1) {
+          blink();
+          await untilBlinkEnds(TIMING.introBeatBlinks + 1);
+          if (cancelled) return;
+        }
+      }
+      // As after each word: on to the end of its blink, then gone.
+      blink();
+      await untilBlinkEnds(1);
+      show({ caret: false });
+      if (cancelled) return;
+      // The heading's row opens below it — the intro easing up, so the two
+      // stay centred together — and the caret appears there (a blink coming
+      // on) and starts typing as that "on" ends.
+      show({ titleOpen: true });
+      await wait(TIMING.titleOpen);
+      if (cancelled) return;
+      show({ caretAt: 'word' });
+      blink();
+      await untilBlinkEnds(1);
       if (cancelled) return;
       for (const next of [...STRUCK, FINAL]) {
         // Type the word (and, the first time, " designer" after it), with
@@ -315,9 +382,9 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
         observer.disconnect();
         timers.push(setTimeout(run, TIMING.startDelay));
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
-    observer.observe(heading);
+    observer.observe(intro);
     return () => {
       cancelled = true;
       observer.disconnect();
@@ -330,58 +397,78 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
   const caret = <span className={`${styles.caret} ${frame.caret ? '' : styles.caretOff}`} />;
 
   return (
-    <h1
-      ref={headingRef}
-      className={`${styles.title} ${styles.typedTitle}`}
-      data-section-heading="true"
-      tabIndex={-1}
-    >
-      {/* What screen readers hear, from the start. */}
-      <span className={styles.srOnly}>{FINAL_TEXT}</span>
-      {/* Holds the finished heading's space, so nothing shifts as it types. */}
-      <span className={`${styles.fill} ${styles.typedGhost}`} aria-hidden="true">
-        <span ref={italicRef} className={styles.finalWord}>
-          {FINAL}
+    <>
+      {/* The intro line, typed first, from its centre like the heading. */}
+      <p ref={introRef} className={`${styles.intro} ${styles.typedTitle}`}>
+        <span className={styles.srOnly}>{INTRO}</span>
+        <span className={`${styles.fill} ${styles.typedGhost}`} aria-hidden="true">
+          {INTRO}
         </span>
-        {SUFFIX}
-      </span>
-      {/* The animation. */}
-      <span className={styles.typedLive} aria-hidden="true">
-        <span className={styles.fill}>
-          <span
-            ref={wordRef}
-            className={`${styles.typedWord} ${wordStyle[frame.style]}`}
-            style={
-              frame.lean
-                ? {
-                    width: frame.lean.width,
-                    transform:
-                      frame.style === 'leaning'
-                        ? `skewX(${LEAN}deg) scaleX(${frame.lean.squeeze})`
-                        : undefined,
-                  }
-                : undefined
-            }
-          >
-            {frame.word}
-            {frame.strike && (
-              <svg
-                className={`${styles.strike} ${frame.strikeLeaving ? styles.strikeLeaving : ''}`}
-                width={frame.strike.width}
-                height={frame.strike.height}
-                viewBox={`0 0 ${frame.strike.width} ${frame.strike.height}`}
-                style={{ left: -frame.strike.overshoot }}
-                focusable="false"
-              >
-                <path d={frame.strike.d} pathLength={1} strokeWidth={frame.strike.stroke} />
-              </svg>
-            )}
+        <span className={styles.typedLive} aria-hidden="true">
+          <span className={styles.fill}>
+            {frame.intro}
+            {frame.caretAt === 'intro' && caret}
           </span>
-          {frame.caretAt === 'word' && caret}
-          {frame.suffix}
-          {frame.caretAt === 'end' && caret}
         </span>
-      </span>
-    </h1>
+      </p>
+      {/* The heading's row: closed (no height) while the intro types, so the
+          intro alone is centred; then it opens. */}
+      <div className={`${styles.titleRow} ${frame.titleOpen ? styles.titleRowOpen : ''}`}>
+        <div className={styles.titleRowInner}>
+          <h1
+            className={`${styles.title} ${styles.typedTitle}`}
+            data-section-heading="true"
+            tabIndex={-1}
+          >
+            {/* What screen readers hear, from the start. */}
+            <span className={styles.srOnly}>{FINAL_TEXT}</span>
+            {/* Holds the finished heading's space, so nothing shifts as it types. */}
+            <span className={`${styles.fill} ${styles.typedGhost}`} aria-hidden="true">
+              <span ref={italicRef} className={styles.finalWord}>
+                {FINAL}
+              </span>
+              {SUFFIX}
+            </span>
+            {/* The animation. */}
+            <span className={styles.typedLive} aria-hidden="true">
+              <span className={styles.fill}>
+                <span
+                  ref={wordRef}
+                  className={`${styles.typedWord} ${wordStyle[frame.style]}`}
+                  style={
+                    frame.lean
+                      ? {
+                          width: frame.lean.width,
+                          transform:
+                            frame.style === 'leaning'
+                              ? `skewX(${LEAN}deg) scaleX(${frame.lean.squeeze})`
+                              : undefined,
+                        }
+                      : undefined
+                  }
+                >
+                  {frame.word}
+                  {frame.strike && (
+                    <svg
+                      className={`${styles.strike} ${frame.strikeLeaving ? styles.strikeLeaving : ''}`}
+                      width={frame.strike.width}
+                      height={frame.strike.height}
+                      viewBox={`0 0 ${frame.strike.width} ${frame.strike.height}`}
+                      style={{ left: -frame.strike.overshoot }}
+                      focusable="false"
+                    >
+                      <path d={frame.strike.d} pathLength={1} strokeWidth={frame.strike.stroke} />
+                    </svg>
+                  )}
+                </span>
+                {frame.caretAt === 'word' && caret}
+                {frame.suffix}
+                {frame.caretAt === 'end' && caret}
+              </span>
+            </span>
+          </h1>
+        </div>
+      </div>
+    </>
   );
 };

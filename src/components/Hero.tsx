@@ -22,7 +22,7 @@ export const Hero: React.FC = () => {
             <div className={styles.afterInner}>
               <p className={`${styles.subtitle} ${reveal}`}>
                 <span className={styles.fill}>
-                  Crafting communications that combine beautiful design &amp; thoughtful strategy
+                  I craft communications that combine beautiful design &amp; thoughtful strategy
                 </span>
               </p>
               <button className={`${styles.cta} ${reveal}`} onClick={() => goToSection(1)}>
