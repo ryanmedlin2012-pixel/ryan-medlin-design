@@ -128,7 +128,7 @@
 
 .textColumn::-webkit-scrollbar-thumb {
   background-color: rgba(54, 40, 40, 0.2);
-  border-radius: 2px;
+  border-radius: 1px;
 }
 
 /* padding-bottom trims the image slot from the bottom; its top edge stays put */

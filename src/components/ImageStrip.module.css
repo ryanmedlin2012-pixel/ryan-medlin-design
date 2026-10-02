@@ -42,7 +42,7 @@
 
 .strip::-webkit-scrollbar-thumb {
   background-color: rgba(54, 40, 40, 0.25);
-  border-radius: 2px;
+  border-radius: 1px;
 }
 
 .strip:focus-visible {
@@ -70,7 +70,7 @@
 .frame {
   position: relative;
   aspect-ratio: 16 / 9;
-  border-radius: 8px;
+  border-radius: 3px;
   overflow: hidden;
   background-color: #e9ecef;
 }

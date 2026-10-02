@@ -52,7 +52,7 @@
 .skillGroup {
   background-color: #ffffff;
   padding: 1.75rem;
-  border-radius: 8px;
+  border-radius: 3px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
