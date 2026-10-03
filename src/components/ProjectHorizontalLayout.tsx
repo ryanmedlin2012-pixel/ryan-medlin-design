@@ -772,7 +772,17 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
             <div className={styles.textContent} data-section-text>
               {panel.content}
             </div>
-            <PanelImageSlot slot={panel.imageSlot} />
+            {/* On phones a section's image (or its placeholder) shows first,
+                above the label and heading — moved there by CSS only, so
+                screen readers still meet the heading first. Strips and
+                carousels stay below the text. */}
+            {panel.imageSlot.type === 'image' || panel.imageSlot.type === 'placeholder' ? (
+              <div className={styles.verticalMediaFirst}>
+                <PanelImageSlot slot={panel.imageSlot} />
+              </div>
+            ) : (
+              <PanelImageSlot slot={panel.imageSlot} />
+            )}
           </div>
         ))}
       </div>

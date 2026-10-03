@@ -501,4 +501,13 @@
   .panelHeading {
     margin-bottom: -0.5rem;
   }
+
+  /* A section's image (or placeholder) leads it, above the label and
+     heading: a visual reorder only — the page's reading order, for screen
+     readers and the outline, stays label, heading, text, image. A little
+     extra room separates it from the label below. */
+  .verticalMediaFirst {
+    order: -1;
+    margin-bottom: 0.5rem;
+  }
 }
