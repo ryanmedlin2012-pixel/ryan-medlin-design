@@ -65,6 +65,21 @@
   display: block;
 }
 
+/* An image that may lose only so much off its sides (maxSideCrop): past a
+   certain height of slot it stops growing and sits centred (limitSideCrop
+   sets --max-cover on the image). */
+.slide.slideLimitCrop {
+  container-type: inline-size;
+  display: grid;
+  /* One row, the slide's own height (not the image's natural height). */
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+}
+
+.slideLimitCrop .image {
+  max-height: calc(100cqw * var(--max-cover, 100));
+}
+
 /* Scale the whole image down to fit the slot — never crop it */
 .imageContain {
   object-fit: contain;

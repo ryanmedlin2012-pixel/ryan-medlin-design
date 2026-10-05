@@ -202,6 +202,22 @@
   object-fit: cover;
 }
 
+/* An image that may lose only so much off its sides (imageMaxSideCrop):
+   past a certain height of card it stops growing and sits centred
+   (limitSideCrop sets --max-cover on the image; --img-scale allows for the
+   zoom some breakpoints give it). */
+.cardVisual.cardVisualLimitCrop {
+  container-type: inline-size;
+  display: grid;
+  /* One row, the card's own height (not the image's natural height). */
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+}
+
+.cardVisualLimitCrop .cardImage {
+  max-height: calc(100cqw * var(--max-cover, 100) / var(--img-scale, 1));
+}
+
 /* Prev / Next nav row */
 .carouselNav {
   display: flex;
@@ -285,6 +301,7 @@
     object-fit: contain;
     transform: scale(1.5);
     transform-origin: center center;
+    --img-scale: 1.5;
   }
 
   .carouselHeader {

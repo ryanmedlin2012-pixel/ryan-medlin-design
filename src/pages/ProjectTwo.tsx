@@ -42,6 +42,7 @@ export const ProjectTwo = () => (
         imageSlot: {
           type: 'image',
           src: escalationFlow,
+          maxSideCrop: 212,
           alt: 'SVA escalation flow diagram showing the redesigned path from self-service to assisted support, including a verbatim fishing match attempt and targeted topic match attempt',
         },
       },

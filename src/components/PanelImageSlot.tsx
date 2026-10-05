@@ -4,6 +4,7 @@ import lightboxStyles from './ImageLightbox.module.css';
 import { ImageLightbox } from './ImageLightbox';
 import { ImageStrip } from './ImageStrip';
 import { readRestored, saveRestorable } from '../hooks/restore';
+import { limitSideCrop } from './limitSideCrop';
 import type { StripImage } from './ImageStrip';
 
 export type ImageSlot =
@@ -16,6 +17,8 @@ export type ImageSlot =
    * e.g. 'top' to pin a contained image to the slot's top edge.
    * `fullImage` adds a "See full diagram" button that opens it in a zoomable lightbox.
    * `link` adds the same corner button as a link that opens in a new tab.
+   * `maxSideCrop` (in the image's own pixels) caps how much a cover-fit image
+   * may lose off its left and right, however tall the slot (see limitSideCrop).
    */
   | {
       type: 'image';
@@ -26,6 +29,7 @@ export type ImageSlot =
       position?: string;
       fullImage?: { src: string; alt: string };
       link?: { href: string; label: string };
+      maxSideCrop?: number;
     }
   | { type: 'carousel'; images: Array<{ src: string; alt: string }> }
   /**
@@ -82,6 +86,9 @@ export const PanelImageSlot = ({ slot }: Props) => {
   const position = slot.type === 'image' ? slot.position : undefined;
   const link = slot.type === 'image' ? slot.link : undefined;
   const imageStyle = position ? { objectPosition: position } : undefined;
+  const maxSideCrop = slot.type === 'image' ? slot.maxSideCrop : undefined;
+  const imageRef = maxSideCrop ? limitSideCrop(maxSideCrop) : undefined;
+  const slideClass = maxSideCrop ? `${styles.slide} ${styles.slideLimitCrop}` : styles.slide;
   const backgroundStyle = background ? { background } : undefined;
   const imageClass =
     slot.type === 'image' && slot.fit === 'contain'
@@ -150,8 +157,14 @@ export const PanelImageSlot = ({ slot }: Props) => {
           onTransitionEnd={handleTransitionEnd}
         >
           {images.map((img, i) => (
-            <div key={i} className={styles.slide} style={backgroundStyle}>
-              <img src={img.src} alt={img.alt} className={imageClass} style={imageStyle} />
+            <div key={i} className={slideClass} style={backgroundStyle}>
+              <img
+                ref={imageRef}
+                src={img.src}
+                alt={img.alt}
+                className={imageClass}
+                style={imageStyle}
+              />
             </div>
           ))}
         </div>

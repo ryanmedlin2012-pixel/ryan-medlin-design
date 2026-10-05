@@ -5,6 +5,7 @@ import { useLayout } from '../context/LayoutContext';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import escalationFlow from '../assets/Escalation_1400x1400_b.png';
 import { readRestored, saveRestorable } from '../hooks/restore';
+import { limitSideCrop } from './limitSideCrop';
 
 interface Project {
   id: number;
@@ -12,6 +13,8 @@ interface Project {
   description: string;
   tags: string[];
   image?: string;
+  /** The most the image may lose off its left and right (its own pixels). */
+  imageMaxSideCrop?: number;
   path: string;
 }
 
@@ -23,6 +26,7 @@ const projects: Project[] = [
       'Redesigned the Xbox escalation path, collapsing 4 clicks to 1–2 actions. Reduced abandonment from 31% to 18% and lifted CSAT from 3.4 to 4.2. Validated in study with 91% task success.',
     tags: ['Conversational UX', 'LLM design'],
     image: escalationFlow,
+    imageMaxSideCrop: 212,
     path: '/project/support-escalation',
   },
   {
@@ -193,12 +197,15 @@ export const FeaturedProjects: React.FC = () => {
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <div
-                  className={`${styles.cardVisual} ${i === 0 ? styles.cardVisualDimmed : ''}`}
+                  className={`${styles.cardVisual} ${i === 0 ? styles.cardVisualDimmed : ''} ${
+                    project.imageMaxSideCrop ? styles.cardVisualLimitCrop : ''
+                  }`}
                 >
                   {project.image ? (
                     <img
                       src={project.image}
                       alt={project.title}
+                      ref={project.imageMaxSideCrop ? limitSideCrop(project.imageMaxSideCrop) : undefined}
                       className={styles.cardImage}
                     />
                   ) : (
@@ -336,12 +343,15 @@ export const FeaturedProjects: React.FC = () => {
                   </Link>
                 </div>
                 <div
-                  className={`${styles.cardVisual} ${i === 0 ? styles.cardVisualDimmed : ''}`}
+                  className={`${styles.cardVisual} ${i === 0 ? styles.cardVisualDimmed : ''} ${
+                    project.imageMaxSideCrop ? styles.cardVisualLimitCrop : ''
+                  }`}
                 >
                   {project.image ? (
                     <img
                       src={project.image}
                       alt={project.title}
+                      ref={project.imageMaxSideCrop ? limitSideCrop(project.imageMaxSideCrop) : undefined}
                       className={styles.cardImage}
                     />
                   ) : (
