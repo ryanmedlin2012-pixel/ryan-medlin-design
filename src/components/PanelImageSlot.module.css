@@ -58,6 +58,11 @@
     );
 }
 
+/* Lays out as if it weren't there: the image sizes to the slot itself. */
+.picture {
+  display: contents;
+}
+
 .image {
   width: 100%;
   height: 100%;

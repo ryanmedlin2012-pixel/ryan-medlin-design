@@ -1,8 +1,11 @@
 import { ProjectHorizontalLayout } from '../components/ProjectHorizontalLayout';
 import vcrClip from '../assets/VCR_1400x1400.png';
-import vcrWho from '../assets/VCR_1400x1400_a.png';
 import vcrDesign from '../assets/VCR_1400x1400_b.png';
 import vcrConfirm from '../assets/VCR_1400x1400_c.png';
+// Animated (everything drifts, and its interface pieces work away on their
+// own); a still stands in for readers who prefer reduced motion.
+import vcrProblemChaos from '../assets/VCR_problem_chaos.svg';
+import vcrProblemChaosStill from '../assets/VCR_problem_chaos_still.png';
 import { ImageStripNav } from '../components/ImageStrip';
 import type { StripImage } from '../components/ImageStrip';
 import flowWho from '../assets/Voice chat report_ who.png';
@@ -11,7 +14,7 @@ import flowVerbatim from '../assets/Voice chat report_ verbatim.png';
 import flowSummary from '../assets/Voice chat report_ summary.png';
 import flowThanks from '../assets/Voice chat report_ thanks.png';
 
-// Section 05 walkthrough, in the order the report flow runs.
+// Section 04 walkthrough, in the order the report flow runs.
 const flowScreens: StripImage[] = [
   {
     src: flowWho,
@@ -85,8 +88,8 @@ export const ProjectFour = () => (
         ),
         imageSlot: {
           type: 'image',
-          src: vcrWho,
-          alt: 'Xbox report flow screen asking "Who are you reporting?", listing recent players from Fortnite with an option to choose up to three people, search for players, or get help if they cannot be found',
+          src: vcrClip,
+          alt: 'In-game view of a multiplayer match with an Xbox notification reading "Preparing your voice clip", shown while a voice chat report is being captured',
         },
       },
       {
@@ -119,8 +122,9 @@ export const ProjectFour = () => (
         ),
         imageSlot: {
           type: 'image',
-          src: vcrClip,
-          alt: 'In-game view of a multiplayer match with an Xbox notification reading "Preparing your voice clip", shown while a voice chat report is being captured',
+          src: vcrProblemChaos,
+          stillSrc: vcrProblemChaosStill,
+          alt: 'Abstract illustration of a disjointed system: boxes and circles linked by tangled, crossing arrows that collide, loop back or lead nowhere, with loose interface pieces — a window, button, toggle, checkbox, text field and cursor — adrift among them',
         },
       },
       {
@@ -166,7 +170,22 @@ export const ProjectFour = () => (
         },
       },
       {
-        sectionLabel: '04 / Impact',
+        sectionLabel: '04 / Flow',
+        heading: 'The report flow, step by step',
+        content: (
+          <>
+            <p>
+              Five screens take a player from noticing a problem to a confirmed report. Step
+              through them here, or scroll the screens sideways.
+            </p>
+            <ImageStripNav id="vcr-flow" images={flowScreens} />
+          </>
+        ),
+        imageSlot: { type: 'strip', id: 'vcr-flow', images: flowScreens },
+        layout: 'mediaBelow',
+      },
+      {
+        sectionLabel: '05 / Impact',
         heading: 'Reports that lead to action',
         content: (
           <>
@@ -197,21 +216,6 @@ export const ProjectFour = () => (
             label: 'See Figma',
           },
         },
-      },
-      {
-        sectionLabel: '05 / Flow',
-        heading: 'The report flow, step by step',
-        content: (
-          <>
-            <p>
-              Five screens take a player from noticing a problem to a confirmed report. Step
-              through them here, or scroll the screens sideways.
-            </p>
-            <ImageStripNav id="vcr-flow" images={flowScreens} />
-          </>
-        ),
-        imageSlot: { type: 'strip', id: 'vcr-flow', images: flowScreens },
-        layout: 'mediaBelow',
       },
       {
         sectionLabel: '06 / Impact',

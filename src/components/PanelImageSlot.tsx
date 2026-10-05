@@ -17,6 +17,8 @@ export type ImageSlot =
    * e.g. 'top' to pin a contained image to the slot's top edge.
    * `fullImage` adds a "See full diagram" button that opens it in a zoomable lightbox.
    * `link` adds the same corner button as a link that opens in a new tab.
+   * `stillSrc` is shown instead to readers who prefer reduced motion, for an
+   * animated image.
    * `maxSideCrop` (in the image's own pixels) caps how much a cover-fit image
    * may lose off its left and right, however tall the slot (see limitSideCrop).
    */
@@ -30,6 +32,7 @@ export type ImageSlot =
       fullImage?: { src: string; alt: string };
       link?: { href: string; label: string };
       maxSideCrop?: number;
+      stillSrc?: string;
     }
   | { type: 'carousel'; images: Array<{ src: string; alt: string }> }
   /**
@@ -87,6 +90,7 @@ export const PanelImageSlot = ({ slot }: Props) => {
   const link = slot.type === 'image' ? slot.link : undefined;
   const imageStyle = position ? { objectPosition: position } : undefined;
   const maxSideCrop = slot.type === 'image' ? slot.maxSideCrop : undefined;
+  const stillSrc = slot.type === 'image' ? slot.stillSrc : undefined;
   const imageRef = maxSideCrop ? limitSideCrop(maxSideCrop) : undefined;
   const slideClass = maxSideCrop ? `${styles.slide} ${styles.slideLimitCrop}` : styles.slide;
   const backgroundStyle = background ? { background } : undefined;
@@ -158,13 +162,18 @@ export const PanelImageSlot = ({ slot }: Props) => {
         >
           {images.map((img, i) => (
             <div key={i} className={slideClass} style={backgroundStyle}>
-              <img
-                ref={imageRef}
-                src={img.src}
-                alt={img.alt}
-                className={imageClass}
-                style={imageStyle}
-              />
+              {/* An animated image gives way to its still for readers who
+                  prefer reduced motion (the browser picks, no script). */}
+              <picture className={styles.picture}>
+                {stillSrc && <source media="(prefers-reduced-motion: reduce)" srcSet={stillSrc} />}
+                <img
+                  ref={imageRef}
+                  src={img.src}
+                  alt={img.alt}
+                  className={imageClass}
+                  style={imageStyle}
+                />
+              </picture>
             </div>
           ))}
         </div>

@@ -240,7 +240,7 @@ const PanelContent = ({ panel, index }: { panel: PanelData; index: number }) => 
 
 // ─── Section ↔ URL hash ───────────────────────────────────────────────────────
 // Each section is addressable as #<number>-<name> (from its label, e.g.
-// "05 / Flow" → #05-flow), so a refresh or a shared link lands on it. The
+// "04 / Flow" → #04-flow), so a refresh or a shared link lands on it. The
 // first section keeps a clean URL. Updates replace the history entry rather
 // than pushing one, so Back still leaves the page instead of stepping
 // through sections.
