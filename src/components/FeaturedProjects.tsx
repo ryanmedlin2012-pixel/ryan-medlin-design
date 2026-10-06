@@ -12,6 +12,10 @@ import escalationChat from '../assets/Escalation_chat.svg';
 // still).
 import vcrFlowOrder from '../assets/VCR_flow_order.svg';
 import vcrFlowOrderStill from '../assets/VCR_flow_order_still.png';
+// Token Redemption: a damaged code, scanned and resolved (the PNG is its
+// finished still).
+import tokenCodeScan from '../assets/Token_code_scan.svg';
+import tokenCodeScanStill from '../assets/Token_code_scan_still.png';
 import { readRestored, saveRestorable } from '../hooks/restore';
 import { limitSideCrop } from './limitSideCrop';
 import { useReplayOnView } from '../hooks/useReplayOnView';
@@ -57,6 +61,18 @@ const projects: Project[] = [
     path: '/project/voice-chat-reporting',
   },
   {
+    id: 5,
+    title: 'Token Redemption Agent',
+    description:
+      'Designed an AI-assisted image upload flow for damaged Xbox game codes, with three distinct error states and pre-attached escalation context. CSAT 4.2/5, escalations avoided –11%.',
+    tags: ['Conversational UX', 'AI Design', 'Accessibility'],
+    image: tokenCodeScan,
+    imageStill: tokenCodeScanStill,
+    imageReplay: true,
+    imageMaxSideCrop: 212,
+    path: '/project/token-redemption-agent',
+  },
+  {
     id: 3,
     title: 'Unrecognized Charge Agent',
     description:
@@ -71,14 +87,6 @@ const projects: Project[] = [
       'Designed the Xbox OCC floating chat layer that travels across account pages with full context persistence. Chat engagement doubled (+107%) and CSAT rose to 4.4/5.',
     tags: ['Interaction Design', 'AI Design', 'Platform'],
     path: '/project/persistent-chat-occ',
-  },
-  {
-    id: 5,
-    title: 'Token Redemption Agent',
-    description:
-      'Designed an AI-assisted image upload flow for damaged Xbox game codes, with three distinct error states and pre-attached escalation context. CSAT 4.2/5, escalations avoided –11%.',
-    tags: ['Conversational UX', 'AI Design', 'Accessibility'],
-    path: '/project/token-redemption-agent',
   },
 ];
 
