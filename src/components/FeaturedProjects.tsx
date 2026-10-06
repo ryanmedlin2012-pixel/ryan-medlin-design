@@ -16,6 +16,10 @@ import vcrFlowOrderStill from '../assets/VCR_flow_order_still.png';
 // finished still).
 import tokenCodeScan from '../assets/Token_code_scan.svg';
 import tokenCodeScanStill from '../assets/Token_code_scan_still.png';
+// Unrecognized Charge: recent transactions fill a table, and the agent hones
+// in on the one in question and names it plainly (the PNG is its still).
+import chargeTransactions from '../assets/Charge_transactions.svg';
+import chargeTransactionsStill from '../assets/Charge_transactions_still.png';
 import { readRestored, saveRestorable } from '../hooks/restore';
 import { limitSideCrop } from './limitSideCrop';
 import { useReplayOnView } from '../hooks/useReplayOnView';
@@ -78,6 +82,10 @@ const projects: Project[] = [
     description:
       'Evolved the Xbox charge-dispute agent from MVP text links to rich adaptive cards. Click-through rate improved 102% and self-service resolution jumped from 18.7% to 31.2%.',
     tags: ['Conversational UX', 'Visual Design', 'AI Design'],
+    image: chargeTransactions,
+    imageStill: chargeTransactionsStill,
+    imageReplay: true,
+    imageMaxSideCrop: 212,
     path: '/project/unrecognized-charge-agent',
   },
   {
