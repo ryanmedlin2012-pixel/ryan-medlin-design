@@ -1,6 +1,9 @@
 import { ProjectHorizontalLayout } from '../components/ProjectHorizontalLayout';
 import vcrClip from '../assets/VCR_1400x1400.png';
-import vcrDesign from '../assets/VCR_1400x1400_b.png';
+// The Design section: the home card's graphic — the Problem section's chaos
+// converging into the redesigned five-step report flow (the PNG, its still).
+import vcrFlowOrder from '../assets/VCR_flow_order.svg';
+import vcrFlowOrderStill from '../assets/VCR_flow_order_still.png';
 import vcrConfirm from '../assets/VCR_1400x1400_c.png';
 // Animated (everything drifts, and its interface pieces work away on their
 // own); a still stands in for readers who prefer reduced motion.
@@ -161,12 +164,11 @@ export const ProjectFour = () => (
         ),
         imageSlot: {
           type: 'image',
-          src: vcrDesign,
-          alt: 'Xbox report flow screen asking "Who are you reporting?", listing recent players from Fortnite with an option to choose up to three people, search for players, or get help if they cannot be found',
-          link: {
-            href: 'https://www.figma.com/design/TwFIqNdNgBrjmZCNcJaGng/Voice-Chat-Reporting-2301?node-id=419-29384&t=qqlbOC2QbJEzA8cA-1',
-            label: 'See Figma',
-          },
+          src: vcrFlowOrder,
+          stillSrc: vcrFlowOrderStill,
+          replayOnView: true,
+          maxSideCrop: 212,
+          alt: 'Illustration: scattered steps and tangled arrows settle into the redesigned five-step report flow — who, what, in your own words, summary, thanks — joined by green arrows',
         },
       },
       {
