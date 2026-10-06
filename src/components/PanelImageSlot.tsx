@@ -5,6 +5,7 @@ import { ImageLightbox } from './ImageLightbox';
 import { ImageStrip } from './ImageStrip';
 import { readRestored, saveRestorable } from '../hooks/restore';
 import { limitSideCrop } from './limitSideCrop';
+import { useReplayOnView } from '../hooks/useReplayOnView';
 import type { StripImage } from './ImageStrip';
 
 export type ImageSlot =
@@ -18,7 +19,8 @@ export type ImageSlot =
    * `fullImage` adds a "See full diagram" button that opens it in a zoomable lightbox.
    * `link` adds the same corner button as a link that opens in a new tab.
    * `stillSrc` is shown instead to readers who prefer reduced motion, for an
-   * animated image.
+   * animated image; `replayOnView` restarts one that plays once each time it
+   * comes back into view.
    * `maxSideCrop` (in the image's own pixels) caps how much a cover-fit image
    * may lose off its left and right, however tall the slot (see limitSideCrop).
    */
@@ -33,6 +35,7 @@ export type ImageSlot =
       link?: { href: string; label: string };
       maxSideCrop?: number;
       stillSrc?: string;
+      replayOnView?: boolean;
     }
   | { type: 'carousel'; images: Array<{ src: string; alt: string }> }
   /**
@@ -53,6 +56,36 @@ const slotKey = (slot: ImageSlot) =>
     : slot.type === 'image'
     ? `lightbox:${slot.fullImage?.src ?? slot.src}`
     : '';
+
+interface SlideImageProps {
+  src: string;
+  alt: string;
+  className: string;
+  style?: React.CSSProperties;
+  maxSideCrop?: number;
+  stillSrc?: string;
+  replayOnView?: boolean;
+}
+
+const SlideImage = ({ src, alt, className, style, maxSideCrop, stillSrc, replayOnView }: SlideImageProps) => {
+  const replay = useReplayOnView(src, !!replayOnView);
+  const ref = useCallback(
+    (img: HTMLImageElement | null) => {
+      replay.ref(img);
+      if (maxSideCrop) limitSideCrop(maxSideCrop)(img);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [maxSideCrop]
+  );
+  return (
+    // An animated image gives way to its still for readers who prefer
+    // reduced motion (the browser picks, no script).
+    <picture className={styles.picture}>
+      {stillSrc && <source media="(prefers-reduced-motion: reduce)" srcSet={stillSrc} />}
+      <img ref={ref} src={replay.src} alt={alt} className={className} style={style} />
+    </picture>
+  );
+};
 
 export const PanelImageSlot = ({ slot }: Props) => {
   const key = slotKey(slot);
@@ -91,7 +124,7 @@ export const PanelImageSlot = ({ slot }: Props) => {
   const imageStyle = position ? { objectPosition: position } : undefined;
   const maxSideCrop = slot.type === 'image' ? slot.maxSideCrop : undefined;
   const stillSrc = slot.type === 'image' ? slot.stillSrc : undefined;
-  const imageRef = maxSideCrop ? limitSideCrop(maxSideCrop) : undefined;
+  const replayOnView = slot.type === 'image' ? slot.replayOnView : undefined;
   const slideClass = maxSideCrop ? `${styles.slide} ${styles.slideLimitCrop}` : styles.slide;
   const backgroundStyle = background ? { background } : undefined;
   const imageClass =
@@ -162,18 +195,15 @@ export const PanelImageSlot = ({ slot }: Props) => {
         >
           {images.map((img, i) => (
             <div key={i} className={slideClass} style={backgroundStyle}>
-              {/* An animated image gives way to its still for readers who
-                  prefer reduced motion (the browser picks, no script). */}
-              <picture className={styles.picture}>
-                {stillSrc && <source media="(prefers-reduced-motion: reduce)" srcSet={stillSrc} />}
-                <img
-                  ref={imageRef}
-                  src={img.src}
-                  alt={img.alt}
-                  className={imageClass}
-                  style={imageStyle}
-                />
-              </picture>
+              <SlideImage
+                src={img.src}
+                alt={img.alt}
+                className={imageClass}
+                style={imageStyle}
+                maxSideCrop={maxSideCrop}
+                stillSrc={stillSrc}
+                replayOnView={replayOnView}
+              />
             </div>
           ))}
         </div>

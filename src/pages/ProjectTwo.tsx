@@ -1,6 +1,10 @@
 import { ProjectHorizontalLayout } from '../components/ProjectHorizontalLayout';
 import layoutStyles from '../components/ProjectHorizontalLayout.module.css';
 import escalationFlow from '../assets/Escalation_1400x1400_b.png';
+// The same two bubbles, played once as an LLM chat: each rises in and types
+// itself out letter by letter, growing to fit, then the assistant's next
+// bubble rises in and stays typing. The PNG is its still.
+import escalationChat from '../assets/Escalation_chat.svg';
 import escalationPanels from '../assets/Escalation_panels_1400x1400.png';
 import escalationContext from '../assets/Escalation_1400x1400_e.png';
 import escalationFlowFull from '../assets/escalation_flow_full.png';
@@ -41,9 +45,11 @@ export const ProjectTwo = () => (
         ),
         imageSlot: {
           type: 'image',
-          src: escalationFlow,
+          src: escalationChat,
+          stillSrc: escalationFlow,
+          replayOnView: true,
           maxSideCrop: 212,
-          alt: 'SVA escalation flow diagram showing the redesigned path from self-service to assisted support, including a verbatim fishing match attempt and targeted topic match attempt',
+          alt: 'Support virtual agent chat: the agent greets the player with "Hi there! How can I help you today?" and the player replies "Live agent", and the agent starts typing a response',
         },
       },
       {

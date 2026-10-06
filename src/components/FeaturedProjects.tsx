@@ -4,8 +4,12 @@ import styles from './FeaturedProjects.module.css';
 import { useLayout } from '../context/LayoutContext';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import escalationFlow from '../assets/Escalation_1400x1400_b.png';
+// The project page's opening graphic, played as an LLM chat (the PNG is its
+// still).
+import escalationChat from '../assets/Escalation_chat.svg';
 import { readRestored, saveRestorable } from '../hooks/restore';
 import { limitSideCrop } from './limitSideCrop';
+import { useReplayOnView } from '../hooks/useReplayOnView';
 
 interface Project {
   id: number;
@@ -15,6 +19,10 @@ interface Project {
   image?: string;
   /** The most the image may lose off its left and right (its own pixels). */
   imageMaxSideCrop?: number;
+  /** For an animated image: a still shown to readers who prefer reduced
+      motion; and whether it replays each time it comes into view. */
+  imageStill?: string;
+  imageReplay?: boolean;
   path: string;
 }
 
@@ -25,7 +33,9 @@ const projects: Project[] = [
     description:
       'Redesigned the Xbox escalation path, collapsing 4 clicks to 1–2 actions. Reduced abandonment from 31% to 18% and lifted CSAT from 3.4 to 4.2. Validated in study with 91% task success.',
     tags: ['Conversational UX', 'LLM design'],
-    image: escalationFlow,
+    image: escalationChat,
+    imageStill: escalationFlow,
+    imageReplay: true,
     imageMaxSideCrop: 212,
     path: '/project/support-escalation',
   },
@@ -72,6 +82,29 @@ const CARD_KEY = 'featuredCard';
 function padNum(n: number) {
   return String(n).padStart(2, '0');
 }
+
+// A card's image: limited side crop, a still for reduced motion and replay
+// on view, where the project asks for them.
+const CardImage = ({ project }: { project: Project }) => {
+  const replay = useReplayOnView(project.image ?? '', !!project.imageReplay);
+  const maxCrop = project.imageMaxSideCrop;
+  const ref = useCallback(
+    (img: HTMLImageElement | null) => {
+      replay.ref(img);
+      if (maxCrop) limitSideCrop(maxCrop)(img);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [maxCrop]
+  );
+  return (
+    <picture className={styles.cardPicture}>
+      {project.imageStill && (
+        <source media="(prefers-reduced-motion: reduce)" srcSet={project.imageStill} />
+      )}
+      <img ref={ref} src={replay.src} alt={project.title} className={styles.cardImage} />
+    </picture>
+  );
+};
 
 export const FeaturedProjects: React.FC = () => {
   const { wheelHandlersRef, setProjectProgress } = useLayout();
@@ -202,12 +235,7 @@ export const FeaturedProjects: React.FC = () => {
                   }`}
                 >
                   {project.image ? (
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      ref={project.imageMaxSideCrop ? limitSideCrop(project.imageMaxSideCrop) : undefined}
-                      className={styles.cardImage}
-                    />
+                    <CardImage project={project} />
                   ) : (
                     <div className={styles.cardImagePlaceholder} />
                   )}
@@ -348,12 +376,7 @@ export const FeaturedProjects: React.FC = () => {
                   }`}
                 >
                   {project.image ? (
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      ref={project.imageMaxSideCrop ? limitSideCrop(project.imageMaxSideCrop) : undefined}
-                      className={styles.cardImage}
-                    />
+                    <CardImage project={project} />
                   ) : (
                     <div className={styles.cardImagePlaceholder} />
                   )}

@@ -207,15 +207,24 @@
    (limitSideCrop sets --max-cover on the image; --img-scale allows for the
    zoom some breakpoints give it). */
 .cardVisual.cardVisualLimitCrop {
-  container-type: inline-size;
+  /* Its size, for the image to measure against (cqw, cqh). */
+  container-type: size;
   display: grid;
   /* One row, the card's own height (not the image's natural height). */
   grid-template-rows: minmax(0, 1fr);
   align-items: center;
 }
 
+/* The card's full height, but no taller than the cap. (In container units
+   rather than a percentage, which some image types — SVG — don't resolve
+   here.) */
 .cardVisualLimitCrop .cardImage {
-  max-height: calc(100cqw * var(--max-cover, 100) / var(--img-scale, 1));
+  height: min(100cqh, calc(100cqw * var(--max-cover, 100) / var(--img-scale, 1)));
+}
+
+/* Lays out as if it weren't there: the image sizes to the card itself. */
+.cardPicture {
+  display: contents;
 }
 
 /* Prev / Next nav row */

@@ -74,15 +74,19 @@
    certain height of slot it stops growing and sits centred (limitSideCrop
    sets --max-cover on the image). */
 .slide.slideLimitCrop {
-  container-type: inline-size;
+  /* Its size, for the image to measure against (cqw, cqh). */
+  container-type: size;
   display: grid;
   /* One row, the slide's own height (not the image's natural height). */
   grid-template-rows: minmax(0, 1fr);
   align-items: center;
 }
 
+/* The slide's full height, but no taller than the cap. (In container units
+   rather than a percentage, which some image types — SVG — don't resolve
+   here.) */
 .slideLimitCrop .image {
-  max-height: calc(100cqw * var(--max-cover, 100));
+  height: min(100cqh, calc(100cqw * var(--max-cover, 100)));
 }
 
 /* Scale the whole image down to fit the slot — never crop it */
@@ -177,6 +181,16 @@
 /* Narrow / short viewports: the slot height follows the image's own aspect
    ratio, so an image that scales down leaves no empty gutter beneath it. */
 @media (max-width: 767px), (orientation: landscape) and (max-height: 500px) {
+  /* Stacked, the slide takes the image's own height: measure the width
+     only, and let the image size itself. */
+  .slide.slideLimitCrop {
+    container-type: inline-size;
+  }
+
+  .slideLimitCrop .image {
+    height: auto;
+  }
+
   .container {
     display: block;
     height: auto;
