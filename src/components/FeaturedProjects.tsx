@@ -85,6 +85,9 @@ const projects: Project[] = [
 // Projects lives at panel index 1 in the horizontal layout
 export const SECTION_INDEX = 1;
 
+/** The carousel's projects, in its order (the nav lists them first, to match). */
+export const FEATURED_PROJECT_PATHS = projects.map((project) => project.path);
+
 const TRACK_TRANSITION = 'transform 0.6s cubic-bezier(0.77, 0, 0.175, 1)';
 const CARD_KEY = 'featuredCard';
 

@@ -2,8 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styles from './Navigation.module.css';
 import { useLayout } from '../context/LayoutContext';
+import { FEATURED_PROJECT_PATHS } from './FeaturedProjects';
 
-const projects = [
+// Every project. The menu lists the home page's featured five first, in the
+// carousel's order, then the rest in the order here.
+const allProjects = [
   { title: 'SVA Improved Escalation to Assisted Support', path: '/project/support-escalation' },
   { title: 'Persistent Chat & OCC Floating Surface', path: '/project/persistent-chat-occ' },
   { title: 'Unrecognized Charge Agent', path: '/project/unrecognized-charge-agent' },
@@ -19,6 +22,13 @@ const projects = [
     path: '/project/scrolling-article-10-foot-experience',
   },
 ];
+
+const featuredRank = (path: string) => {
+  const i = FEATURED_PROJECT_PATHS.indexOf(path);
+  return i === -1 ? Infinity : i;
+};
+// (A stable sort: projects not featured keep their order above.)
+const projects = [...allProjects].sort((a, b) => featuredRank(a.path) - featuredRank(b.path));
 
 // The flyout lists the first few; "More projects" shows the rest.
 const PROJECTS_SHOWN = 5;
