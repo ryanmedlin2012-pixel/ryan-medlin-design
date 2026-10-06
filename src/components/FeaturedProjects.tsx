@@ -7,6 +7,11 @@ import escalationFlow from '../assets/Escalation_1400x1400_b.png';
 // The project page's opening graphic, played as an LLM chat (the PNG is its
 // still).
 import escalationChat from '../assets/Escalation_chat.svg';
+// Voice Chat Reporting: the Problem section's chaos converging into the
+// redesigned five-step report flow, on one line (the PNG is its finished
+// still).
+import vcrFlowOrder from '../assets/VCR_flow_order.svg';
+import vcrFlowOrderStill from '../assets/VCR_flow_order_still.png';
 import { readRestored, saveRestorable } from '../hooks/restore';
 import { limitSideCrop } from './limitSideCrop';
 import { useReplayOnView } from '../hooks/useReplayOnView';
@@ -40,12 +45,16 @@ const projects: Project[] = [
     path: '/project/support-escalation',
   },
   {
-    id: 2,
-    title: 'Persistent Chat & the OCC Floating Surface',
+    id: 4,
+    title: 'Voice Chat Reporting & Voice Safety',
     description:
-      'Designed the Xbox OCC floating chat layer that travels across account pages with full context persistence. Chat engagement doubled (+107%) and CSAT rose to 4.4/5.',
-    tags: ['Interaction Design', 'AI Design', 'Platform'],
-    path: '/project/persistent-chat-occ',
+      'Redesigned Xbox\'s evidence-first voice harassment reporting flow. Report submissions up 21%, evidence attachments up 60%, and action rate on violators up 43%.',
+    tags: ['UX Design', 'Trust & Safety', 'Research'],
+    image: vcrFlowOrder,
+    imageStill: vcrFlowOrderStill,
+    imageReplay: true,
+    imageMaxSideCrop: 212,
+    path: '/project/voice-chat-reporting',
   },
   {
     id: 3,
@@ -56,12 +65,12 @@ const projects: Project[] = [
     path: '/project/unrecognized-charge-agent',
   },
   {
-    id: 4,
-    title: 'Voice Chat Reporting & Voice Safety',
+    id: 2,
+    title: 'Persistent Chat & the OCC Floating Surface',
     description:
-      'Redesigned Xbox\'s evidence-first voice harassment reporting flow. Report submissions up 21%, evidence attachments up 60%, and action rate on violators up 43%.',
-    tags: ['UX Design', 'Trust & Safety', 'Research'],
-    path: '/project/voice-chat-reporting',
+      'Designed the Xbox OCC floating chat layer that travels across account pages with full context persistence. Chat engagement doubled (+107%) and CSAT rose to 4.4/5.',
+    tags: ['Interaction Design', 'AI Design', 'Platform'],
+    path: '/project/persistent-chat-occ',
   },
   {
     id: 5,

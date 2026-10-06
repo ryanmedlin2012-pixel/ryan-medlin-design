@@ -12,6 +12,18 @@ export const useReplayOnView = (src: string, enabled = true) => {
 
   useEffect(() => {
     if (!enabled || !img) return;
+    // Watch the frame the image sits in — what the reader actually sees —
+    // rather than the image, which may be larger than its frame (it's
+    // cropped to fill it) and so never look more than partly in view.
+    // (Skipping any wrapper that has no box of its own, like a <picture>
+    // set to display: contents.)
+    let frame: HTMLElement = img;
+    for (let el = img.parentElement; el; el = el.parentElement) {
+      if (getComputedStyle(el).display !== 'contents') {
+        frame = el;
+        break;
+      }
+    }
     // Only a return counts: an image already in view on load is playing.
     let away = false;
     const observer = new IntersectionObserver(
@@ -24,7 +36,7 @@ export const useReplayOnView = (src: string, enabled = true) => {
       },
       { threshold: [0, 0.5] }
     );
-    observer.observe(img);
+    observer.observe(frame);
     return () => observer.disconnect();
   }, [enabled, img]);
 
