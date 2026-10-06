@@ -128,6 +128,15 @@
   line-height: 1.3;
 }
 
+/* Full desktop: a larger title. (Tablet widths, 768–1024px, keep the
+   smaller size above.) */
+@media (min-width: 1025px) {
+  .cardTitle {
+    font-size: 2.75rem;
+    line-height: 1.15;
+  }
+}
+
 .cardDescription {
   color: #6a6a6a;
   line-height: 1.7;
