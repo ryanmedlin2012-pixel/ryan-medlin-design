@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './FeaturedProjects.module.css';
 import { useLayout } from '../context/LayoutContext';
@@ -20,6 +20,10 @@ import tokenCodeScanStill from '../assets/Token_code_scan_still.png';
 // in on the one in question and names it plainly (the PNG is its still).
 import chargeTransactions from '../assets/Charge_transactions.svg';
 import chargeTransactionsStill from '../assets/Charge_transactions_still.png';
+// Scrolling Article: focus walking an article on a TV, scrolling to the next
+// focusable element (the patented mechanism); the PNG is its still.
+import scrollingArticleFocus from '../assets/Scrolling_article_focus.svg';
+import scrollingArticleFocusStill from '../assets/Scrolling_article_focus_still.png';
 import { readRestored, saveRestorable } from '../hooks/restore';
 import { limitSideCrop } from './limitSideCrop';
 import { useReplayOnView } from '../hooks/useReplayOnView';
@@ -27,6 +31,12 @@ import { useReplayOnView } from '../hooks/useReplayOnView';
 interface Project {
   id: number;
   title: string;
+  /** Where the title should break, if it has to: its phrases, kept whole
+      (each wraps inside itself only if it can't fit a line on its own). */
+  titlePhrases?: string[];
+  /** Always break between the phrases, even where the title would fit one
+      line (for the look of it). */
+  titleAlwaysBreak?: boolean;
   description: string;
   tags: string[];
   image?: string;
@@ -43,6 +53,7 @@ const projects: Project[] = [
   {
     id: 1,
     title: 'Improved Escalation to Assisted Support',
+    titlePhrases: ['Improved Escalation', 'to Assisted Support'],
     description:
       'Redesigned the Xbox escalation path, collapsing 4 clicks to 1–2 actions. Reduced abandonment from 31% to 18% and lifted CSAT from 3.4 to 4.2. Validated in study with 91% task success.',
     tags: ['Conversational UX', 'LLM design'],
@@ -55,6 +66,8 @@ const projects: Project[] = [
   {
     id: 4,
     title: 'Voice Chat Reporting & Voice Safety',
+    titlePhrases: ['Voice Chat Reporting', '& Voice Safety'],
+    titleAlwaysBreak: true,
     description:
       'Redesigned Xbox\'s evidence-first voice harassment reporting flow. Report submissions up 21%, evidence attachments up 60%, and action rate on violators up 43%.',
     tags: ['UX Design', 'Trust & Safety', 'Research'],
@@ -89,12 +102,16 @@ const projects: Project[] = [
     path: '/project/unrecognized-charge-agent',
   },
   {
-    id: 2,
-    title: 'Persistent Chat & the OCC Floating Surface',
+    id: 6,
+    title: 'Scrolling Article — 10-Foot Experience',
     description:
-      'Designed the Xbox OCC floating chat layer that travels across account pages with full context persistence. Chat engagement doubled (+107%) and CSAT rose to 4.4/5.',
-    tags: ['Interaction Design', 'AI Design', 'Platform'],
-    path: '/project/persistent-chat-occ',
+      'Designed a controller-navigable article experience for Xbox console: focusable, expandable content set on a baseline grid, combining vertical scroll with focus jumping. Patented (US12427412B2).',
+    tags: ['Interaction Design', '10-Foot UI', 'Design Systems'],
+    image: scrollingArticleFocus,
+    imageStill: scrollingArticleFocusStill,
+    imageReplay: true,
+    imageMaxSideCrop: 212,
+    path: '/project/scrolling-article-10-foot-experience',
   },
 ];
 
@@ -110,6 +127,21 @@ const CARD_KEY = 'featuredCard';
 function padNum(n: number) {
   return String(n).padStart(2, '0');
 }
+
+// A card's title, breaking (if it must) only between its phrases.
+const ProjectTitle = ({ project }: { project: Project }) =>
+  project.titlePhrases ? (
+    <>
+      {project.titlePhrases.map((phrase, i) => (
+        <Fragment key={i}>
+          {i > 0 && (project.titleAlwaysBreak ? <br /> : ' ')}
+          <span className={styles.titlePhrase}>{phrase}</span>
+        </Fragment>
+      ))}
+    </>
+  ) : (
+    <>{project.title}</>
+  );
 
 // A card's image: limited side crop, a still for reduced motion and replay
 // on view, where the project asks for them.
@@ -268,7 +300,9 @@ export const FeaturedProjects: React.FC = () => {
                     <div className={styles.cardImagePlaceholder} />
                   )}
                 </div>
-                <h3>{project.title}</h3>
+                <h3>
+                  <ProjectTitle project={project} />
+                </h3>
                 <p>{project.description}</p>
                 <div className={styles.tags}>
                   {project.tags.map((tag) => (
@@ -385,7 +419,9 @@ export const FeaturedProjects: React.FC = () => {
             >
               <div className={styles.carouselCard}>
                 <div className={styles.cardInfo}>
-                  <h3 className={styles.cardTitle}>{project.title}</h3>
+                  <h3 className={styles.cardTitle}>
+                    <ProjectTitle project={project} />
+                  </h3>
                   <p className={styles.cardDescription}>{project.description}</p>
                   <div className={styles.tags}>
                     {project.tags.map((tag) => (

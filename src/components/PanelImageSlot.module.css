@@ -58,9 +58,15 @@
     );
 }
 
-/* Lays out as if it weren't there: the image sizes to the slot itself. */
+/* Lays out as if it weren't there: the image sizes to the slot itself.
+   (Its <source> — the still, for reduced motion — must then take no space
+   of its own, or it lands in the slot's layout ahead of the image.) */
 .picture {
   display: contents;
+}
+
+.picture > source {
+  display: none;
 }
 
 .image {
