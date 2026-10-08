@@ -20,8 +20,9 @@ import tokenCodeScanStill from '../assets/Token_code_scan_still.png';
 // in on the one in question and names it plainly (the PNG is its still).
 import chargeTransactions from '../assets/Charge_transactions.svg';
 import chargeTransactionsStill from '../assets/Charge_transactions_still.png';
-// Scrolling Article: focus walking an article on a TV, scrolling to the next
-// focusable element (the patented mechanism); the PNG is its still.
+// Scrolling Article: the patented navigation on a TV — focus jumping between
+// elements, the article scrolling through text between them (the PNG is its
+// still).
 import scrollingArticleFocus from '../assets/Scrolling_article_focus.svg';
 import scrollingArticleFocusStill from '../assets/Scrolling_article_focus_still.png';
 import { readRestored, saveRestorable } from '../hooks/restore';
