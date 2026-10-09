@@ -101,14 +101,22 @@ export const ImageLightbox = ({
 
   // The image is centred inside the scroller while it is smaller than it, so
   // its left/top edge sits this far into the scrollable content.
-  const imageOffset = useCallback((scale: number) => {
-    const scroller = scrollerRef.current!;
-    const { w, h } = naturalRef.current;
-    return {
-      x: Math.max(0, (scroller.clientWidth - w * scale) / 2),
-      y: Math.max(0, (scroller.clientHeight - h * scale - captionBlock()) / 2),
-    };
-  }, [captionBlock]);
+  const imageOffset = useCallback(
+    (scale: number) => {
+      const scroller = scrollerRef.current!;
+      const { w, h } = naturalRef.current;
+      return {
+        x: Math.max(0, (scroller.clientWidth - w * scale) / 2),
+        // (A framed image keeps its gutter above and below even when it's
+        // taller than the window — the stage's padding.)
+        y: Math.max(
+          framed ? FRAMED_GUTTER : 0,
+          (scroller.clientHeight - h * scale - captionBlock()) / 2,
+        ),
+      };
+    },
+    [captionBlock, framed],
+  );
 
   const applyScale = useCallback(
     (scale: number) => {
@@ -170,11 +178,34 @@ export const ImageLightbox = ({
     [applyScale, imageOffset, minScale],
   );
 
+  // The first view of an image: the whole of it, fitted to the window —
+  // unless it's far taller than the window (a full web page, say), when
+  // fitting it all would leave it too small to read. That opens at the
+  // window's width (at most its own size), from the top, to scroll down.
+  const openFirstView = () => {
+    const scroller = scrollerRef.current!;
+    const { w, h } = naturalRef.current;
+    const gutter = framed ? FRAMED_GUTTER * 2 : 0;
+    const widthFit = Math.min((scroller.clientWidth - gutter) / w, MAX_SCALE);
+    const wholeFit = minScale();
+    // (A page is more than 2.5 times as tall as it's wide — posters and
+    // spreads never are.)
+    if (h / w <= 2.5 || wholeFit >= widthFit * 0.5) {
+      restoreView({ scale: 0, cx: 0.5, cy: 0.5 });
+      return;
+    }
+    applyScale(widthFit);
+    scroller.scrollTop = 0;
+    scroller.scrollLeft = (scroller.scrollWidth - scroller.clientWidth) / 2;
+  };
+
   const handleLoad = () => {
     const img = imgRef.current;
     if (!img) return;
     naturalRef.current = { w: img.naturalWidth, h: img.naturalHeight };
-    restoreView(loadView(src) ?? { scale: 0, cx: 0.5, cy: 0.5 });
+    const saved = loadView(src);
+    if (saved) restoreView(saved);
+    else openFirstView();
     setReady(true);
   };
 
@@ -459,7 +490,7 @@ export const ImageLightbox = ({
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
       >
-        <div className={styles.stage}>
+        <div className={`${styles.stage} ${framed ? styles.stageFramed : ''}`}>
           <img
             ref={imgRef}
             src={src}

@@ -9,6 +9,9 @@ export interface StripImage {
   alt: string;
   /** Short name shown in the nav, e.g. "Choose players". */
   label: string;
+  /** A larger or fuller version for the lightbox — e.g. the whole of a
+      tall web page whose top alone (in `src`) shows in the strip. */
+  fullSrc?: string;
   /** Short paragraph shown under the screen. */
   caption?: string;
   /** Its shape, width ÷ height (default 16 / 9): e.g. 3 / 4 for a portrait
@@ -351,7 +354,7 @@ export const ImageStrip = ({
       </div>
       {openImage?.src && (
         <ImageLightbox
-          src={openImage.src}
+          src={openImage.fullSrc ?? openImage.src}
           alt={openImage.alt}
           caption={openImage.caption}
           noun="image"

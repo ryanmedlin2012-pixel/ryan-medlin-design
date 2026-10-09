@@ -112,6 +112,13 @@
   justify-content: center;
 }
 
+/* A framed image's gutter above and below (FRAMED_GUTTER in the script),
+   kept when it's taller than the window, so it never meets the toolbar. */
+.stageFramed {
+  box-sizing: border-box;
+  padding-block: 32px;
+}
+
 .image {
   display: block;
   max-width: none;
