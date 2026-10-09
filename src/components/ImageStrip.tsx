@@ -17,6 +17,10 @@ export interface StripImage {
   /** Its shape, width ÷ height (default 16 / 9): e.g. 3 / 4 for a portrait
       piece. A strip can mix shapes; each item sizes to the strip's height. */
   aspect?: number;
+  /** Several images sharing this place in the strip, stacked one above the
+      other with a gap (in place of `src`). Each opens on its own; `aspect`
+      is then the shape of the whole stack. */
+  stack?: StripImage[];
 }
 
 const DEFAULT_ASPECT = 16 / 9;
@@ -148,8 +152,35 @@ export const ImageStrip = ({
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   // The image open in the lightbox, if any.
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const openImage = openIndex === null ? null : images[openIndex];
+  const [openImage, setOpenImage] = useState<StripImage | null>(null);
+
+  // One image: a button that opens it (with the lightbox), or the image alone,
+  // or a placeholder of its shape.
+  const renderPiece = (image: StripImage) =>
+    image.src && lightbox ? (
+      // A click on a piece in view opens it; on one peeking in from the
+      // right, it slides it into place first (the figure's own click). From
+      // the keyboard (no pointer), it always opens.
+      <button
+        type="button"
+        className={styles.openButton}
+        aria-haspopup="dialog"
+        aria-label={`${image.label}: view larger`}
+        onClick={(e) => {
+          const cropped = e.currentTarget.closest('[data-cropped]');
+          if (cropped && e.detail !== 0) return;
+          setOpenImage(image);
+        }}
+      >
+        <img src={image.src} alt={image.alt} className={styles.image} draggable={false} />
+      </button>
+    ) : image.src ? (
+      <img src={image.src} alt={image.alt} className={styles.image} draggable={false} />
+    ) : (
+      <div className={styles.placeholder} role="img" aria-label={image.alt}>
+        <span>{image.label}</span>
+      </div>
+    );
 
   useEffect(() => {
     const scroller = scrollerRef.current;
@@ -322,32 +353,17 @@ export const ImageStrip = ({
               if (e.currentTarget.hasAttribute('data-cropped')) scrollToIndex(id, i);
             }}
           >
-            <div className={styles.frame}>
-              {image.src && lightbox ? (
-                // A click on a piece in view opens it; on one peeking in from
-                // the right, it slides it into place first (the figure's own
-                // click). From the keyboard (no pointer), it always opens.
-                <button
-                  type="button"
-                  className={styles.openButton}
-                  aria-haspopup="dialog"
-                  aria-label={`${image.label}: view larger`}
-                  onClick={(e) => {
-                    const cropped = e.currentTarget.closest('[data-cropped]');
-                    if (cropped && e.detail !== 0) return;
-                    setOpenIndex(i);
-                  }}
-                >
-                  <img src={image.src} alt={image.alt} className={styles.image} draggable={false} />
-                </button>
-              ) : image.src ? (
-                <img src={image.src} alt={image.alt} className={styles.image} draggable={false} />
-              ) : (
-                <div className={styles.placeholder} role="img" aria-label={image.alt}>
-                  <span>{image.label}</span>
-                </div>
-              )}
-            </div>
+            {image.stack ? (
+              <div className={`${styles.frame} ${styles.frameStack}`}>
+                {image.stack.map((piece, j) => (
+                  <div key={j} className={styles.stackCell}>
+                    {renderPiece(piece)}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.frame}>{renderPiece(image)}</div>
+            )}
             {image.caption && <figcaption className={styles.caption}>{image.caption}</figcaption>}
           </figure>
         ))}
@@ -359,7 +375,7 @@ export const ImageStrip = ({
           caption={openImage.caption}
           noun="image"
           framed={outlined}
-          onClose={() => setOpenIndex(null)}
+          onClose={() => setOpenImage(null)}
         />
       )}
     </>

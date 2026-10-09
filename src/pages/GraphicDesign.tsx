@@ -1,13 +1,14 @@
 import { ProjectHorizontalLayout } from '../components/ProjectHorizontalLayout';
 import type { StripImage } from '../components/ImageStrip';
+import shootingEdgeCover from '../assets/Editorial_shooting_edge_cover.jpg';
+import shootingEdgeBookFront from '../assets/Editorial_shooting_edge_book_front.jpg';
+import shootingEdgeBookBack from '../assets/Editorial_shooting_edge_book_back.jpg';
 import cioHome from '../assets/Editorial_cio_home.jpg';
 import cioHomeFull from '../assets/Editorial_cio_home_full.jpg';
 import cioHomeTablet from '../assets/Editorial_cio_home_tablet.jpg';
 import cioHomeTabletFull from '../assets/Editorial_cio_home_tablet_full.jpg';
 import cioArticle from '../assets/Editorial_cio_article.jpg';
 import cioArticleFull from '../assets/Editorial_cio_article_full.jpg';
-import cioStyleColor from '../assets/Editorial_cio_style_color.jpg';
-import cioStyleType from '../assets/Editorial_cio_style_type.jpg';
 import posterRitaMarquez from '../assets/Poster_rita_marquez.jpg';
 import posterYaldaNight from '../assets/Poster_yalda_night.jpg';
 import posterYaldaNightFlag from '../assets/Poster_yalda_night_flag.jpg';
@@ -34,8 +35,6 @@ interface GalleryPage {
 
 const PORTRAIT = 3 / 4;
 const SPREAD = 3 / 2;
-// A US Letter page, landscape.
-const PAGE_LANDSCAPE = 11 / 8.5;
 
 const placeholderCaption = 'Placeholder — description to come.';
 
@@ -46,6 +45,34 @@ export const GALLERY_PAGES: Record<'editorial' | 'posters' | 'ephemera', Gallery
     intro:
       'Placeholder introduction: magazine and publication design — covers, spreads and the systems behind them. Scroll sideways through the work.',
     pieces: [
+      {
+        src: shootingEdgeCover,
+        label: "America's Shooting Edge",
+        alt: "Cover for America's Shooting Edge: A Portrait of the 1990s Constitutional Militias, by Nita Renfrew, laid flat: camouflage trousers on the back, a camouflage jacket on the front, on white.",
+        aspect: 3900 / 2700,
+        caption: "Cover for America's Shooting Edge, by Nita Renfrew: back, spine and front.",
+      },
+      {
+        // The printed book, front and back, stacked to the right of the flat cover.
+        label: "America's Shooting Edge, the book",
+        alt: "America's Shooting Edge as a printed paperback, front and back.",
+        aspect: 0.39,
+        caption: 'As a paperback, front and back.',
+        stack: [
+          {
+            src: shootingEdgeBookFront,
+            label: "America's Shooting Edge, front",
+            alt: "America's Shooting Edge as a paperback, standing: the front cover and spine.",
+            caption: "America's Shooting Edge as a paperback: the front.",
+          },
+          {
+            src: shootingEdgeBookBack,
+            label: "America's Shooting Edge, back",
+            alt: "America's Shooting Edge as a paperback, standing: the back cover, with its quotes, and the page edges.",
+            caption: "America's Shooting Edge as a paperback: the back.",
+          },
+        ],
+      },
       // The web pages are far taller than the strip: it shows each one's
       // top, and the lightbox the whole page, to scroll down.
       {
@@ -71,20 +98,6 @@ export const GALLERY_PAGES: Record<'editorial' | 'posters' | 'ephemera', Gallery
         alt: 'Design for a CIO.com article page: headline, byline and a long column of body text with images, beside a rail of related stories.',
         aspect: PORTRAIT,
         caption: 'Article page for CIO.com.',
-      },
-      {
-        src: cioStyleColor,
-        label: 'Style guide: color',
-        alt: 'CIO.com style guide page, color palette: swatches from CIO brand red to robin’s egg, each with RGB and hex values and where it’s used.',
-        aspect: PAGE_LANDSCAPE,
-        caption: 'The CIO.com style guide: the color palette.',
-      },
-      {
-        src: cioStyleType,
-        label: 'Style guide: type',
-        alt: 'CIO.com style guide page, typography: Antenna Condensed for display and Myriad Pro for body text, with weights and settings.',
-        aspect: PAGE_LANDSCAPE,
-        caption: 'The CIO.com style guide: typography.',
       },
     ],
   },

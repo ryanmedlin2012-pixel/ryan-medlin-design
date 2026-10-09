@@ -73,6 +73,23 @@
   background-color: #e9ecef;
 }
 
+/* A stack: its images one above the other, the gap between them showing
+   the page (so no frame ground), each image taking an equal share. */
+.frameStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.stackCell {
+  flex: 1 1 0;
+  min-height: 0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
 /* Screens cut off by the right edge (marked by the strip's script) are washed
    out toward the page's white so the fully visible one reads as current. */
 .frame::after {
