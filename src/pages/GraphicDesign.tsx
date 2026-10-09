@@ -9,6 +9,12 @@ import cioHomeTablet from '../assets/Editorial_cio_home_tablet.jpg';
 import cioHomeTabletFull from '../assets/Editorial_cio_home_tablet_full.jpg';
 import cioArticle from '../assets/Editorial_cio_article.jpg';
 import cioArticleFull from '../assets/Editorial_cio_article_full.jpg';
+import weddingFlatOutside from '../assets/Ephemera_wedding_flat_outside.jpg';
+import weddingFlatOutsideFramed from '../assets/Ephemera_wedding_flat_outside_framed.jpg';
+import weddingFlatInside from '../assets/Ephemera_wedding_flat_inside.jpg';
+import weddingFlatInsideFramed from '../assets/Ephemera_wedding_flat_inside_framed.jpg';
+import weddingFoldedOutside from '../assets/Ephemera_wedding_folded_outside.jpg';
+import weddingFoldedInside from '../assets/Ephemera_wedding_folded_inside.jpg';
 import posterRitaMarquez from '../assets/Poster_rita_marquez.jpg';
 import posterYaldaNight from '../assets/Poster_yalda_night.jpg';
 import posterYaldaNightFlag from '../assets/Poster_yalda_night_flag.jpg';
@@ -186,10 +192,40 @@ export const GALLERY_PAGES: Record<'editorial' | 'posters' | 'ephemera', Gallery
       'Placeholder introduction: invitations, tickets, cards and the small printed things in between. Scroll sideways through the work.',
     pieces: [
       {
-        label: 'Invitation',
-        alt: 'Placeholder: an invitation',
-        aspect: 5 / 7,
-        caption: placeholderCaption,
+        src: weddingFlatOutsideFramed,
+        fullSrc: weddingFlatOutside,
+        label: 'Wedding invitation',
+        alt: 'Outside of a trifold wedding invitation in a Vertigo-style poster: a falling couple in silhouette inside an orange and cream spiral, reading "You are cordially invited to the wedding of the century!"',
+        aspect: 1.6,
+        caption: 'A wedding invitation after Saul Bass’s Vertigo poster: the outside, flat.',
+      },
+      {
+        src: weddingFlatInsideFramed,
+        fullSrc: weddingFlatInside,
+        label: 'Wedding invitation, inside',
+        alt: 'Inside of the wedding invitation, flat: "Starring Christine & Andrew" over a still from Vertigo; the save-the-date and ceremony at Mission Dolores; the reception at the Tonga Room.',
+        aspect: 1.6,
+        caption: 'The inside, flat: the couple, the ceremony and the reception.',
+      },
+      {
+        label: 'Wedding invitation, folded',
+        alt: 'The wedding invitation folded and standing, outside and inside.',
+        aspect: 0.73,
+        caption: 'Folded, outside and in.',
+        stack: [
+          {
+            src: weddingFoldedOutside,
+            label: 'Wedding invitation, folded: outside',
+            alt: 'The wedding invitation folded zig-zag and standing, its outside spiral and "wedding of the century" reading across the three panels.',
+            caption: 'The invitation folded: the outside.',
+          },
+          {
+            src: weddingFoldedInside,
+            label: 'Wedding invitation, folded: inside',
+            alt: 'The wedding invitation folded zig-zag and standing, seen from the inside: "Starring Christine & Andrew", the date and ceremony, and the reception.',
+            caption: 'The invitation folded: the inside.',
+          },
+        ],
       },
       {
         label: 'Ticket',
