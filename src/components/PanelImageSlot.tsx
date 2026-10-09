@@ -42,7 +42,14 @@ export type ImageSlot =
    * A row of 16:9 screens that scrolls sideways. Put an `ImageStripNav` with the
    * same `id` in the panel's text to drive it.
    */
-  | { type: 'strip'; id: string; images: StripImage[] };
+  | {
+      type: 'strip';
+      id: string;
+      images: StripImage[];
+      wheelScrolls?: boolean;
+      outlined?: boolean;
+      lightbox?: boolean;
+    };
 
 interface Props {
   slot: ImageSlot;
@@ -54,8 +61,8 @@ const slotKey = (slot: ImageSlot) =>
   slot.type === 'carousel'
     ? `carousel:${slot.images[0]?.src ?? ''}`
     : slot.type === 'image'
-    ? `lightbox:${slot.fullImage?.src ?? slot.src}`
-    : '';
+      ? `lightbox:${slot.fullImage?.src ?? slot.src}`
+      : '';
 
 interface SlideImageProps {
   src: string;
@@ -67,7 +74,15 @@ interface SlideImageProps {
   replayOnView?: boolean;
 }
 
-const SlideImage = ({ src, alt, className, style, maxSideCrop, stillSrc, replayOnView }: SlideImageProps) => {
+const SlideImage = ({
+  src,
+  alt,
+  className,
+  style,
+  maxSideCrop,
+  stillSrc,
+  replayOnView,
+}: SlideImageProps) => {
   const replay = useReplayOnView(src, !!replayOnView);
   const ref = useCallback(
     (img: HTMLImageElement | null) => {
@@ -75,7 +90,7 @@ const SlideImage = ({ src, alt, className, style, maxSideCrop, stillSrc, replayO
       if (maxSideCrop) limitSideCrop(maxSideCrop)(img);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [maxSideCrop]
+    [maxSideCrop],
   );
   return (
     // An animated image gives way to its still for readers who prefer
@@ -98,7 +113,7 @@ export const PanelImageSlot = ({ slot }: Props) => {
   });
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(
-    () => slot.type === 'image' && !!slot.fullImage && readRestored<boolean>(key) === true
+    () => slot.type === 'image' && !!slot.fullImage && readRestored<boolean>(key) === true,
   );
 
   useEffect(() => {
@@ -113,8 +128,8 @@ export const PanelImageSlot = ({ slot }: Props) => {
     slot.type === 'carousel'
       ? slot.images
       : slot.type === 'image'
-      ? [{ src: slot.src, alt: slot.alt }]
-      : [];
+        ? [{ src: slot.src, alt: slot.alt }]
+        : [];
 
   const isCarousel = slot.type === 'carousel' && images.length > 1;
   const background = slot.type === 'image' ? slot.background : undefined;
@@ -139,7 +154,7 @@ export const PanelImageSlot = ({ slot }: Props) => {
       setIsTransitioning(true);
       setCurrentIndex(index);
     },
-    [isTransitioning, images.length]
+    [isTransitioning, images.length],
   );
 
   const handleTransitionEnd = useCallback(() => {
@@ -171,7 +186,13 @@ export const PanelImageSlot = ({ slot }: Props) => {
   if (slot.type === 'strip') {
     return (
       <div className={styles.stripSlot} data-strip-slot>
-        <ImageStrip id={slot.id} images={slot.images} />
+        <ImageStrip
+          id={slot.id}
+          images={slot.images}
+          wheelScrolls={slot.wheelScrolls}
+          outlined={slot.outlined}
+          lightbox={slot.lightbox}
+        />
       </div>
     );
   }

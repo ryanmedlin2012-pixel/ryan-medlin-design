@@ -21,6 +21,7 @@ import { ProjectEight } from './pages/ProjectEight'
 import { ProjectNine } from './pages/ProjectNine'
 import { ProjectTen } from './pages/ProjectTen'
 import { ProjectEleven } from './pages/ProjectEleven'
+import { GraphicDesignPage, GALLERY_PAGES } from './pages/GraphicDesign'
 
 function HomePage() {
   const location = useLocation();
@@ -80,6 +81,9 @@ function App() {
           <Route path="/project/asurion-hardware-card" element={<ProjectNine />} />
           <Route path="/project/floating-sva-front-door" element={<ProjectTen />} />
           <Route path="/project/xds-design-system" element={<ProjectEleven />} />
+          <Route path="/graphic-design/editorial" element={<GraphicDesignPage key="editorial" page={GALLERY_PAGES.editorial} />} />
+          <Route path="/graphic-design/posters" element={<GraphicDesignPage key="posters" page={GALLERY_PAGES.posters} />} />
+          <Route path="/graphic-design/ephemera" element={<GraphicDesignPage key="ephemera" page={GALLERY_PAGES.ephemera} />} />
         </Routes>
       </BrowserRouter>
     </LayoutProvider>

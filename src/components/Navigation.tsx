@@ -33,8 +33,12 @@ const projects = [...allProjects].sort((a, b) => featuredRank(a.path) - featured
 // The flyout lists the first few; "More projects" shows the rest.
 const PROJECTS_SHOWN = 5;
 
-// Graphic design work, by kind. No pages yet, so listed but not linked.
-const graphicDesign = ['Editorial', 'Posters', 'Ephemera'];
+// Graphic design work, by kind.
+const graphicDesign = [
+  { title: 'Editorial', path: '/graphic-design/editorial' },
+  { title: 'Posters', path: '/graphic-design/posters' },
+  { title: 'Ephemera', path: '/graphic-design/ephemera' },
+];
 
 const SECTION_HASHES: Record<string, number> = {
   '/#hero': 0,
@@ -258,11 +262,7 @@ export const Navigation: React.FC = () => {
                 <div id="nav-projects-graphic" className={styles.groupHeading}>
                   Graphic design
                 </div>
-                {graphicDesign.map((kind) => (
-                  <div key={kind} className={`${styles.dropdownItem} ${styles.dropdownItemPending}`}>
-                    {kind}
-                  </div>
-                ))}
+                {graphicDesign.map(projectLink)}
               </div>
             </div>
           </li>

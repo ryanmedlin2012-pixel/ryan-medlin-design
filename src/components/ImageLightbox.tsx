@@ -6,7 +6,17 @@ interface Props {
   src: string;
   alt: string;
   onClose: () => void;
+  /** Text shown under the image (a gallery piece's description). */
+  caption?: string;
+  /** What the image is, for its labels: "diagram" (default), "poster"… */
+  noun?: string;
+  /** Fit the image with room round it and a fine grey edge — for printed
+      pieces, which don't run edge to edge like a diagram. */
+  framed?: boolean;
 }
+
+// The room left round a framed image when it's fitted to the window.
+const FRAMED_GUTTER = 32;
 
 /**
  * Where the viewer left an image: its scale (rendered px / natural px) and the
@@ -45,14 +55,21 @@ const saveView = (src: string, view: ViewState) => {
   }
 };
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, value));
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
-export const ImageLightbox = ({ src, alt, onClose }: Props) => {
+export const ImageLightbox = ({
+  src,
+  alt,
+  onClose,
+  caption,
+  noun = 'diagram',
+  framed = false,
+}: Props) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const captionRef = useRef<HTMLParagraphElement>(null);
 
   // Scale lives in a ref so pinch gestures can resize the image every frame
   // without re-rendering; `scaleLabel` only drives the button states.
@@ -61,12 +78,26 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
   const [scaleLabel, setScaleLabel] = useState({ scale: 0, min: 0 });
   const [ready, setReady] = useState(false);
 
+  // The caption sits just under the image, and the two are centred together,
+  // so the image's fit and position allow for the caption's height (and the
+  // gap above it).
+  const captionBlock = useCallback(() => {
+    const el = captionRef.current;
+    if (!el) return 0;
+    return el.offsetHeight + parseFloat(getComputedStyle(el).marginTop || '0');
+  }, []);
+
   const minScale = useCallback(() => {
     const scroller = scrollerRef.current;
     const { w, h } = naturalRef.current;
     if (!scroller || !w || !h) return 1;
-    return Math.min(scroller.clientWidth / w, scroller.clientHeight / h, MAX_SCALE);
-  }, []);
+    const gutter = framed ? FRAMED_GUTTER * 2 : 0;
+    return Math.min(
+      (scroller.clientWidth - gutter) / w,
+      (scroller.clientHeight - gutter - captionBlock()) / h,
+      MAX_SCALE,
+    );
+  }, [framed, captionBlock]);
 
   // The image is centred inside the scroller while it is smaller than it, so
   // its left/top edge sits this far into the scrollable content.
@@ -75,19 +106,22 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
     const { w, h } = naturalRef.current;
     return {
       x: Math.max(0, (scroller.clientWidth - w * scale) / 2),
-      y: Math.max(0, (scroller.clientHeight - h * scale) / 2),
+      y: Math.max(0, (scroller.clientHeight - h * scale - captionBlock()) / 2),
     };
-  }, []);
+  }, [captionBlock]);
 
-  const applyScale = useCallback((scale: number) => {
-    const img = imgRef.current;
-    const { w, h } = naturalRef.current;
-    if (!img) return;
-    scaleRef.current = scale;
-    img.style.width = `${w * scale}px`;
-    img.style.height = `${h * scale}px`;
-    setScaleLabel({ scale, min: minScale() });
-  }, [minScale]);
+  const applyScale = useCallback(
+    (scale: number) => {
+      const img = imgRef.current;
+      const { w, h } = naturalRef.current;
+      if (!img) return;
+      scaleRef.current = scale;
+      img.style.width = `${w * scale}px`;
+      img.style.height = `${h * scale}px`;
+      setScaleLabel({ scale, min: minScale() });
+    },
+    [minScale],
+  );
 
   /** Zoom to `nextScale`, keeping the image point under (fx, fy) fixed. */
   const zoomAt = useCallback(
@@ -107,7 +141,7 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
       scroller.scrollLeft = px * next + nextOffset.x - focusX;
       scroller.scrollTop = py * next + nextOffset.y - focusY;
     },
-    [applyScale, imageOffset, minScale]
+    [applyScale, imageOffset, minScale],
   );
 
   const currentView = useCallback((): ViewState | null => {
@@ -133,7 +167,7 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
       scroller.scrollLeft = view.cx * w * scale + offset.x - scroller.clientWidth / 2;
       scroller.scrollTop = view.cy * h * scale + offset.y - scroller.clientHeight / 2;
     },
-    [applyScale, imageOffset, minScale]
+    [applyScale, imageOffset, minScale],
   );
 
   const handleLoad = () => {
@@ -224,7 +258,7 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
       zoomAt(
         scaleRef.current * Math.exp(-e.deltaY * 0.01),
         e.clientX - rect.left,
-        e.clientY - rect.top
+        e.clientY - rect.top,
       );
     };
 
@@ -242,7 +276,7 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
       } else if (e.key === 'Tab') {
         // Keep focus inside the dialog.
         const focusable = overlay.querySelectorAll<HTMLElement>(
-          'button:not(:disabled), [tabindex="0"]'
+          'button:not(:disabled), [tabindex="0"]',
         );
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
@@ -264,7 +298,11 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
     };
     const handleGestureChange = (e: Event) => {
       e.preventDefault();
-      const ge = e as Event & { scale: number; clientX: number; clientY: number };
+      const ge = e as Event & {
+        scale: number;
+        clientX: number;
+        clientY: number;
+      };
       const rect = scroller.getBoundingClientRect();
       zoomAt(gestureStartScale * ge.scale, ge.clientX - rect.left, ge.clientY - rect.top);
     };
@@ -282,7 +320,10 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
     };
     const handleTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
-        pinchStart = { distance: touchInfo(e.touches).distance, scale: scaleRef.current };
+        pinchStart = {
+          distance: touchInfo(e.touches).distance,
+          scale: scaleRef.current,
+        };
       }
     };
     const handleTouchMove = (e: TouchEvent) => {
@@ -299,7 +340,9 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
     overlay.addEventListener('keydown', handleKeyDown);
     overlay.addEventListener('gesturestart', handleGestureStart);
     overlay.addEventListener('gesturechange', handleGestureChange);
-    scroller.addEventListener('touchstart', handleTouchStart, { passive: true });
+    scroller.addEventListener('touchstart', handleTouchStart, {
+      passive: true,
+    });
     scroller.addEventListener('touchmove', handleTouchMove, { passive: false });
     scroller.addEventListener('touchend', handleTouchEnd);
     scroller.addEventListener('touchcancel', handleTouchEnd);
@@ -316,7 +359,12 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
   }, [close, zoomAt]);
 
   // Click-and-drag panning with a mouse (touch already pans natively).
-  const dragRef = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
+  const dragRef = useRef<{
+    x: number;
+    y: number;
+    left: number;
+    top: number;
+  } | null>(null);
   const [dragging, setDragging] = useState(false);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -356,6 +404,7 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
       role="dialog"
       aria-modal="true"
       aria-label={alt}
+      aria-describedby={caption ? 'lightbox-caption' : undefined}
     >
       <div className={styles.toolbar}>
         <div className={styles.zoomControls}>
@@ -394,7 +443,7 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
           type="button"
           className={styles.toolButton}
           onClick={close}
-          aria-label="Close full diagram"
+          aria-label={`Close full ${noun}`}
         >
           ×
         </button>
@@ -404,7 +453,7 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
         ref={scrollerRef}
         className={`${styles.scroller} ${dragging ? styles.dragging : ''}`}
         tabIndex={0}
-        aria-label="Diagram. Scroll to pan, pinch or use the zoom buttons to zoom."
+        aria-label={`${noun[0].toUpperCase()}${noun.slice(1)}. Scroll to pan, pinch or use the zoom buttons to zoom.`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={endDrag}
@@ -415,13 +464,18 @@ export const ImageLightbox = ({ src, alt, onClose }: Props) => {
             ref={imgRef}
             src={src}
             alt={alt}
-            className={`${styles.image} ${ready ? styles.imageReady : ''}`}
+            className={`${styles.image} ${framed ? styles.imageFramed : ''} ${ready ? styles.imageReady : ''}`}
             onLoad={handleLoad}
             draggable={false}
           />
+          {caption && (
+            <p ref={captionRef} id="lightbox-caption" className={styles.caption}>
+              {caption}
+            </p>
+          )}
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };

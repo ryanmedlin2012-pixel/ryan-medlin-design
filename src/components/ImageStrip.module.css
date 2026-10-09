@@ -14,8 +14,9 @@
   scroll-snap-type: x mandatory;
   /* Reaching either end doesn't hand the swipe on to the page's panels. */
   overscroll-behavior-x: contain;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(54, 40, 40, 0.25) transparent;
+  /* No scrollbar: the peeking image (and the step nav, where there is one)
+     shows it scrolls, and wheel, keys, swipes and clicks move it. */
+  scrollbar-width: none;
   padding-bottom: 0.75rem;
 }
 
@@ -37,12 +38,7 @@
 }
 
 .strip::-webkit-scrollbar {
-  height: 4px;
-}
-
-.strip::-webkit-scrollbar-thumb {
-  background-color: rgba(54, 40, 40, 0.25);
-  border-radius: 1px;
+  display: none;
 }
 
 .strip:focus-visible {
@@ -51,9 +47,10 @@
 }
 
 /* Each screen is a little narrower than the column so the next one peeks in,
-   which shows at a glance that the strip scrolls. */
+   which shows at a glance that the strip scrolls. (--item-w, where a layout
+   sets it, sizes items by their own shape — --aspect, set per item.) */
 .item {
-  flex: 0 0 var(--item-size);
+  flex: 0 0 var(--item-w, var(--item-size));
   margin: 0;
   scroll-snap-align: start;
 }
@@ -63,13 +60,14 @@
    load, instead of stopping with it pushed to the right. */
 .strip::after {
   content: '';
-  flex: 0 0 max(0px, calc(100% - var(--item-size) - var(--item-gap)));
+  flex: 0 0 max(0px, calc(100% - var(--last-w, var(--item-size)) - var(--item-gap)));
 }
 
-/* The 16:9 screen itself; the caption sits outside it, underneath. */
+/* The screen itself, in its own shape (16:9 unless set); the caption sits
+   outside it, underneath. */
 .frame {
   position: relative;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: var(--aspect, 16 / 9);
   border-radius: 3px;
   overflow: hidden;
   background-color: #e9ecef;
@@ -121,6 +119,35 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Outlined strips: a 1px light grey edge round each image (inside its
+   frame, which clips anything outside), solid so it reads the same against
+   dark pieces and pale ones. */
+.strip[data-outlined] .image {
+  box-sizing: border-box;
+  border: 1px solid #d4d4d4;
+}
+
+/* The button round an image that opens the lightbox: the image itself,
+   nothing added but a magnifier cursor (on pieces in view) and a focus ring. */
+.openButton {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.item[data-cropped] .openButton {
+  cursor: pointer;
+}
+
+.openButton:focus-visible {
+  outline: 2px solid #5a5a5a;
+  outline-offset: -2px;
 }
 
 .placeholder {
@@ -262,9 +289,16 @@
      the window edge (the strip runs to it). The cq units resolve where the
      variable is used — in the strip's children — against the strip itself. */
   --item-size: min(100cqw - var(--min-peek), (100cqh - var(--caption-room)) * 16 / 9);
+  /* The same, by each item's own shape (and the last one's, for the space
+     after it). */
+  --last-w: min(100cqw - var(--min-peek), (100cqh - var(--caption-room)) * var(--last-aspect, 16 / 9));
   height: 100%;
   container-type: size;
   align-items: flex-start;
+}
+
+:global([data-layout='mediaBelow']) .item {
+  --item-w: min(100cqw - var(--min-peek), (100cqh - var(--caption-room)) * var(--aspect, 16 / 9));
 }
 
 /* Stacked layout: the column is narrow, so show more of each screen. */
@@ -273,5 +307,12 @@
     --item-size: calc((100% - var(--strip-bleed, 0px)) * 0.92);
     /* Phones peek only ~35px of the next screen; keep the fade inside it. */
     --edge-fade: 2rem;
+    --last-w: min(calc((100% - var(--strip-bleed, 0px)) * 0.92), 60vh * var(--last-aspect, 16 / 9));
+  }
+
+  /* A tall item is capped by the screen's height instead (60% of it), so a
+     portrait piece doesn't run several screens deep. */
+  .item {
+    --item-w: min(calc((100% - var(--strip-bleed, 0px)) * 0.92), 60vh * var(--aspect, 16 / 9));
   }
 }

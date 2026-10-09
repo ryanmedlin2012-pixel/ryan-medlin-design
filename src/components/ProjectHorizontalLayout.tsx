@@ -19,8 +19,12 @@ export interface PanelData {
   /**
    * 'mediaBelow' puts the text in three columns across the top (label and
    * heading, body, extras such as a strip nav) with the media full width below.
+   * 'gallery' puts a narrow text column beside a strip of work (often
+   * portrait) that runs from the section's top to its bottom and out to the
+   * window's right edge. No step nav: the strip scrolls and is navigated
+   * sideways directly.
    */
-  layout?: 'default' | 'mediaBelow';
+  layout?: 'default' | 'mediaBelow' | 'gallery';
 }
 
 interface Props {
@@ -160,6 +164,33 @@ const useMatchStripWidthToNav = (
   }, [enabled, containerRef, imageColumnRef]);
 };
 
+// Gallery: the strip column runs past the section's right padding (and past
+// its max width) to the panel's — the browser's — right edge, so the piece
+// peeking in is only ever cut off by the window.
+const useBleedToPanelEdge = (
+  enabled: boolean,
+  containerRef: React.RefObject<HTMLDivElement | null>,
+  imageColumnRef: React.RefObject<HTMLDivElement | null>
+) => {
+  useLayoutEffect(() => {
+    if (!enabled) return;
+    const container = containerRef.current;
+    const column = imageColumnRef.current;
+    if (!container || !column) return;
+    const sync = () => {
+      const containerRect = container.getBoundingClientRect();
+      const paddingRight = parseFloat(getComputedStyle(container).paddingRight) || 0;
+      const panelRight = (container.parentElement ?? container).getBoundingClientRect().right;
+      column.style.marginRight = `${-(panelRight - (containerRect.right - paddingRight))}px`;
+    };
+    sync();
+    const observer = new ResizeObserver(sync);
+    observer.observe(container);
+    if (container.parentElement) observer.observe(container.parentElement);
+    return () => observer.disconnect();
+  }, [enabled, containerRef, imageColumnRef]);
+};
+
 // A section's text column scrolls on its own when its copy is long; remember
 // how far, per section, for a refresh.
 const useRestoreTextScroll = (
@@ -194,17 +225,26 @@ const useRestoreTextScroll = (
 };
 
 const PanelContent = ({ panel, index }: { panel: PanelData; index: number }) => {
-  const isStripBelow = panel.layout === 'mediaBelow' && panel.imageSlot.type === 'strip';
-  const { textColumnRef, imageColumnRef } = useAlignImageToText(!isStripBelow);
+  const gallery = panel.layout === 'gallery';
+  const mediaBelow = panel.layout === 'mediaBelow';
+  const isStripBelow = mediaBelow && panel.imageSlot.type === 'strip';
+  const { textColumnRef, imageColumnRef } = useAlignImageToText(!isStripBelow && !gallery);
   useRestoreTextScroll(textColumnRef, index);
   const containerRef = useRef<HTMLDivElement>(null);
   useMatchStripWidthToNav(isStripBelow, containerRef, imageColumnRef);
-  const innerClass =
-    panel.layout === 'mediaBelow'
-      ? `${styles.panelInner} ${styles.panelInnerMediaBelow}`
-      : styles.panelInner;
+  useBleedToPanelEdge(gallery, containerRef, imageColumnRef);
+  const innerClass = mediaBelow
+    ? `${styles.panelInner} ${styles.panelInnerMediaBelow}`
+    : gallery
+    ? `${styles.panelInner} ${styles.panelInnerGallery}`
+    : styles.panelInner;
   return (
-    <div ref={containerRef} className={innerClass} data-layout={panel.layout ?? 'default'}>
+    <div
+      ref={containerRef}
+      className={innerClass}
+      // (The strip sizes itself the same way in both: to the height it has.)
+      data-layout={mediaBelow || gallery ? 'mediaBelow' : 'default'}
+    >
       <div ref={textColumnRef} className={styles.textColumn} data-text-column>
         <span className={styles.sectionLabel}>{panel.sectionLabel}</span>
         {index === 0 ? (
@@ -230,7 +270,11 @@ const PanelContent = ({ panel, index }: { panel: PanelData; index: number }) => 
       </div>
       <div
         ref={imageColumnRef}
-        className={isStripBelow ? `${styles.imageColumn} ${styles.imageColumnStrip}` : styles.imageColumn}
+        className={
+          isStripBelow || gallery
+            ? `${styles.imageColumn} ${styles.imageColumnStrip}`
+            : styles.imageColumn
+        }
       >
         <PanelImageSlot slot={panel.imageSlot} />
       </div>
@@ -808,7 +852,8 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
             </div>
           ))}
         </div>
-        <SectionDots current={currentPanel} panels={panels} onGo={goToPanel} />
+        {/* (A one-section page has nowhere to go: no dots.) */}
+        {panels.length > 1 && <SectionDots current={currentPanel} panels={panels} onGo={goToPanel} />}
       </>
     );
   }
@@ -842,7 +887,8 @@ export const ProjectHorizontalLayout = ({ panels }: Props) => {
           ))}
         </div>
       </div>
-      <SectionDots current={currentPanel} panels={panels} onGo={goToPanel} />
+      {/* (A one-section page has nowhere to go: no dots.) */}
+        {panels.length > 1 && <SectionDots current={currentPanel} panels={panels} onGo={goToPanel} />}
     </>
   );
 };

@@ -193,7 +193,7 @@
 
 /* (Only with a mouse: a tap would leave it highlighted.) */
 @media (hover: hover) {
-  .dropdownItem:not(.dropdownItemPending):hover {
+  .dropdownItem:hover {
     background-color: #f8f8f8;
     color: #6a6a6a;
   }
@@ -227,11 +227,6 @@
 /* A later group starts a little apart from the one above it. */
 [role='group'] + [role='group'] > .groupHeading {
   padding-top: 1rem;
-}
-
-/* Listed, but not yet a link (no page yet): no hover or pointer. */
-.dropdownItemPending {
-  cursor: default;
 }
 
 /* "More interaction projects": a row at the foot of the list, its arrow
@@ -405,11 +400,6 @@
   /* The next group's heading, a little below "More interaction projects". */
   [role='group'] + [role='group'] > .groupHeading {
     padding-top: calc(0.25rem + 6px);
-  }
-
-  /* Listed (not linked) items, spaced as the menu's links are. */
-  .dropdown .dropdownItemPending {
-    padding: 0.625rem 1.5rem 0.625rem 2.25rem;
   }
 
   /* A little extra room before the rule that closes Projects. */

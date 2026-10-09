@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import styles from './ImageStrip.module.css';
+import { ImageLightbox } from './ImageLightbox';
 import { readRestored, saveRestorable } from '../hooks/restore';
 
 export interface StripImage {
@@ -10,7 +11,12 @@ export interface StripImage {
   label: string;
   /** Short paragraph shown under the screen. */
   caption?: string;
+  /** Its shape, width ÷ height (default 16 / 9): e.g. 3 / 4 for a portrait
+      piece. A strip can mix shapes; each item sizes to the strip's height. */
+  aspect?: number;
 }
+
+const DEFAULT_ASPECT = 16 / 9;
 
 // ─── Shared state ─────────────────────────────────────────────────────────────
 // The strip lives in a panel's image column and its nav lives in the text
@@ -49,25 +55,144 @@ const useStripActive = (id: string) =>
       listeners.get(id)!.add(listener);
       return () => listeners.get(id)!.delete(listener);
     },
-    () => getStrip(id).active
+    () => getStrip(id).active,
   );
+
+// Gliding from one image to another: an eased animation of the strip's
+// scroll position (smoother and more even than the browser's own smooth
+// scroll), with scroll snapping paused while it runs so the two can't fight.
+// A new glide takes over from one still running, from wherever it's got to.
+const GLIDE_MS = 560;
+const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+const glides = new WeakMap<HTMLElement, { frame: number; target: number }>();
+
+const glideTo = (scroller: HTMLDivElement, left: number) => {
+  const max = scroller.scrollWidth - scroller.clientWidth;
+  const target = Math.max(0, Math.min(left, max));
+  const running = glides.get(scroller);
+  if (running) cancelAnimationFrame(running.frame);
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) {
+    scroller.scrollLeft = target;
+    glides.delete(scroller);
+    return;
+  }
+  const from = scroller.scrollLeft;
+  const start = performance.now();
+  scroller.style.scrollSnapType = 'none';
+  const step = (now: number) => {
+    const t = Math.min(1, (now - start) / GLIDE_MS);
+    scroller.scrollLeft = from + (target - from) * easeInOut(t);
+    if (t < 1) {
+      glides.set(scroller, { frame: requestAnimationFrame(step), target });
+    } else {
+      glides.delete(scroller);
+      scroller.style.scrollSnapType = '';
+    }
+  };
+  glides.set(scroller, { frame: requestAnimationFrame(step), target });
+};
+
+/** Where the strip is heading: a running glide's target, or where it is. */
+const headingTo = (scroller: HTMLDivElement) => glides.get(scroller)?.target ?? scroller.scrollLeft;
+
+/** The image nearest a scroll position (by its left edge). */
+const nearestIndex = (scroller: HTMLDivElement, left: number) => {
+  const items = Array.from(scroller.children) as HTMLElement[];
+  let nearest = 0;
+  items.forEach((item, i) => {
+    if (Math.abs(item.offsetLeft - left) < Math.abs(items[nearest].offsetLeft - left)) nearest = i;
+  });
+  return nearest;
+};
 
 const scrollToIndex = (id: string, index: number) => {
   const scroller = getStrip(id).scroller;
   const item = scroller?.children[index] as HTMLElement | undefined;
   if (!scroller || !item) return;
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  scroller.scrollTo({
-    left: item.offsetLeft,
-    behavior: reduceMotion ? 'auto' : 'smooth',
-  });
+  glideTo(scroller, item.offsetLeft);
   setActive(id, index);
+};
+
+/** One image along, from wherever the strip is heading. */
+const step = (id: string, direction: 1 | -1) => {
+  const scroller = getStrip(id).scroller;
+  if (!scroller) return;
+  const count = scroller.children.length;
+  const current = nearestIndex(scroller, headingTo(scroller));
+  scrollToIndex(id, Math.max(0, Math.min(current + direction, count - 1)));
 };
 
 // ─── Right column: the scrolling strip ────────────────────────────────────────
 
-export const ImageStrip = ({ id, images }: { id: string; images: StripImage[] }) => {
+export const ImageStrip = ({
+  id,
+  images,
+  wheelScrolls = false,
+  outlined = false,
+  lightbox = false,
+}: {
+  id: string;
+  images: StripImage[];
+  /** Let an ordinary (vertical) mouse wheel scroll the strip sideways — for
+      a strip with no step nav, where it's the main way through. */
+  wheelScrolls?: boolean;
+  /** A fine grey edge round each image — for printed pieces, whose own
+      edges (often white or pale) would otherwise melt into the page. */
+  outlined?: boolean;
+  /** Open each image, larger and zoomable, with its caption, when clicked. */
+  lightbox?: boolean;
+}) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  // The image open in the lightbox, if any.
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const openImage = openIndex === null ? null : images[openIndex];
+
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller || !wheelScrolls) return;
+    // Each wheel movement glides one image along. A wheel sends a burst of
+    // events per notch (a trackpad, many more per swipe), so after a glide
+    // starts, the rest of that burst is absorbed rather than skipping on.
+    let quietUntil = 0;
+    const handleWheel = (e: WheelEvent) => {
+      // Sideways gestures (trackpads) already scroll it.
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      const max = scroller.scrollWidth - scroller.clientWidth;
+      const at = headingTo(scroller);
+      const atStart = at <= 0 && e.deltaY < 0;
+      const atEnd = at >= max - 1 && e.deltaY > 0;
+      if (atStart || atEnd) return;
+      e.preventDefault();
+      // (Kept from the page, which would otherwise take the wheel to move
+      // between sections.)
+      e.stopPropagation();
+      const now = performance.now();
+      if (now < quietUntil) {
+        quietUntil = now + 180;
+        return;
+      }
+      quietUntil = now + 180;
+      step(id, e.deltaY > 0 ? 1 : -1);
+    };
+    scroller.addEventListener('wheel', handleWheel, { passive: false });
+    return () => scroller.removeEventListener('wheel', handleWheel);
+  }, [wheelScrolls, id]);
+
+  // Left and right arrow keys glide one image along (the strip has focus; it
+  // owns its arrow keys — see data-own-arrow-keys).
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      e.preventDefault();
+      step(id, e.key === 'ArrowRight' ? 1 : -1);
+    };
+    scroller.addEventListener('keydown', handleKey);
+    return () => scroller.removeEventListener('keydown', handleKey);
+  }, [id]);
 
   useEffect(() => {
     const scroller = scrollerRef.current;
@@ -144,7 +269,7 @@ export const ImageStrip = ({ id, images }: { id: string; images: StripImage[] })
           (entry.target as HTMLElement).toggleAttribute('data-cropped', cropped);
         });
       },
-      { root: scroller, threshold: [0, 0.25, 0.5, 0.75, 0.98, 1] }
+      { root: scroller, threshold: [0, 0.25, 0.5, 0.75, 0.98, 1] },
     );
     items().forEach((item) => cropObserver.observe(item));
 
@@ -158,39 +283,83 @@ export const ImageStrip = ({ id, images }: { id: string; images: StripImage[] })
   }, [id]);
 
   return (
-    <div
-      ref={scrollerRef}
-      id={`strip-${id}`}
-      className={styles.strip}
-      tabIndex={0}
-      data-own-arrow-keys
-      role="region"
-      aria-label="Screens, scroll sideways to see more"
-    >
-      {images.map((image, i) => (
-        // A screen peeking in from the right (marked data-cropped) slides into
-        // place when clicked, the same as choosing its step in the nav.
-        // Keyboard users have the nav's buttons for this.
-        <figure
-          key={i}
-          className={styles.item}
-          onClick={(e) => {
-            if (e.currentTarget.hasAttribute('data-cropped')) scrollToIndex(id, i);
-          }}
-        >
-          <div className={styles.frame}>
-            {image.src ? (
-              <img src={image.src} alt={image.alt} className={styles.image} draggable={false} />
-            ) : (
-              <div className={styles.placeholder} role="img" aria-label={image.alt}>
-                <span>{image.label}</span>
-              </div>
-            )}
-          </div>
-          {image.caption && <figcaption className={styles.caption}>{image.caption}</figcaption>}
-        </figure>
-      ))}
-    </div>
+    <>
+      <div
+        ref={scrollerRef}
+        id={`strip-${id}`}
+        className={styles.strip}
+        // The last item's shape sizes the space after it (so it can scroll to
+        // where the first one sits).
+        style={
+          {
+            '--last-aspect': images[images.length - 1]?.aspect ?? DEFAULT_ASPECT,
+          } as React.CSSProperties
+        }
+        tabIndex={0}
+        data-own-arrow-keys
+        data-outlined={outlined || undefined}
+        role="region"
+        aria-label={
+          lightbox ? 'Work, scroll sideways to see more' : 'Screens, scroll sideways to see more'
+        }
+      >
+        {images.map((image, i) => (
+          // A screen peeking in from the right (marked data-cropped) slides into
+          // place when clicked, the same as choosing its step in the nav.
+          // Keyboard users have the nav's buttons for this.
+          <figure
+            key={i}
+            className={styles.item}
+            style={
+              {
+                '--aspect': image.aspect ?? DEFAULT_ASPECT,
+              } as React.CSSProperties
+            }
+            onClick={(e) => {
+              if (e.currentTarget.hasAttribute('data-cropped')) scrollToIndex(id, i);
+            }}
+          >
+            <div className={styles.frame}>
+              {image.src && lightbox ? (
+                // A click on a piece in view opens it; on one peeking in from
+                // the right, it slides it into place first (the figure's own
+                // click). From the keyboard (no pointer), it always opens.
+                <button
+                  type="button"
+                  className={styles.openButton}
+                  aria-haspopup="dialog"
+                  aria-label={`${image.label}: view larger`}
+                  onClick={(e) => {
+                    const cropped = e.currentTarget.closest('[data-cropped]');
+                    if (cropped && e.detail !== 0) return;
+                    setOpenIndex(i);
+                  }}
+                >
+                  <img src={image.src} alt={image.alt} className={styles.image} draggable={false} />
+                </button>
+              ) : image.src ? (
+                <img src={image.src} alt={image.alt} className={styles.image} draggable={false} />
+              ) : (
+                <div className={styles.placeholder} role="img" aria-label={image.alt}>
+                  <span>{image.label}</span>
+                </div>
+              )}
+            </div>
+            {image.caption && <figcaption className={styles.caption}>{image.caption}</figcaption>}
+          </figure>
+        ))}
+      </div>
+      {openImage?.src && (
+        <ImageLightbox
+          src={openImage.src}
+          alt={openImage.alt}
+          caption={openImage.caption}
+          noun="image"
+          framed={outlined}
+          onClose={() => setOpenIndex(null)}
+        />
+      )}
+    </>
   );
 };
 
@@ -274,7 +443,11 @@ export const ImageStripNav = ({ id, images }: { id: string; images: StripImage[]
     const handleDown = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse' || e.button !== 0) return;
       if (steps.scrollWidth <= steps.clientWidth + 1) return;
-      start = { x: e.clientX, scrollLeft: steps.scrollLeft, pointerId: e.pointerId };
+      start = {
+        x: e.clientX,
+        scrollLeft: steps.scrollLeft,
+        pointerId: e.pointerId,
+      };
       didDrag = false;
     };
     const handleMove = (e: PointerEvent) => {
@@ -325,12 +498,7 @@ export const ImageStripNav = ({ id, images }: { id: string; images: StripImage[]
 
   return (
     <div className={styles.nav} data-strip-nav>
-      <div
-        ref={stepsRef}
-        className={stepsClass}
-        role="group"
-        aria-label="Choose a screen"
-      >
+      <div ref={stepsRef} className={stepsClass} role="group" aria-label="Choose a screen">
         {images.map((image, i) => (
           <button
             key={i}
