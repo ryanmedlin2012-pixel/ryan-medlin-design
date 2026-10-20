@@ -57,8 +57,10 @@
 .panelInnerMediaBelow .textColumn {
   display: grid;
   /* A narrow text column on the left; the nav column takes the width its
-     steps need on one line and sits right beside it, one column gap away. */
-  grid-template-columns: minmax(0, 22rem) max-content;
+     steps need on one line and sits right beside it, one column gap away.
+     With many steps the nav gives way first (its row scrolls sideways) and
+     the text column keeps a readable width. */
+  grid-template-columns: minmax(min(16rem, 100%), 22rem) minmax(0, max-content);
   grid-template-rows: auto auto auto 1fr;
   column-gap: 3rem;
   overflow: visible;

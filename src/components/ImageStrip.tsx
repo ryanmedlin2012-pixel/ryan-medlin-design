@@ -217,6 +217,82 @@ export const ImageStrip = ({
     return () => scroller.removeEventListener('wheel', handleWheel);
   }, [wheelScrolls, id]);
 
+  // Press and drag with a mouse to move the strip (touch already swipes).
+  // It follows the pointer while pressed; on release it glides to the nearest
+  // screen — or, after a deliberate drag that hasn't passed halfway, one on in
+  // the direction dragged. A drag only starts past a few pixels, so plain
+  // clicks still work, and the click that ends a drag is swallowed.
+  const [dragging, setDragging] = useState(false);
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const THRESHOLD = 5;
+    const NUDGE = 40;
+    let start: { x: number; left: number; index: number; pointerId: number } | null = null;
+    let didDrag = false;
+
+    const handleDown = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      if (scroller.scrollWidth <= scroller.clientWidth + 1) return;
+      const running = glides.get(scroller);
+      if (running) {
+        cancelAnimationFrame(running.frame);
+        glides.delete(scroller);
+      }
+      start = {
+        x: e.clientX,
+        left: scroller.scrollLeft,
+        index: nearestIndex(scroller, scroller.scrollLeft),
+        pointerId: e.pointerId,
+      };
+      didDrag = false;
+    };
+    const handleMove = (e: PointerEvent) => {
+      if (!start || e.pointerId !== start.pointerId) return;
+      const dx = e.clientX - start.x;
+      if (!didDrag) {
+        if (Math.abs(dx) < THRESHOLD) return;
+        didDrag = true;
+        scroller.setPointerCapture(e.pointerId);
+        scroller.style.scrollSnapType = 'none';
+        setDragging(true);
+      }
+      scroller.scrollLeft = start.left - dx;
+    };
+    const handleUp = (e: PointerEvent) => {
+      if (!start || e.pointerId !== start.pointerId) return;
+      if (scroller.hasPointerCapture(e.pointerId)) scroller.releasePointerCapture(e.pointerId);
+      if (didDrag) {
+        const dx = e.clientX - start.x;
+        const count = scroller.children.length;
+        let index = nearestIndex(scroller, scroller.scrollLeft);
+        if (index === start.index && Math.abs(dx) > NUDGE) index += dx < 0 ? 1 : -1;
+        scrollToIndex(id, Math.max(0, Math.min(index, count - 1)));
+        setDragging(false);
+      }
+      start = null;
+    };
+    const handleClick = (e: MouseEvent) => {
+      if (!didDrag) return;
+      didDrag = false;
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    scroller.addEventListener('pointerdown', handleDown);
+    scroller.addEventListener('pointermove', handleMove);
+    scroller.addEventListener('pointerup', handleUp);
+    scroller.addEventListener('pointercancel', handleUp);
+    scroller.addEventListener('click', handleClick, true);
+    return () => {
+      scroller.removeEventListener('pointerdown', handleDown);
+      scroller.removeEventListener('pointermove', handleMove);
+      scroller.removeEventListener('pointerup', handleUp);
+      scroller.removeEventListener('pointercancel', handleUp);
+      scroller.removeEventListener('click', handleClick, true);
+    };
+  }, [id]);
+
   // Left and right arrow keys glide one image along (the strip has focus; it
   // owns its arrow keys — see data-own-arrow-keys).
   useEffect(() => {
@@ -298,23 +374,31 @@ export const ImageStrip = ({
 
     // Mark screens the strip's right edge cuts off (the strip runs to the
     // window edge, so this is the browser cropping them) so CSS can dim them.
-    const cropObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const rootRight = entry.rootBounds?.right ?? Infinity;
-          const cropped =
-            entry.intersectionRatio < 0.98 && entry.boundingClientRect.right > rootRight + 1;
-          (entry.target as HTMLElement).toggleAttribute('data-cropped', cropped);
-        });
-      },
-      { root: scroller, threshold: [0, 0.25, 0.5, 0.75, 0.98, 1] },
-    );
-    items().forEach((item) => cropObserver.observe(item));
+    // Judged by the right edge alone, checked on every scroll frame and
+    // resize — not by how much of a screen shows, which a screen taller than
+    // the strip (a long caption) never reaches.
+    let cropFrame = 0;
+    const markCropped = () => {
+      cropFrame = 0;
+      const right = scroller.getBoundingClientRect().right;
+      items().forEach((item) =>
+        item.toggleAttribute('data-cropped', item.getBoundingClientRect().right > right + 1),
+      );
+    };
+    const queueMarkCropped = () => {
+      if (!cropFrame) cropFrame = requestAnimationFrame(markCropped);
+    };
+    markCropped();
+    scroller.addEventListener('scroll', queueMarkCropped, { passive: true });
+    const cropObserver = new ResizeObserver(queueMarkCropped);
+    cropObserver.observe(scroller);
 
     return () => {
       cancelAnimationFrame(restoreFrame);
       scroller.removeEventListener('scroll', handleScroll);
       cropObserver.disconnect();
+      scroller.removeEventListener('scroll', queueMarkCropped);
+      cancelAnimationFrame(cropFrame);
       clearTimeout(timer);
       strips.set(id, { ...getStrip(id), scroller: null });
     };
@@ -325,7 +409,7 @@ export const ImageStrip = ({
       <div
         ref={scrollerRef}
         id={`strip-${id}`}
-        className={styles.strip}
+        className={`${styles.strip} ${dragging ? styles.stripDragging : ''}`}
         // The last item's shape sizes the space after it (so it can scroll to
         // where the first one sits).
         style={
@@ -428,17 +512,17 @@ export const ImageStripNav = ({ id, images }: { id: string; images: StripImage[]
     };
   }, [navStorageKey]);
 
-  // When the steps overflow (phones), keep the active one in view as the
-  // strip moves. Scrolls only the steps row, never the page.
+  // When the steps overflow, the row follows the strip: the active step
+  // slides to the row's left edge, over the screen in first place below it
+  // (as far as the row can scroll). Scrolls only the steps row, never the
+  // page.
   useEffect(() => {
     if (performance.now() < holdFollowUntilRef.current) return;
     const steps = stepsRef.current;
     const step = steps?.children[active] as HTMLElement | undefined;
     if (!steps || !step || steps.scrollWidth <= steps.clientWidth) return;
     const left = step.offsetLeft;
-    const right = left + step.offsetWidth;
-    const visibleRight = steps.scrollLeft + steps.clientWidth - steps.clientWidth * 0.15;
-    if (left >= steps.scrollLeft && right <= visibleRight) return;
+    if (Math.abs(left - steps.scrollLeft) < 1) return;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     steps.scrollTo({ left, behavior: reduceMotion ? 'auto' : 'smooth' });
   }, [active]);
@@ -453,7 +537,19 @@ export const ImageStripNav = ({ id, images }: { id: string; images: StripImage[]
   useEffect(() => {
     const steps = stepsRef.current;
     if (!steps) return;
-    const measure = () => setOverflowing(steps.scrollWidth > steps.clientWidth + 1);
+    const measure = () => {
+      // Room after the last step when the row overflows, so even the last
+      // one can scroll to the row's left edge (over the first screen). The
+      // row's own end is measured without it, then the room is sized so the
+      // furthest scroll lands exactly on the last step.
+      steps.style.setProperty('--nav-tail', '0px');
+      const last = steps.lastElementChild as HTMLElement | null;
+      const overflows = steps.scrollWidth > steps.clientWidth + 1;
+      setOverflowing(overflows);
+      if (!overflows || !last) return;
+      const tail = last.offsetLeft - (steps.scrollWidth - steps.clientWidth);
+      steps.style.setProperty('--nav-tail', `${Math.max(0, tail)}px`);
+    };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(steps);

@@ -37,6 +37,19 @@
   );
 }
 
+/* With a mouse the strip can be pressed and dragged (see ImageStrip). */
+@media (hover: hover) and (pointer: fine) {
+  .strip {
+    cursor: grab;
+  }
+}
+
+.stripDragging,
+.stripDragging * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
 .strip::-webkit-scrollbar {
   display: none;
 }
@@ -219,6 +232,13 @@
   scrollbar-width: none;
   margin-right: calc(-1 * var(--nav-bleed, 0px));
   padding-right: var(--nav-bleed, 0px);
+}
+
+/* The room after the last step (see ImageStripNav), so it too can scroll
+   to the row's left edge. */
+.navSteps::after {
+  content: '';
+  flex: 0 0 var(--nav-tail, 0px);
 }
 
 .navSteps::-webkit-scrollbar {
