@@ -57,8 +57,7 @@ const flowScreens: StripImage[] = [
     label: 'Analyzing',
     alt: 'The two card images shown in the chat, uploaded, with the status Analyzing',
     aspect: 440 / 929,
-    caption:
-      'The images appear in the chat as they’re checked, so players see what was sent.',
+    caption: 'The images appear in the chat as they’re checked, so players see what was sent.',
   },
   {
     src: tokenFlow6,
@@ -242,10 +241,17 @@ export const ProjectOne = () => (
               Eleven screens take a player from a damaged card to a working code, without a live
               agent. Step through them here, or scroll the screens sideways.
             </p>
-            <ImageStripNav id="token-flow" images={flowScreens} />
+            <ImageStripNav id="token-flow" images={flowScreens} matchScreens dragHint />
           </>
         ),
-        imageSlot: { type: 'strip', id: 'token-flow', images: flowScreens },
+        imageSlot: {
+          type: 'strip',
+          id: 'token-flow',
+          images: flowScreens,
+          flowArrows: true,
+          uniformWidth: true,
+          outlined: true,
+        },
         layout: 'mediaBelow',
       },
       {

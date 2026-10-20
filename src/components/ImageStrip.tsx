@@ -142,6 +142,8 @@ export const ImageStrip = ({
   wheelScrolls = false,
   outlined = false,
   lightbox = false,
+  flowArrows = false,
+  uniformWidth = false,
 }: {
   id: string;
   images: StripImage[];
@@ -153,8 +155,17 @@ export const ImageStrip = ({
   outlined?: boolean;
   /** Open each image, larger and zoomable, with its caption, when clicked. */
   lightbox?: boolean;
+  /** Arrows between the screens, for a flow that runs left to right. */
+  flowArrows?: boolean;
+  /** Give every screen the same box — the shape of the shortest — rather
+      than sizing each to the strip's height. A longer screen shows from the
+      bottom up: in a chat that's where each step's new content lands. */
+  uniformWidth?: boolean;
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const widthAspect = uniformWidth
+    ? Math.max(...images.map((image) => image.aspect ?? DEFAULT_ASPECT))
+    : null;
   // The image open in the lightbox, if any.
   const [openImage, setOpenImage] = useState<StripImage | null>(null);
 
@@ -414,12 +425,14 @@ export const ImageStrip = ({
         // where the first one sits).
         style={
           {
-            '--last-aspect': images[images.length - 1]?.aspect ?? DEFAULT_ASPECT,
+            '--last-aspect': widthAspect ?? images[images.length - 1]?.aspect ?? DEFAULT_ASPECT,
           } as React.CSSProperties
         }
         tabIndex={0}
         data-own-arrow-keys
         data-outlined={outlined || undefined}
+        data-flow-arrows={flowArrows || undefined}
+        data-uniform-width={uniformWidth || undefined}
         role="region"
         aria-label={
           lightbox ? 'Work, scroll sideways to see more' : 'Screens, scroll sideways to see more'
@@ -435,6 +448,7 @@ export const ImageStrip = ({
             style={
               {
                 '--aspect': image.aspect ?? DEFAULT_ASPECT,
+                ...(widthAspect ? { '--width-aspect': widthAspect } : {}),
               } as React.CSSProperties
             }
             onClick={(e) => {
@@ -454,7 +468,24 @@ export const ImageStrip = ({
                 ))}
               </div>
             ) : (
-              <div className={styles.frame}>{renderPiece(image)}</div>
+              <div className={styles.frameWrap}>
+                <div className={styles.frame}>{renderPiece(image)}</div>
+                {flowArrows && i < images.length - 1 && (
+                  // (Decorative: the order is in the step nav and each screen's text.)
+                  <span className={styles.flowArrow} aria-hidden="true">
+                    <svg
+                      className={styles.flowArrowLine}
+                      preserveAspectRatio="none"
+                      viewBox="0 0 100 12"
+                    >
+                      <path d="M0 6H99" vectorEffect="non-scaling-stroke" />
+                    </svg>
+                    <svg className={styles.flowArrowHead} viewBox="0 0 8 12">
+                      <path d="M1.5 1.5L6.5 6L1.5 10.5" />
+                    </svg>
+                  </span>
+                )}
+              </div>
             )}
             {image.caption && <figcaption className={styles.caption}>{image.caption}</figcaption>}
           </figure>
@@ -476,7 +507,21 @@ export const ImageStrip = ({
 
 // ─── Left column: the nav that drives the strip ───────────────────────────────
 
-export const ImageStripNav = ({ id, images }: { id: string; images: StripImage[] }) => {
+export const ImageStripNav = ({
+  id,
+  images,
+  matchScreens = false,
+  dragHint = false,
+}: {
+  id: string;
+  images: StripImage[];
+  /** Size each step to the screen below it, with the strip's own gap between
+      them, and scroll the two together: every step stays over its screen. */
+  matchScreens?: boolean;
+  /** A small key above the steps saying how to move the screens: press and
+      drag with a mouse (the hand the cursor turns into), or swipe by touch. */
+  dragHint?: boolean;
+}) => {
   const active = useStripActive(id);
   const goTo = useCallback((index: number) => scrollToIndex(id, index), [id]);
   const stepsRef = useRef<HTMLDivElement>(null);
@@ -489,7 +534,8 @@ export const ImageStripNav = ({ id, images }: { id: string; images: StripImage[]
   // when it overflows, on narrow screens).
   useEffect(() => {
     const steps = stepsRef.current;
-    if (!steps) return;
+    // (Matched to the screens, the row simply goes where the strip is.)
+    if (!steps || matchScreens) return;
     const saved = readRestored<number>(navStorageKey);
     // A saved 0 means "not scrolled": nothing to put back, so let the row
     // bring the active step into view as usual.
@@ -510,14 +556,14 @@ export const ImageStripNav = ({ id, images }: { id: string; images: StripImage[]
       steps.removeEventListener('scroll', handleScroll);
       clearTimeout(timer);
     };
-  }, [navStorageKey]);
+  }, [navStorageKey, matchScreens]);
 
   // When the steps overflow, the row follows the strip: the active step
   // slides to the row's left edge, over the screen in first place below it
   // (as far as the row can scroll). Scrolls only the steps row, never the
   // page.
   useEffect(() => {
-    if (performance.now() < holdFollowUntilRef.current) return;
+    if (matchScreens || performance.now() < holdFollowUntilRef.current) return;
     const steps = stepsRef.current;
     const step = steps?.children[active] as HTMLElement | undefined;
     if (!steps || !step || steps.scrollWidth <= steps.clientWidth) return;
@@ -525,7 +571,82 @@ export const ImageStripNav = ({ id, images }: { id: string; images: StripImage[]
     if (Math.abs(left - steps.scrollLeft) < 1) return;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     steps.scrollTo({ left, behavior: reduceMotion ? 'auto' : 'smooth' });
-  }, [active]);
+  }, [active, matchScreens]);
+
+  // Matched to the screens: each step as wide as its screen, the strip's gap
+  // between them, and the two rows scrolled as one — the strip leads when it
+  // moves (drag, glide, keys, trackpad) and the steps row when it's dragged
+  // or swiped itself, after which the strip settles on the nearest screen.
+  const [screenWidths, setScreenWidths] = useState<number[] | null>(null);
+  const [screenGap, setScreenGap] = useState<number | null>(null);
+  useEffect(() => {
+    if (!matchScreens) return;
+    let frame = 0;
+    let detach = () => {};
+    const attach = () => {
+      const scroller = document.getElementById(`strip-${id}`) as HTMLDivElement | null;
+      const steps = stepsRef.current;
+      if (!scroller || !steps) {
+        frame = requestAnimationFrame(attach);
+        return;
+      }
+      const measure = () => {
+        const items = Array.from(scroller.children) as HTMLElement[];
+        setScreenWidths(items.map((item) => item.getBoundingClientRect().width));
+        setScreenGap(parseFloat(getComputedStyle(scroller).columnGap) || 0);
+        // As wide as the strip, out to the window edge, so the two rows end
+        // (and fade) together.
+        steps.style.width = `${scroller.getBoundingClientRect().width}px`;
+      };
+      measure();
+      const observer = new ResizeObserver(measure);
+      observer.observe(scroller);
+      Array.from(scroller.children).forEach((item) => observer.observe(item));
+
+      let lead: 'strip' | 'steps' | null = null;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const settle = () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          if (lead === 'steps') {
+            scroller.style.scrollSnapType = '';
+            scrollToIndex(id, nearestIndex(scroller, scroller.scrollLeft));
+          }
+          lead = null;
+        }, 140);
+      };
+      const fromStrip = () => {
+        if (lead === 'steps') return;
+        lead = 'strip';
+        steps.scrollLeft = scroller.scrollLeft;
+        settle();
+      };
+      const fromSteps = () => {
+        if (lead === 'strip') return;
+        lead = 'steps';
+        scroller.style.scrollSnapType = 'none';
+        scroller.scrollLeft = steps.scrollLeft;
+        settle();
+      };
+      steps.scrollLeft = scroller.scrollLeft;
+      requestAnimationFrame(() => {
+        steps.scrollLeft = scroller.scrollLeft;
+      });
+      scroller.addEventListener('scroll', fromStrip, { passive: true });
+      steps.addEventListener('scroll', fromSteps, { passive: true });
+      detach = () => {
+        observer.disconnect();
+        clearTimeout(timer);
+        scroller.removeEventListener('scroll', fromStrip);
+        steps.removeEventListener('scroll', fromSteps);
+      };
+    };
+    attach();
+    return () => {
+      cancelAnimationFrame(frame);
+      detach();
+    };
+  }, [id, matchScreens]);
 
   // Mouse drag-to-scroll for when the steps overflow in a narrow desktop
   // window (touch already swipes natively). A drag only starts past a few
@@ -554,7 +675,7 @@ export const ImageStripNav = ({ id, images }: { id: string; images: StripImage[]
     const observer = new ResizeObserver(measure);
     observer.observe(steps);
     return () => observer.disconnect();
-  }, []);
+  }, [screenWidths, screenGap]);
 
   useEffect(() => {
     const steps = stepsRef.current;
@@ -621,7 +742,30 @@ export const ImageStripNav = ({ id, images }: { id: string; images: StripImage[]
 
   return (
     <div className={styles.nav} data-strip-nav>
-      <div ref={stepsRef} className={stepsClass} role="group" aria-label="Choose a screen">
+      {dragHint && (
+        <div className={styles.dragHint}>
+          {/* The open hand the pointer turns into over the screens. */}
+          <svg className={styles.dragHintHand} viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2" />
+            <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2" />
+            <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8" />
+            <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+          </svg>
+          <span className={styles.dragHintMouse}>
+            Press and hold, then drag the screens left or right to see the rest
+          </span>
+          <span className={styles.dragHintTouch}>
+            Swipe the screens left or right to see the rest
+          </span>
+        </div>
+      )}
+      <div
+        ref={stepsRef}
+        className={`${stepsClass} ${matchScreens ? styles.navStepsMatched : ''}`}
+        style={screenGap !== null ? { gap: screenGap } : undefined}
+        role="group"
+        aria-label="Choose a screen"
+      >
         {images.map((image, i) => (
           <button
             key={i}
@@ -630,6 +774,7 @@ export const ImageStripNav = ({ id, images }: { id: string; images: StripImage[]
             onClick={() => goTo(i)}
             aria-current={i === active ? 'step' : undefined}
             aria-controls={`strip-${id}`}
+            style={screenWidths?.[i] ? { width: screenWidths[i] } : undefined}
           >
             <span className={styles.navNumber}>{i + 1}</span>
             <span className={styles.navLabel} data-text={image.label}>

@@ -121,6 +121,85 @@
   overflow: hidden;
 }
 
+/* A screen and, for a flow, the arrow out of it (in the gap after it). */
+.frameWrap {
+  position: relative;
+}
+
+/* Uniform width (see ImageStrip): every screen in the same box, the
+   shortest screen's shape; a longer one fills it from the bottom up. */
+.strip[data-uniform-width] .frame {
+  aspect-ratio: var(--width-aspect);
+}
+
+.strip[data-uniform-width] .image {
+  object-position: center bottom;
+}
+
+/* Flow arrows: the gap widens to hold them. Each is a short, thin grey
+   arrow (the step circles' grey, a shade darker), centred in the gap from
+   one screen to the next. They sit a third of the way
+   down, so all run in one straight row however long each screen is. */
+.strip[data-flow-arrows] {
+  --item-gap: 2.25rem;
+  --flow-arrow-w: 1.25rem;
+}
+
+.flowArrow {
+  position: absolute;
+  top: 32%;
+  /* Centred in the gap, narrower than it. */
+  left: calc(100% + (var(--item-gap) - var(--flow-arrow-w)) / 2);
+  width: var(--flow-arrow-w);
+  height: 1.5rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.flowArrowLine {
+  position: absolute;
+  left: 0;
+  right: 1px;
+  top: 50%;
+  width: calc(100% - 1px);
+  height: 12px;
+  transform: translateY(-50%);
+  overflow: visible;
+  fill: none;
+  stroke: #cdd1d6;
+  stroke-width: 1.75;
+}
+
+.flowArrowHead {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 8px;
+  height: 12px;
+  transform: translateY(-50%);
+  fill: none;
+  stroke: #cdd1d6;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* An arrow fades with the screen it leaves, where the window cuts it off. */
+.item[data-cropped] .flowArrow {
+  opacity: 0.3;
+}
+
+@media (max-width: 767px) {
+  .strip[data-flow-arrows] {
+    --item-gap: 2rem;
+    --flow-arrow-w: 1rem;
+  }
+}
+
 /* Screens cut off by the right edge (marked by the strip's script) are washed
    out toward the page's white so the fully visible one reads as current. */
 .frame::after {
@@ -177,6 +256,11 @@
   border: 1px solid #d4d4d4;
 }
 
+/* (Fainter round the screens of a flow, which are pale themselves.) */
+.strip[data-outlined][data-flow-arrows] .image {
+  border-color: #e3e3e3;
+}
+
 /* The button round an image that opens the lightbox: the image itself,
    nothing added but a magnifier cursor (on pieces in view) and a focus ring. */
 .openButton {
@@ -213,6 +297,7 @@
 /* ── Nav (text column) ────────────────────────────────────────────────── */
 
 .nav {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -292,6 +377,84 @@
   font-weight: 600;
 }
 
+/* The key above the steps: how to move the screens (see ImageStripNav). The
+   hand drawn as the pointer shows it — white, outlined — beside a short
+   line of small text; the words suit the device. */
+.dragHint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.75rem;
+  font-style: italic;
+  line-height: 1.4;
+  color: #6a6a6a;
+}
+
+/* Wide windows: above the steps, out of the layout, so the steps keep their
+   place level with the section label (the panel's top padding has room for
+   it). Narrower, where that padding is too tight or the nav sits under the
+   text, it simply leads the nav. */
+@media (min-width: 1101px) {
+  .dragHint {
+    position: absolute;
+    bottom: calc(100% + 1.375rem);
+    left: 0;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 1100px) {
+  .dragHint {
+    margin-bottom: 0.25rem;
+  }
+}
+
+.dragHintHand {
+  flex-shrink: 0;
+  width: 0.9375rem;
+  height: 0.9375rem;
+  fill: #fff;
+  stroke: #362828;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dragHintTouch {
+  display: none;
+}
+
+@media not ((hover: hover) and (pointer: fine)) {
+  .dragHintMouse {
+    display: none;
+  }
+
+  .dragHintTouch {
+    display: inline;
+  }
+}
+
+/* Steps matched to the screens below (see ImageStripNav): each as wide as
+   its screen, so a long label wraps rather than widening it. */
+.navStepsMatched {
+  /* The strip's edge fade, so the steps fade out over the screens that do. */
+  --edge-fade: 8rem;
+  max-width: none;
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - var(--edge-fade)),
+    rgba(0, 0, 0, 0.35) calc(100% - var(--edge-fade) * 0.7),
+    transparent 100%
+  );
+}
+
+.navStepsMatched .navStep {
+  white-space: normal;
+  padding-right: 0;
+  line-height: 1.3;
+}
+
 /* Every label reserves its bold width with a hidden bold copy, so a step is
    the same width whether it's active or not and nothing shifts when the
    active step changes on click. */
@@ -352,8 +515,29 @@
   align-items: flex-start;
 }
 
+/* A flow's narrow screens' captions run to more lines: room for four. */
+:global([data-layout='mediaBelow']) .strip[data-flow-arrows] {
+  --caption-room: 7.5rem;
+}
+
+/* …but in a short strip (a short tablet window, the nav over the screens)
+   there's no room for both: the captions give way, and the screens take
+   the full height. */
+@container (max-height: 26rem) {
+  :global([data-layout='mediaBelow']) .strip[data-flow-arrows] .caption {
+    display: none;
+  }
+
+  :global([data-layout='mediaBelow']) .strip[data-flow-arrows] .item {
+    --item-w: min(100cqw - var(--min-peek), 100cqh * var(--width-aspect, var(--aspect, 16 / 9)));
+  }
+}
+
 :global([data-layout='mediaBelow']) .item {
-  --item-w: min(100cqw - var(--min-peek), (100cqh - var(--caption-room)) * var(--aspect, 16 / 9));
+  --item-w: min(
+    100cqw - var(--min-peek),
+    (100cqh - var(--caption-room)) * var(--width-aspect, var(--aspect, 16 / 9))
+  );
 }
 
 /* Stacked layout: the column is narrow, so show more of each screen. */
@@ -368,6 +552,9 @@
   /* A tall item is capped by the screen's height instead (60% of it), so a
      portrait piece doesn't run several screens deep. */
   .item {
-    --item-w: min(calc((100% - var(--strip-bleed, 0px)) * 0.92), 60vh * var(--aspect, 16 / 9));
+    --item-w: min(
+      calc((100% - var(--strip-bleed, 0px)) * 0.92),
+      60vh * var(--width-aspect, var(--aspect, 16 / 9))
+    );
   }
 }

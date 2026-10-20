@@ -49,6 +49,8 @@ export type ImageSlot =
       wheelScrolls?: boolean;
       outlined?: boolean;
       lightbox?: boolean;
+      flowArrows?: boolean;
+      uniformWidth?: boolean;
     };
 
 interface Props {
@@ -192,6 +194,8 @@ export const PanelImageSlot = ({ slot }: Props) => {
           wheelScrolls={slot.wheelScrolls}
           outlined={slot.outlined}
           lightbox={slot.lightbox}
+          flowArrows={slot.flowArrows}
+          uniformWidth={slot.uniformWidth}
         />
       </div>
     );
