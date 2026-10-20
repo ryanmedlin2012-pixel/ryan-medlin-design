@@ -5,6 +5,8 @@ import tokenCodeScanStill from '../assets/Token_code_scan_still.png';
 import tokenRedemptionCard from '../assets/token_redemption_1400x1400.png';
 // The upload flow and its error states, from the design file.
 import tokenRedemptionFlow from '../assets/token_redemption_a_1400x1400.png';
+// The resolution: a working code, in the chat.
+import tokenRedemptionResolved from '../assets/token_redemption_b_1400x1400.png';
 import { ProjectHorizontalLayout } from '../components/ProjectHorizontalLayout';
 import { ImageStripNav } from '../components/ImageStrip';
 import type { StripImage } from '../components/ImageStrip';
@@ -278,7 +280,13 @@ export const ProjectOne = () => (
             </p>
           </>
         ),
-        imageSlot: { type: 'placeholder' },
+        imageSlot: {
+          type: 'image',
+          src: tokenRedemptionResolved,
+          alt: 'The end of the chat: the proof of purchase marked uploaded and legible, then the agent confirming the gift card is active and valid, giving its code with a Redeem code now link, and asking whether this resolved the issue',
+          fit: 'contain',
+          background: '#eae8e6',
+        },
       },
     ]}
   />
