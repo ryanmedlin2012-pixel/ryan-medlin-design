@@ -7,7 +7,7 @@ import { Navigation } from './components/Navigation'
 import { ScrollToTop } from './components/ScrollToTop'
 import { HorizontalLayout } from './components/HorizontalLayout'
 import { Hero } from './components/Hero'
-import { FeaturedProjects } from './components/FeaturedProjects'
+import { FeaturedProjects, FeaturedVisualDesign } from './components/FeaturedProjects'
 import { Skills } from './components/Skills'
 import { Contact } from './components/Contact'
 import { ProjectOne } from './pages/ProjectOne'
@@ -55,6 +55,7 @@ function HomePage() {
       sections={[
         <Hero />,
         <FeaturedProjects />,
+        <FeaturedVisualDesign />,
         <Skills />,
         <Contact />,
       ]}

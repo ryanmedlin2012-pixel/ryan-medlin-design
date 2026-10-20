@@ -17,13 +17,13 @@ interface HorizontalLayoutProps {
 const TRACK_TRANSITION = 'transform 0.7s cubic-bezier(0.77, 0, 0.175, 1)';
 
 // Matches the id already set on each section's own root element
-// (Hero, FeaturedProjects, Skills, Contact), in currentSection order.
-const SECTION_IDS = ['hero', 'projects', 'skills', 'contact'];
+// (Hero, the two featured carousels, Skills, Contact), in currentSection order.
+const SECTION_IDS = ['hero', 'projects', 'visual-design', 'skills', 'contact'];
 
 // Sections that fill the whole viewport below the nav, edge to edge, rather
 // than sitting in the inset, outlined frame the others use: their own
 // backgrounds run to the window's edges (the hero, Skills and Contact).
-const FULL_BLEED_SECTIONS = new Set([0, 2, 3]);
+const FULL_BLEED_SECTIONS = new Set([0, 3, 4]);
 
 export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
   const {
@@ -218,8 +218,9 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
     const hashMap: Record<string, number> = {
       '#hero': 0,
       '#projects': 1,
-      '#skills': 2,
-      '#contact': 3,
+      '#visual-design': 2,
+      '#skills': 3,
+      '#contact': 4,
     };
 
     const handleHashChange = () => {

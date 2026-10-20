@@ -1,5 +1,4 @@
 import { useLayout } from '../context/LayoutContext';
-import { SECTION_INDEX as PROJECTS_SECTION_INDEX } from './FeaturedProjects';
 import styles from './ProgressBar.module.css';
 
 export const ProgressBar = () => {
@@ -7,9 +6,9 @@ export const ProgressBar = () => {
   const sectionSpan = 100 / (sectionCount - 1);
   let progress = currentSection * sectionSpan;
 
-  // Sub-divide the Projects section's slice of the bar across its own
-  // carousel cards (desktop only — projectProgress is null on mobile).
-  const isInCarousel = currentSection === PROJECTS_SECTION_INDEX && !!projectProgress;
+  // Sub-divide a carousel section's slice of the bar across its own cards
+  // (desktop only — projectProgress is null on mobile).
+  const isInCarousel = !!projectProgress && projectProgress.section === currentSection;
   if (isInCarousel && projectProgress && projectProgress.total > 1) {
     const subFraction = projectProgress.current / (projectProgress.total - 1);
     progress = currentSection * sectionSpan + subFraction * sectionSpan;

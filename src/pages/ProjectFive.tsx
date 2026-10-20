@@ -1,4 +1,6 @@
-import scrollingArticleImg from '../assets/scrolling_article_card_800x400.png';
+// The section's graphic, animated (the PNG is its finished still, for reduced motion).
+import scrollingArticleFocus from '../assets/Scrolling_article_focus.svg';
+import scrollingArticleFocusStill from '../assets/Scrolling_article_focus_still.png';
 import { ProjectHorizontalLayout } from '../components/ProjectHorizontalLayout';
 
 export const ProjectFive = () => (
@@ -41,15 +43,12 @@ export const ProjectFive = () => (
           </>
         ),
         imageSlot: {
-          type: 'carousel',
-          images: [
-            {
-              src: scrollingArticleImg,
-              alt: 'Scrolling article 10-foot experience overview',
-            },
-            { src: scrollingArticleImg, alt: 'Placeholder slide 2' },
-            { src: scrollingArticleImg, alt: 'Placeholder slide 3' },
-          ],
+          type: 'image',
+          src: scrollingArticleFocus,
+          stillSrc: scrollingArticleFocusStill,
+          replayOnView: true,
+          maxSideCrop: 212,
+          alt: 'An article on a TV screen: focus jumps to a content expander, which opens past the bottom of the screen; the article snaps up to show it, then scrolls through its text to an image, where focus lands',
         },
       },
       {

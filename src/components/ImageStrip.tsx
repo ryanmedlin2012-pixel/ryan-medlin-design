@@ -21,6 +21,10 @@ export interface StripImage {
       other with a gap (in place of `src`). Each opens on its own; `aspect`
       is then the shape of the whole stack. */
   stack?: StripImage[];
+  /** How a stack is arranged: 'column' (default), one above the other; or
+      'feature', four images — a large one on the left, a wide one top right,
+      and two side by side beneath it. */
+  stackLayout?: 'column' | 'feature';
 }
 
 const DEFAULT_ASPECT = 16 / 9;
@@ -354,7 +358,11 @@ export const ImageStrip = ({
             }}
           >
             {image.stack ? (
-              <div className={`${styles.frame} ${styles.frameStack}`}>
+              <div
+                className={`${styles.frame} ${styles.frameStack} ${
+                  image.stackLayout === 'feature' ? styles.frameFeature : ''
+                }`}
+              >
                 {image.stack.map((piece, j) => (
                   <div key={j} className={styles.stackCell}>
                     {renderPiece(piece)}

@@ -43,8 +43,9 @@ const graphicDesign = [
 const SECTION_HASHES: Record<string, number> = {
   '/#hero': 0,
   '/#projects': 1,
-  '/#skills': 2,
-  '/#contact': 3,
+  '/#visual-design': 2,
+  '/#skills': 3,
+  '/#contact': 4,
 };
 
 export const Navigation: React.FC = () => {

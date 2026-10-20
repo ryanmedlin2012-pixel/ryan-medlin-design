@@ -1,3 +1,8 @@
+// The section's graphic, animated (the PNG is its finished still, for reduced motion).
+import tokenCodeScan from '../assets/Token_code_scan.svg';
+import tokenCodeScanStill from '../assets/Token_code_scan_still.png';
+// A real damaged card: the problem, in hand.
+import tokenRedemptionCard from '../assets/token_redemption_1400x1400.png';
 import { ProjectHorizontalLayout } from '../components/ProjectHorizontalLayout';
 
 export const ProjectOne = () => (
@@ -19,9 +24,10 @@ export const ProjectOne = () => (
               a data-retrieval problem.
             </p>
             <p>
-              I designed the Token Redemption Agent: an AI-assisted image upload flow embedded
-              within the Xbox Self-Service Virtual Agent (SVA) that allows players to photograph
-              or upload their damaged code for automated extraction and validation.
+              I led the design that turned that data-retrieval problem into a self-service one:
+              the <em>Token Redemption Agent</em>, an AI-assisted flow inside the Xbox Self-Service
+              Virtual Agent that lets users photograph and upload a damaged code for automatic
+              extraction and validation.
             </p>
             <h3>At a glance</h3>
             <ul>
@@ -32,7 +38,14 @@ export const ProjectOne = () => (
             </ul>
           </>
         ),
-        imageSlot: { type: 'placeholder' },
+        imageSlot: {
+          type: 'image',
+          src: tokenCodeScan,
+          stillSrc: tokenCodeScanStill,
+          replayOnView: true,
+          maxSideCrop: 212,
+          alt: 'An Xbox gift card being scanned: its damaged code is read character by character, the doubtful characters checked one by one, and resolved into a valid code',
+        },
       },
       {
         sectionLabel: '02 / Problem',
@@ -47,7 +60,7 @@ export const ProjectOne = () => (
               acceptable.
             </p>
             <p>
-              Support queues were absorbing high-volume, repetitive contacts that had a clear
+              Support queues were absorbing a high volume of repetitive contacts that had a clear
               self-service solution. Designing for this meant understanding not just the happy
               path — code parsed, issue resolved — but every degraded state where image quality,
               code damage, or prior redemption sent the flow sideways.
@@ -61,7 +74,13 @@ export const ProjectOne = () => (
             </ul>
           </>
         ),
-        imageSlot: { type: 'placeholder' },
+        imageSlot: {
+          type: 'image',
+          src: tokenRedemptionCard,
+          alt: 'The back of a real Xbox gift card whose scratch-off code is scuffed and smeared, leaving several characters unreadable',
+          fit: 'contain',
+          background: '#989d9d',
+        },
       },
       {
         sectionLabel: '03 / Design',

@@ -2,14 +2,22 @@ import { createContext, useContext, useState, useRef, useCallback } from 'react'
 import type { MutableRefObject, ReactNode } from 'react';
 import { readRestored } from '../hooks/restore';
 
-export const SECTION_COUNT = 4;
-export const SECTION_LABELS = ['Introduction', 'Projects', 'Skills', 'Contact'] as const;
+export const SECTION_COUNT = 5;
+export const SECTION_LABELS = [
+  'Introduction',
+  'Interaction projects',
+  'Visual design',
+  'Skills',
+  'Contact',
+] as const;
 
 export type WheelHandler = (direction: number) => boolean;
 
 export interface SubProgress {
   current: number;
   total: number;
+  /** The section whose carousel this is. */
+  section: number;
 }
 
 export interface LayoutContextType {

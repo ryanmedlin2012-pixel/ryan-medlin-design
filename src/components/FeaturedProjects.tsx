@@ -25,6 +25,12 @@ import chargeTransactionsStill from '../assets/Charge_transactions_still.png';
 // still).
 import scrollingArticleFocus from '../assets/Scrolling_article_focus.svg';
 import scrollingArticleFocusStill from '../assets/Scrolling_article_focus_still.png';
+// The visual design carousel's cards: each piece on the studio backdrop.
+import visualShootingEdge from '../assets/Visual_card_shooting_edge_book.jpg';
+import visualWedding from '../assets/Visual_card_wedding.jpg';
+import visualLivingNewEconomy from '../assets/Visual_card_living_new_economy.jpg';
+import visualAlchimia from '../assets/Visual_card_alchimia.jpg';
+import visualYaldaNight from '../assets/Visual_card_yalda_night_white.jpg';
 import { readRestored, saveRestorable } from '../hooks/restore';
 import { limitSideCrop } from './limitSideCrop';
 import { useReplayOnView } from '../hooks/useReplayOnView';
@@ -47,10 +53,13 @@ interface Project {
       motion; and whether it replays each time it comes into view. */
   imageStill?: string;
   imageReplay?: boolean;
+  /** The image is on the studio backdrop (the visual design cards): the card
+      takes the backdrop's colours round it, where the image doesn't fill it. */
+  studioBackdrop?: boolean;
   path: string;
 }
 
-const projects: Project[] = [
+const interactionProjects: Project[] = [
   {
     id: 1,
     title: 'Improved Escalation to Assisted Support',
@@ -70,7 +79,7 @@ const projects: Project[] = [
     titlePhrases: ['Voice Chat Reporting', '& Voice Safety'],
     titleAlwaysBreak: true,
     description:
-      'Redesigned Xbox\'s evidence-first voice harassment reporting flow. Report submissions up 21%, evidence attachments up 60%, and action rate on violators up 43%.',
+      "Redesigned Xbox's evidence-first voice harassment reporting flow. Report submissions up 21%, evidence attachments up 60%, and action rate on violators up 43%.",
     tags: ['UX Design', 'Trust & Safety', 'Research'],
     image: vcrFlowOrder,
     imageStill: vcrFlowOrderStill,
@@ -116,14 +125,73 @@ const projects: Project[] = [
   },
 ];
 
-// Projects lives at panel index 1 in the horizontal layout
-export const SECTION_INDEX = 1;
+// The graphic design work, from the gallery pages.
+const visualProjects: Project[] = [
+  {
+    id: 101,
+    title: "America's Shooting Edge",
+    description:
+      "Book cover for Nita Renfrew's portrait of the 1990s constitutional militias: hunting camouflage, laid flat, wraps from back to front around a spare typographic spine.",
+    tags: ['Book Design', 'Typography', 'Art Direction'],
+    image: visualShootingEdge,
+    imageMaxSideCrop: 212,
+    studioBackdrop: true,
+    path: '/graphic-design/editorial',
+  },
+  {
+    id: 102,
+    title: 'The Wedding of the Century',
+    description:
+      "A trifold wedding invitation after Saul Bass's Vertigo poster: a falling couple in an orange spiral outside; the cast, ceremony and reception, set like film credits, within.",
+    tags: ['Print', 'Illustration', 'Typography'],
+    image: visualWedding,
+    imageMaxSideCrop: 212,
+    studioBackdrop: true,
+    path: '/graphic-design/ephemera',
+  },
+  {
+    id: 103,
+    title: 'Living the New Economy',
+    description:
+      'Poster for Convergence, a gathering on the new economy in Oakland: a white koru spiral, the Māori symbol of new beginnings, over a full-color road map of the Bay Area.',
+    tags: ['Poster', 'Event Identity', 'Typography'],
+    image: visualLivingNewEconomy,
+    imageMaxSideCrop: 212,
+    studioBackdrop: true,
+    path: '/graphic-design/posters',
+  },
+  {
+    id: 104,
+    title: 'Alchimia',
+    description:
+      'Identity for a jewelry maker: a hand-drawn diamond and hand-lettered name, carried from the mark onto boxes and cards.',
+    tags: ['Brand Identity', 'Lettering', 'Packaging'],
+    image: visualAlchimia,
+    imageMaxSideCrop: 212,
+    studioBackdrop: true,
+    path: '/graphic-design/ephemera',
+  },
+  {
+    id: 105,
+    title: 'Yalda Night',
+    description:
+      'Poster for a new play by Morgan Ludlow: the title in Persian script, in black on white, among butterflies and pomegranate flowers under a black lace border.',
+    tags: ['Poster', 'Collage', 'Typography'],
+    image: visualYaldaNight,
+    imageMaxSideCrop: 212,
+    studioBackdrop: true,
+    path: '/graphic-design/posters',
+  },
+];
 
-/** The carousel's projects, in its order (the nav lists them first, to match). */
-export const FEATURED_PROJECT_PATHS = projects.map((project) => project.path);
+// Where the carousels sit in the home page's horizontal layout.
+export const SECTION_INDEX = 1;
+export const VISUAL_SECTION_INDEX = 2;
+
+/** The interaction carousel's projects, in its order (the nav lists them first, to match). */
+export const FEATURED_PROJECT_PATHS = interactionProjects.map((project) => project.path);
 
 const TRACK_TRANSITION = 'transform 0.6s cubic-bezier(0.77, 0, 0.175, 1)';
-const CARD_KEY = 'featuredCard';
 
 function padNum(n: number) {
   return String(n).padStart(2, '0');
@@ -155,7 +223,7 @@ const CardImage = ({ project }: { project: Project }) => {
       if (maxCrop) limitSideCrop(maxCrop)(img);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [maxCrop]
+    [maxCrop],
   );
   return (
     <picture className={styles.cardPicture}>
@@ -167,8 +235,27 @@ const CardImage = ({ project }: { project: Project }) => {
   );
 };
 
-export const FeaturedProjects: React.FC = () => {
-  const { wheelHandlersRef, setProjectProgress } = useLayout();
+interface CarouselProps {
+  projects: Project[];
+  heading: string;
+  /** The section's id (its hash) and its place in the home page's layout. */
+  sectionId: string;
+  sectionIndex: number;
+  /** Where the current card is remembered for a refresh. */
+  cardKey: string;
+  /** What a card is called, for screen readers ("Project 2 of 5"). */
+  noun?: string;
+}
+
+const FeaturedCarousel = ({
+  projects,
+  heading,
+  sectionId,
+  sectionIndex: SECTION_INDEX,
+  cardKey: CARD_KEY,
+  noun = 'Project',
+}: CarouselProps) => {
+  const { wheelHandlersRef, setProjectProgress, currentSection } = useLayout();
   const isPointerFine = useMediaQuery('(pointer: fine)');
   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const isNarrowViewport = useMediaQuery('(max-width: 767px)');
@@ -189,19 +276,16 @@ export const FeaturedProjects: React.FC = () => {
     saveRestorable(CARD_KEY, currentCard);
   }, [currentCard]);
 
-  // Report this section's carousel position into the macro progress bar —
-  // desktop carousel only; mobile's compact grid has no card concept.
+  // Report this carousel's position into the macro progress bar while it's
+  // the section in view — desktop carousel only; mobile's compact grid has no
+  // card concept. (There are two carousels; only the one in view reports.)
+  const inView = currentSection === SECTION_INDEX;
   useEffect(() => {
-    if (!useCarousel) {
-      setProjectProgress(null);
-      return;
-    }
-    setProjectProgress({ current: currentCard, total: projects.length });
-  }, [useCarousel, currentCard, setProjectProgress]);
-
-  useEffect(() => {
-    return () => setProjectProgress(null);
-  }, [setProjectProgress]);
+    if (!inView) return;
+    setProjectProgress(
+      useCarousel ? { current: currentCard, total: projects.length, section: SECTION_INDEX } : null,
+    );
+  }, [inView, useCarousel, currentCard, projects.length, SECTION_INDEX, setProjectProgress]);
 
   // Suppress the translateX transition while the window is being resized —
   // the track's transform is percentage-based against its own box, which
@@ -222,22 +306,22 @@ export const FeaturedProjects: React.FC = () => {
     };
   }, []);
 
-  const goToCard = useCallback((index: number) => {
-    if (isCardAnimatingRef.current) return;
-    if (index < 0 || index >= projects.length) return;
-    isCardAnimatingRef.current = true;
-    setCurrentCard(index);
-  }, []);
-
-  const handleCardTransitionEnd = useCallback(
-    (e: React.TransitionEvent<HTMLDivElement>) => {
-      if (e.propertyName !== 'transform') return;
-      setTimeout(() => {
-        isCardAnimatingRef.current = false;
-      }, 50);
+  const goToCard = useCallback(
+    (index: number) => {
+      if (isCardAnimatingRef.current) return;
+      if (index < 0 || index >= projects.length) return;
+      isCardAnimatingRef.current = true;
+      setCurrentCard(index);
     },
-    []
+    [projects.length],
   );
+
+  const handleCardTransitionEnd = useCallback((e: React.TransitionEvent<HTMLDivElement>) => {
+    if (e.propertyName !== 'transform') return;
+    setTimeout(() => {
+      isCardAnimatingRef.current = false;
+    }, 50);
+  }, []);
 
   // Register wheel/keyboard handler with the layout for this panel
   useEffect(() => {
@@ -268,19 +352,15 @@ export const FeaturedProjects: React.FC = () => {
     return () => {
       handlers.delete(SECTION_INDEX);
     };
-  }, [useCarousel, wheelHandlersRef]);
+  }, [useCarousel, wheelHandlersRef, SECTION_INDEX, projects.length]);
 
   // ─── Mobile / reduced-motion: compact scrollable grid ─────────────────────
   if (!useCarousel) {
     return (
-      <section id="projects" className={styles.projectsMobile}>
+      <section id={sectionId} className={styles.projectsMobile}>
         <div className={styles.mobileContainer}>
-          <h2
-            className={styles.heading}
-            data-section-heading="true"
-            tabIndex={-1}
-          >
-            Featured Projects
+          <h2 className={styles.heading} data-section-heading="true" tabIndex={-1}>
+            {heading}
           </h2>
           <div className={styles.compactGrid}>
             {projects.map((project, i) => (
@@ -293,7 +373,7 @@ export const FeaturedProjects: React.FC = () => {
                 <div
                   className={`${styles.cardVisual} ${i === 0 ? styles.cardVisualDimmed : ''} ${
                     project.imageMaxSideCrop ? styles.cardVisualLimitCrop : ''
-                  }`}
+                  } ${project.studioBackdrop ? styles.cardVisualStudio : ''}`}
                 >
                   {project.image ? (
                     <CardImage project={project} />
@@ -322,30 +402,20 @@ export const FeaturedProjects: React.FC = () => {
 
   // ─── Desktop: full-panel card carousel ────────────────────────────────────
   return (
-    <section id="projects" className={styles.projectsDesktop}>
+    <section id={sectionId} className={styles.projectsDesktop}>
       {/* Header row: title + card indicator dots + prev/next nav */}
       <div className={styles.carouselHeader}>
-        <h2
-          className={styles.heading}
-          data-section-heading="true"
-          tabIndex={-1}
-        >
-          Featured Projects
+        <h2 className={styles.heading} data-section-heading="true" tabIndex={-1}>
+          {heading}
         </h2>
-        <div
-          className={styles.cardDots}
-          role="tablist"
-          aria-label="Project cards"
-        >
+        <div className={styles.cardDots} role="tablist" aria-label={`${heading}: cards`}>
           {projects.map((_, i) => (
             <button
               key={i}
               role="tab"
               aria-selected={i === currentCard}
-              aria-label={`Project ${i + 1} of ${projects.length}`}
-              className={`${styles.cardDot} ${
-                i === currentCard ? styles.cardDotActive : ''
-              }`}
+              aria-label={`${noun} ${i + 1} of ${projects.length}`}
+              className={`${styles.cardDot} ${i === currentCard ? styles.cardDotActive : ''}`}
               onClick={() => goToCard(i)}
             />
           ))}
@@ -355,7 +425,7 @@ export const FeaturedProjects: React.FC = () => {
             className={styles.navButton}
             onClick={() => goToCard(currentCard - 1)}
             disabled={currentCard === 0}
-            aria-label="Previous project"
+            aria-label={`Previous ${noun.toLowerCase()}`}
           >
             <svg
               width="14"
@@ -371,18 +441,14 @@ export const FeaturedProjects: React.FC = () => {
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
-          <span
-            className={styles.navCounter}
-            aria-live="polite"
-            aria-atomic="true"
-          >
+          <span className={styles.navCounter} aria-live="polite" aria-atomic="true">
             {padNum(currentCard + 1)} / {padNum(projects.length)}
           </span>
           <button
             className={styles.navButton}
             onClick={() => goToCard(currentCard + 1)}
             disabled={currentCard === projects.length - 1}
-            aria-label="Next project"
+            aria-label={`Next ${noun.toLowerCase()}`}
           >
             <svg
               width="14"
@@ -438,7 +504,7 @@ export const FeaturedProjects: React.FC = () => {
                 <div
                   className={`${styles.cardVisual} ${i === 0 ? styles.cardVisualDimmed : ''} ${
                     project.imageMaxSideCrop ? styles.cardVisualLimitCrop : ''
-                  }`}
+                  } ${project.studioBackdrop ? styles.cardVisualStudio : ''}`}
                 >
                   {project.image ? (
                     <CardImage project={project} />
@@ -451,7 +517,27 @@ export const FeaturedProjects: React.FC = () => {
           ))}
         </div>
       </div>
-
     </section>
   );
 };
+
+export const FeaturedProjects: React.FC = () => (
+  <FeaturedCarousel
+    projects={interactionProjects}
+    heading="Featured Interaction Projects"
+    sectionId="projects"
+    sectionIndex={SECTION_INDEX}
+    cardKey="featuredCard"
+  />
+);
+
+export const FeaturedVisualDesign: React.FC = () => (
+  <FeaturedCarousel
+    projects={visualProjects}
+    heading="Featured Visual Design"
+    sectionId="visual-design"
+    sectionIndex={VISUAL_SECTION_INDEX}
+    cardKey="featuredVisualCard"
+    noun="Piece"
+  />
+);

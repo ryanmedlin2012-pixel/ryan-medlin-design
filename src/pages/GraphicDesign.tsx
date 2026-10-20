@@ -15,6 +15,11 @@ import weddingFlatInside from '../assets/Ephemera_wedding_flat_inside.jpg';
 import weddingFlatInsideFramed from '../assets/Ephemera_wedding_flat_inside_framed.jpg';
 import weddingFoldedOutside from '../assets/Ephemera_wedding_folded_outside.jpg';
 import weddingFoldedInside from '../assets/Ephemera_wedding_folded_inside.jpg';
+import alchimiaLogo from '../assets/Ephemera_alchimia_logo.jpg';
+import alchimiaLogoReversed from '../assets/Ephemera_alchimia_logo_reversed.jpg';
+import alchimiaMark from '../assets/Ephemera_alchimia_mark.jpg';
+import alchimiaCurls from '../assets/Ephemera_alchimia_curls.jpg';
+import alchimiaPackaging from '../assets/Ephemera_alchimia_box_card.jpg';
 import posterRitaMarquez from '../assets/Poster_rita_marquez.jpg';
 import posterYaldaNight from '../assets/Poster_yalda_night.jpg';
 import posterYaldaNightFlag from '../assets/Poster_yalda_night_flag.jpg';
@@ -187,7 +192,7 @@ export const GALLERY_PAGES: Record<'editorial' | 'posters' | 'ephemera', Gallery
   },
   ephemera: {
     id: 'ephemera',
-    title: 'Ephemera',
+    title: 'Brand / Ephemera',
     intro:
       'Placeholder introduction: invitations, tickets, cards and the small printed things in between. Scroll sideways through the work.',
     pieces: [
@@ -226,6 +231,49 @@ export const GALLERY_PAGES: Record<'editorial' | 'posters' | 'ephemera', Gallery
             caption: 'The invitation folded: the inside.',
           },
         ],
+      },
+      {
+        // The identity, four pieces in one place: the logo large on the left,
+        // reversed top right, the mark and the curls beneath it.
+        label: 'Alchimia identity',
+        alt: 'Identity for Alchimia, a jewelry maker.',
+        aspect: 1.6,
+        caption:
+          'Identity for Alchimia, a jewelry maker: the hand-drawn logo, its mark and a pattern of curls.',
+        stackLayout: 'feature',
+        stack: [
+          {
+            src: alchimiaLogo,
+            label: 'Alchimia logo',
+            alt: 'The Alchimia logo: a hand-drawn diamond with sparkle lines over the hand-lettered name, in black on white.',
+            caption: 'Alchimia: the logo.',
+          },
+          {
+            src: alchimiaLogoReversed,
+            label: 'Alchimia logo, reversed',
+            alt: 'The Alchimia logo reversed, white on black.',
+            caption: 'Alchimia: the logo, reversed.',
+          },
+          {
+            src: alchimiaMark,
+            label: 'Alchimia mark',
+            alt: 'The Alchimia mark: the hand-drawn diamond alone, in black on warm white.',
+            caption: 'Alchimia: the mark.',
+          },
+          {
+            src: alchimiaCurls,
+            label: 'Alchimia curls',
+            alt: 'A pattern of hand-drawn curls, white on black.',
+            caption: 'Alchimia: a pattern of hand-drawn curls.',
+          },
+        ],
+      },
+      {
+        src: alchimiaPackaging,
+        label: 'Alchimia packaging',
+        alt: 'Alchimia packaging: a black lidded jewelry box with the white diamond logo, a white card with the logo in black lying in front of it.',
+        aspect: 1.25,
+        caption: 'Alchimia: the jewelry box and a card.',
       },
       {
         label: 'Ticket',

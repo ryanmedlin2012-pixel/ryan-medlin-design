@@ -205,6 +205,13 @@
     );
 }
 
+/* The visual design cards: the studio backdrop their images are shot on,
+   continued round the image where it doesn't fill the card. */
+.cardVisual.cardVisualStudio,
+.cardVisual.cardVisualDimmed.cardVisualStudio {
+  background: linear-gradient(to bottom, #d4cec6, #d9d5cc, #d0c9bf);
+}
+
 .cardImagePlaceholder {
   width: 100%;
   height: 100%;

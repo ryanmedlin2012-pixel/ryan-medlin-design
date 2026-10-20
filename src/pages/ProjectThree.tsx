@@ -1,3 +1,6 @@
+// The section's graphic, animated (the PNG is its finished still, for reduced motion).
+import chargeTransactions from '../assets/Charge_transactions.svg';
+import chargeTransactionsStill from '../assets/Charge_transactions_still.png';
 import { ProjectHorizontalLayout } from '../components/ProjectHorizontalLayout';
 
 export const ProjectThree = () => (
@@ -32,7 +35,14 @@ export const ProjectThree = () => (
             </ul>
           </>
         ),
-        imageSlot: { type: 'placeholder' },
+        imageSlot: {
+          type: 'image',
+          src: chargeTransactions,
+          stillSrc: chargeTransactionsStill,
+          replayOnView: true,
+          maxSideCrop: 212,
+          alt: 'A table of recent transactions fills in, and the agent hones in on the one charge in question and names it plainly in the chat',
+        },
       },
       {
         sectionLabel: '02 / MVP Analysis',
