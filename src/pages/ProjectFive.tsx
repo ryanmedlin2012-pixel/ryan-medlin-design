@@ -1,18 +1,106 @@
 // The section's graphic, animated (the PNG is its finished still, for reduced motion).
 import scrollingArticleFocus from '../assets/Scrolling_article_focus.svg';
 import scrollingArticleFocusStill from '../assets/Scrolling_article_focus_still.png';
+// From the design file: the template's grid and gradients, the article elements with
+// their spacing, the scroll hint, the screen reader focus order and the change log.
+import templateDiagram from '../assets/Scrolling_article_template.png';
+import elementSpacing from '../assets/Scrolling_article_spacing.png';
+import scrollHint from '../assets/Scrolling_article_scroll_hint.png';
+import focusOrder from '../assets/Scrolling_article_focus_order.png';
+import changelog from '../assets/Scrolling_article_changelog.png';
 import { ProjectHorizontalLayout } from '../components/ProjectHorizontalLayout';
+import { ImageStripNav } from '../components/ImageStrip';
+import type { StripImage } from '../components/ImageStrip';
+import key01 from '../assets/Scrolling_article_k01.jpg';
+import key02 from '../assets/Scrolling_article_k02.jpg';
+import key03 from '../assets/Scrolling_article_k03.jpg';
+import key04 from '../assets/Scrolling_article_k04.jpg';
+import key09 from '../assets/Scrolling_article_k09.jpg';
+import key10 from '../assets/Scrolling_article_k10.jpg';
+import key11 from '../assets/Scrolling_article_k11.jpg';
+import key15 from '../assets/Scrolling_article_k15.jpg';
+import key16 from '../assets/Scrolling_article_k16.jpg';
+import key19 from '../assets/Scrolling_article_k19.jpg';
+
+// Section 02: key frames from the motion spec, a player pressing down on the left stick
+// from the top of an article to the end.
+const keyFrames: StripImage[] = [
+  {
+    src: key01,
+    label: 'Load',
+    alt: 'An article on the TV loads with its first content expander focused, outlined in teal',
+    caption: 'The first focusable element in view loads with focus.',
+  },
+  {
+    src: key02,
+    label: 'Focus jump',
+    alt: 'Focus has moved to the next content expander; the article has not moved',
+    caption: 'The next element is already on screen, so focus jumps to it. Nothing scrolls.',
+  },
+  {
+    src: key03,
+    label: 'Into the gradient',
+    alt: 'Focus lands on a content expander partly hidden by the gradient at the bottom of the screen',
+    caption: 'Focus can land on an element the bottom gradient half hides…',
+  },
+  {
+    src: key04,
+    label: 'Scroll-snap',
+    alt: 'The article has moved up so the focused expander is fully visible above the bottom gradient',
+    caption:
+      '…which then snaps into full view, its bottom edge 24px above the gradient, in 0.2 seconds.',
+  },
+  {
+    src: key09,
+    label: 'Smooth scroll',
+    alt: 'The article mid-scroll through body text, lists and a block quote, with nothing focused',
+    caption:
+      'With no focusable element ahead, the stick scrolls the text instead, at 250px a second.',
+  },
+  {
+    src: key10,
+    label: 'Next element',
+    alt: 'A content expander rises into view from the bottom of the screen and takes focus',
+    caption: 'An expander rises into view and takes focus as it meets the bottom gradient.',
+  },
+  {
+    src: key11,
+    label: 'Snap again',
+    alt: 'The newly focused expander snapped fully into view',
+    caption: 'It snaps into full view, like the one before.',
+  },
+  {
+    src: key15,
+    label: 'Focus let go',
+    alt: 'The focused expander has scrolled up into the top gradient and lost focus; the scroll hint icon is filled teal',
+    caption:
+      'Scrolled up past the top gradient, it lets go of focus, and the scroll hint turns teal: the stick now scrolls.',
+  },
+  {
+    src: key16,
+    label: 'Focus again',
+    alt: 'Another expander enters from the bottom and takes focus; the scroll hint icon returns to its outline',
+    caption: 'The next expander takes focus, and the scroll hint returns to rest.',
+  },
+  {
+    src: key19,
+    label: 'End of article',
+    alt: 'The last element of the article, an image, rests above the bottom gradient; the scroll bar is at the bottom of its track',
+    caption:
+      'The end: the last element’s spacing meets the bottom gradient as the scroll bar reaches the end of its track.',
+  },
+];
 
 export const ProjectFive = () => (
   <ProjectHorizontalLayout
     panels={[
       {
-        sectionLabel: '01 / Challenge',
-        heading: 'Scrolling article for 10 foot experience',
+        sectionLabel: '01 / Overview',
+        heading: 'Scrolling Article — 10-Foot Experience',
         content: (
           <>
             <p data-role="subtitle">
-              Reading &amp; scanning with focusable &amp; expandable elements
+              Reading and acting on long articles with a controller, on a TV
             </p>
             <p data-role="subtitle-small">
               Patented under:{' '}
@@ -21,25 +109,36 @@ export const ProjectFive = () => (
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                US12427412b2: Systems and methods for presenting visual content
+                US12427412B2: Systems and methods for presenting visual content
               </a>
             </p>
             <p>
-              In order for parity with a vast estate of web based support content, an equivalent
-              controller navigable &mdash; console / 10-foot experience &mdash; needed to include
-              accordion style content expanders interspersed with potentially large sections of
-              text/images.
+              Xbox support articles on the web mix long passages of text and images with
+              interactive pieces: accordion-style content expanders, links and buttons. To bring
+              them to the console, every one of them had to work with a controller from across
+              the room.
             </p>
             <p>
-              I knew from experience that scrollable textual content, and I would argue
-              actually, all scrollable content, benefits from what in the print world is
-              referred to as a baseline grid, therefore requiring a navigation pattern that
-              incorporates vertical scroll, as well as focus jumping. The design also had to
-              accommodate a wide range of
-              content types &mdash; text, lists, embedded lists, images, tables, blockquotes etc.
-              &mdash; while maintaining a consistent visual rhythm and clear focus states for remote
-              navigation in order for the interaction model to hold up.
+              That is harder than it sounds. A console’s focus model moves from one interactive
+              element to the next, and text isn’t interactive, so focus alone skips the reading.
+              Plain scrolling reads well but gives the player nothing to act on. An article needs
+              both, from the same stick. I designed a navigation pattern that combines the two:
+              focus jumps between elements that are on screen, and the article scrolls smoothly
+              when there are none. That pattern became a Microsoft patent, with me as one of its
+              inventors.
             </p>
+            <h3>At a glance</h3>
+            <ul>
+              <li>
+                <span>Role:</span> Interaction and visual design; co-inventor
+              </li>
+              <li>
+                <span>Surface:</span> Xbox console (10-foot), Get Help
+              </li>
+              <li>
+                <span>Timeline:</span> 2022 (patent granted 2025)
+              </li>
+            </ul>
           </>
         ),
         imageSlot: {
@@ -52,147 +151,197 @@ export const ProjectFive = () => (
         },
       },
       {
-        sectionLabel: '02 / Design System',
-        heading: 'Article Elements & Vertical Rhythm',
+        sectionLabel: '02 / Interaction',
+        heading: 'Jump when you can, scroll when you can’t',
         content: (
           <>
             <p>
-              The foundation of the article experience on 10-foot and console is a component
-              library built around a single governing principle: any element can follow any
-              other element, and the vertical rhythm will hold. This principle is baked into the
-              spacing system defined in the component spec, which accounts for the unique layout
-              challenges of a 10-foot UI while supporting the dynamic, editorially-driven nature
-              of article content.
+              One rule decides what pressing down does. If another focusable element is in view,
+              focus jumps to it. If none is, the article scrolls until one appears. Step through
+              the motion spec’s key frames, or scroll the screens sideways.
             </p>
-            <h3>Component Inventory</h3>
-            <p>
-              The spec covers the full range of article elements a content team might assemble:
-              Header, Body copy, HR dividers, Blockquote, Side elements, Table (multiple
-              variants), Content expander, Link buttons, Small buttons, Image (16:9), and Video
-              image (16:9). Each component is documented with its own spacing anatomy before
-              being shown in situ. This allows the spec to communicate not just how each element
-              should be built, but how it should relate to other elements in the vertical flow
-              of the article.
-            </p>
-            <h3>Vertical Rhythm as a Design Constraint</h3>
-            <p>
-              On a 10-foot display, inconsistent spacing compounds in ways that are far more
-              visible than on web or mobile. At viewing distance, a miscalculated gap between a
-              blockquote and a body paragraph, or an image that sits too tight against a table,
-              reads as a layout error rather than a minor inconsistency. The spec addresses this
-              by defining spacing not just within
-              components but between them &mdash; ensuring that the margin logic of each element accounts
-              for what might precede or follow it.
-            </p>
-            <p>
-              The system is order-agnostic by design. Whether an editorial team places an image
-              before a blockquote or a table before a content expander, the vertical intervals
-              remain consistent in the spirit of an oldschool baseline grid. This is a
-              meaningful production benefit: it removes layout QA burden from the content
-              authoring process and means no combination of elements can produce a
-              broken-looking page.
-            </p>
+            <ImageStripNav id="article-keys" images={keyFrames} matchScreens dragHint />
           </>
         ),
-        imageSlot: { type: 'placeholder' },
+        imageSlot: {
+          type: 'strip',
+          id: 'article-keys',
+          images: keyFrames,
+          flowArrows: true,
+          outlined: true,
+        },
+        layout: 'mediaBelow',
       },
       {
-        sectionLabel: '03 / System Details',
-        heading: 'Focus States & Design Rationale',
+        sectionLabel: '03 / Template',
+        heading: 'The viewport and its gradients',
         content: (
           <>
-            <h3>Focus State Integration</h3>
             <p>
-              Even at the element specification stage, focus states are baked in. The teal
-              highlight
-              overlays visible across interactive components &mdash; Link buttons, Content expanders,
-              Small buttons &mdash; show how focus rendering interacts with each component's internal
-              layout. On a console or 10-foot interface where the remote drives all navigation,
-              a component's focused appearance is as fundamental to its spec as its default
-              state, and the document treats it as such.
+              The article sits in a content well eight columns wide, 1136 × 692px visible, with
+              the scroll bar in the next column and a right column of actions beside it. Every
+              rule in the interaction is measured against this frame.
             </p>
-            <h3>Design Rationale</h3>
             <p>
-              Defining spacing at the component level rather than the layout level is the right
-              call
-              for a content-driven 10-foot experience. Article pages are assembled dynamically &mdash;
-              the same component library serves dozens of article templates with different
-              editorial structures. By building vertical rhythm into each element's own spacing
-              contract, the system guarantees visual consistency without requiring per-template
-              layout overrides. The result is a design system that scales with the content
-              rather than fighting it.
+              <span>Gradients as edges.</span> At the top and bottom of the well, a solid band
+              and a fade hide the content that passes under them. Their edges do real work:
+              focus is gained when an element meets the bottom gradient and lost when it passes
+              into the top one, and scroll-snap places a focused element 24px clear of them.
+            </p>
+            <p>
+              <span>Hiding the glow.</span> Both gradients run 20px past each side of the well,
+              so a focused element’s glow disappears completely beneath them, never cut off
+              half-way.
+            </p>
+            <p>
+              <span>A taller fade below.</span> The bottom fade is 52px against the top’s 36px.
+              More of the next element shows through it, which tells the player there is more to
+              come without any extra UI.
+            </p>
+            <p>
+              <span>Images that always fit.</span> Images and video are fixed at 992px wide, so
+              they can never be taller than the visible area.
             </p>
           </>
         ),
-        imageSlot: { type: 'placeholder' },
+        imageSlot: {
+          type: 'image',
+          src: templateDiagram,
+          alt: 'The article template on a 1920 × 1080 grid: navigation across the top; the content well, 8 columns and 1136 × 692px; a one-column scroll bar; a three-column right column; and the occlusion bands and linear gradients at the top and bottom of the well, with their sizes',
+          fit: 'contain',
+          background: '#d5d5d5',
+        },
       },
       {
-        sectionLabel: '04 / Interaction Design',
-        heading: 'Scroll Hint & Icon Switching',
+        sectionLabel: '04 / Elements',
+        heading: 'Any element can follow any other',
         content: (
           <>
             <p>
-              On a 10-foot display, communicating that a content-well is scrollable can't rely
-              on hover
-              states, visible scrollbars, or cursor proximity &mdash; motion has to do that work. The
-              scroll hint component handles this through two related behaviors: a one-time burst
-              animation on load, and a dynamic icon state system tied to content-well focus.
+              Scrollable text, and I’d argue all scrollable content, benefits from what print
+              designers call a baseline grid. On a TV the stakes are higher: from across the room,
+              an uneven gap between a block quote and a paragraph reads as a broken layout.
             </p>
-            <h3>The Burst Animation</h3>
             <p>
-              On article load, the scroll hint fires a micro-animation when no focusable element
-              is present in the visible content-well. This condition matters on a 10-foot UI
-              because focus
-              is the primary interaction mode &mdash; if an element already holds focus on load, the
-              burst doesn't compete with it. The animation renders above the scroll-bar on an
-              elevated z-index and plays once per session only. In a lean-back context, repeated
-              animations are significantly more disruptive than on smaller screens, so the
-              session-scope constraint is load-bearing, not incidental.
+              <span>Spacing built into each element.</span> The spec covers every element an
+              article can use: headers, body text, lists, block quotes, link and small buttons,
+              content expanders, tables, images and video. Each one carries its own spacing, so
+              editors can put them in any order and the rhythm holds without any layout checks.
             </p>
-            <h3>Icon State Switching</h3>
             <p>
-              The scroll hint icon has two states &mdash; rest and selected &mdash; driven by focus
-              activity in the content-well. When any element holds focus, the icon is at rest.
-              When the well is idle, it switches to selected, signaling to the remote/controller
-              user that directional input will scroll rather than navigate between elements.
-              This passive disambiguation is essential on a remote-driven interface, where users
-              need a clear read on what their d-pad will do at any given moment. The teal accent
-              color for the selected state
-              is a deliberate legibility choice &mdash; it holds at viewing distance without relying on
-              fine detail that wouldn't survive the 10-foot rendering environment.
+              <span>Rules for the edge cases.</span> Nested lists step in by 48px. The last item
+              in a list adds 32px below. An array of buttons gets 16px beneath it, except inside a
+              list. An open expander has 24px above its content to leave room for the focus glow,
+              and takes its bottom spacing from whatever it holds last. Expanders were shaved by
+              2px to sit on the grid.
             </p>
-            <h3>Design Rationale</h3>
             <p>
-              The scroll hint answers a single question &mdash; can I scroll this? &mdash; at the moment
-              a user needs to ask it, then steps aside. The burst handles the first-load case; the icon
-              switching maintains the answer throughout the session. Together they form a scroll
-              affordance system that is present when needed and invisible when not, with no
-              persistent UI chrome required.
+              <span>Built for reading at a distance.</span> Nested expanders are narrower and set
+              in a lighter weight. Long expander titles are cut off with an ellipsis after about 95
+              characters. A two-column table drops its header column, so it reads side by side
+              rather than as a grid.
             </p>
           </>
         ),
-        imageSlot: { type: 'placeholder' },
+        imageSlot: {
+          type: 'image',
+          src: elementSpacing,
+          alt: 'The same stretch of an article twice: on the left as players see it, with lists, buttons, a block quote and content expanders; on the right with the spacing built into each element shown as coloured bands',
+          fit: 'contain',
+          background: '#121212',
+        },
       },
       {
-        sectionLabel: '05 / Impact',
-        heading: 'Results & Learnings',
+        sectionLabel: '05 / Scroll Hint',
+        heading: 'Always showing what the stick will do',
         content: (
           <>
-            <ul>
-              <li>Course completion rates increased by 32%</li>
-              <li>Student engagement metrics up by 48%</li>
-              <li>Instructor satisfaction improved from 2.9 to 4.4 out of 5</li>
-              <li>System adopted by 15 new institutions within 6 months</li>
-            </ul>
             <p>
-              Education is deeply personal, and different users have very different needs.
-              Creating flexible designs that support diverse learning styles required careful
-              consideration. Iterating with real users and being willing to pivot based on
-              feedback was essential to the project's success.
+              With no cursor or hover state, nothing tells the player whether pressing down will
+              move focus or scroll. So a small left-stick icon sits at the top of the scroll bar
+              and shows which one it will do.
+            </p>
+            <p>
+              <span>Two states.</span> When something in the article has focus, the icon is an
+              outline at rest: the stick moves focus. When nothing has focus, it fills teal: the
+              stick scrolls. Between the focus glow and this icon, something on screen always shows
+              the current mode. The patent claims it too: once scrolling starts, the scroll bar
+              carries the indicator.
+            </p>
+            <p>
+              <span>A burst, once.</span> When an article opens with nothing focusable in view,
+              the icon swells to twice its size half a second after load (0.12 seconds up, 0.58
+              down), above the scroll bar. It happens once per article, because an animation that
+              repeats on a TV quickly becomes something to ignore.
             </p>
           </>
         ),
-        imageSlot: { type: 'placeholder' },
+        imageSlot: {
+          type: 'image',
+          src: scrollHint,
+          alt: 'The scroll hint’s anatomy: the left-stick icon built from Segoe Xbox glyphs; its selected state filled teal, its burst at double size, and its rest state as an outline; and the icon on the scroll bar, with the burst’s timings',
+          fit: 'contain',
+          background: '#000000',
+        },
+      },
+      {
+        sectionLabel: '06 / Accessibility',
+        heading: 'A focus order a screen reader can follow',
+        content: (
+          <>
+            <p>
+              The spec also covers screen readers: landmarks, the heading structure, and each
+              focus stop’s name, role, value, state and what the reader says.
+            </p>
+            <p>
+              <span>Where focus starts.</span> If there are focusable elements in the article on
+              load, the first one gets focus. If there are none, focus goes to the first link in
+              the breadcrumb instead. The order then runs through the article, the more actions
+              in the right column, the “Did this resolve your issue?” buttons, and the header.
+            </p>
+            <p>
+              <span>A pointer to the text.</span> Focus skips text, so the first thing the screen
+              reader says ends with “Use scan mode to navigate article text”, which tells the
+              player how to reach it.
+            </p>
+          </>
+        ),
+        imageSlot: {
+          type: 'image',
+          src: focusOrder,
+          alt: 'The article template with every focus stop outlined in magenta and numbered: 1 to 3 the content expanders in the article, 4 to 6 the more actions, 7 and 8 the Yes and No buttons, 9 and 10 the breadcrumb, 11 and 12 the header buttons',
+          fit: 'contain',
+          background: '#202020',
+        },
+      },
+      {
+        sectionLabel: '07 / Hand-off',
+        heading: 'From spec to patent',
+        content: (
+          <>
+            <p>
+              The article elements went to engineering in February 2022. Over the next four months
+              the spec grew to cover the whole experience: the template, tables, nested lists,
+              link and small buttons, notifications, the right column, a light theme and the
+              screen reader. A motion spec with prototype videos covered six scenes, from the
+              scroll hint to an expander opening.
+            </p>
+            <p>
+              Microsoft filed the patent in September 2022, and it was granted in September 2025
+              as US12427412B2, with me among its seven inventors. The claims cover the core of
+              this design: focus jumps when the next focusable element is in view, the article
+              scrolls when it isn’t, and an indicator on the scroll bar shows when the player is
+              scrolling.
+            </p>
+          </>
+        ),
+        imageSlot: {
+          type: 'image',
+          src: changelog,
+          alt: 'The design file’s change log, from the first hand-off of the article elements on 2.25.2022 to the screen reader and right column documentation on 6.21.2022',
+          fit: 'contain',
+          background: '#ffffff',
+        },
       },
     ]}
   />
