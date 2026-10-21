@@ -119,21 +119,20 @@ export const ProjectFive = () => (
               the room.
             </p>
             <p>
-              That is harder than it sounds. A console’s focus model moves from one interactive
+              That’s harder than it sounds. A console’s focus model moves from one interactive
               element to the next, and text isn’t interactive, so focus alone skips the reading.
               Plain scrolling reads well but gives the player nothing to act on. An article needs
               both, from the same stick. I designed a navigation pattern that combines the two:
               focus jumps between elements that are on screen, and the article scrolls smoothly
-              when there are none. That pattern became a Microsoft patent, with me as one of its
-              inventors.
+              when there are none. That pattern became a Microsoft patent.
             </p>
             <h3>At a glance</h3>
             <ul>
               <li>
-                <span>Role:</span> Interaction and visual design; co-inventor
+                <span>Role:</span> Interaction and visual design
               </li>
               <li>
-                <span>Surface:</span> Xbox console (10-foot), Get Help
+                <span>Surface:</span> Xbox console (10-foot)
               </li>
               <li>
                 <span>Timeline:</span> 2022 (patent granted 2025)
@@ -147,7 +146,7 @@ export const ProjectFive = () => (
           stillSrc: scrollingArticleFocusStill,
           replayOnView: true,
           maxSideCrop: 212,
-          alt: 'An article on a TV screen: focus jumps to a content expander, which opens past the bottom of the screen; the article snaps up to show it, then scrolls through its text to an image, where focus lands',
+          alt: 'An article on a TV, with a left stick and an A button beneath it. Each press of the stick moves focus to the next expander in view; one half hidden at the bottom of the screen snaps into view. Holding the stick scrolls the text, and the scroll hint fills once nothing is focused. The next expander takes focus as it rises into view; pressing A turns its chevron and opens it, and holding the stick again scrolls through its contents, more text and an image, to the end of the article.',
         },
       },
       {
@@ -207,7 +206,7 @@ export const ProjectFive = () => (
         imageSlot: {
           type: 'image',
           src: templateDiagram,
-          alt: 'The article template on a 1920 × 1080 grid: navigation across the top; the content well, 8 columns and 1136 × 692px; a one-column scroll bar; a three-column right column; and the occlusion bands and linear gradients at the top and bottom of the well, with their sizes',
+          alt: 'The article template below the navigation: the content well, 8 columns and 1136 × 692px; a one-column scroll bar; a three-column right column; and the occlusion bands and linear gradients at the top and bottom of the well, with their sizes',
           fit: 'contain',
           background: '#d5d5d5',
         },
