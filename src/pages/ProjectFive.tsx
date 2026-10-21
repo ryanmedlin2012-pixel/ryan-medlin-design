@@ -2,10 +2,13 @@
 import scrollingArticleFocus from '../assets/Scrolling_article_focus.svg';
 import scrollingArticleFocusStill from '../assets/Scrolling_article_focus_still.png';
 // From the design file: the template's grid and gradients, the article elements with
-// their spacing, the scroll hint, the screen reader focus order and the change log.
+// their spacing, the screen reader focus order and the change log.
 import templateDiagram from '../assets/Scrolling_article_template.png';
 import elementSpacing from '../assets/Scrolling_article_spacing.png';
-import scrollHint from '../assets/Scrolling_article_scroll_hint.png';
+// The scroll hint, animated after the spec's "Icon + scroll bar indicator and
+// track" (the PNG is its finished still).
+import scrollHint from '../assets/Scrolling_article_scroll_hint.svg';
+import scrollHintStill from '../assets/Scrolling_article_scroll_hint_still.png';
 import focusOrder from '../assets/Scrolling_article_focus_order.png';
 import changelog from '../assets/Scrolling_article_changelog.png';
 import { ProjectHorizontalLayout } from '../components/ProjectHorizontalLayout';
@@ -268,7 +271,7 @@ export const ProjectFive = () => (
               carries the indicator.
             </p>
             <p>
-              <span>A burst, once.</span> When an article opens with nothing focusable in view,
+              <span>A burst, but just once.</span> When an article opens with nothing focusable in view,
               the icon swells to twice its size half a second after load (0.12 seconds up, 0.58
               down), above the scroll bar. It happens once per article, because an animation that
               repeats on a TV quickly becomes something to ignore.
@@ -278,9 +281,11 @@ export const ProjectFive = () => (
         imageSlot: {
           type: 'image',
           src: scrollHint,
-          alt: 'The scroll hint’s anatomy: the left-stick icon built from Segoe Xbox glyphs; its selected state filled teal, its burst at double size, and its rest state as an outline; and the icon on the scroll bar, with the burst’s timings',
+          stillSrc: scrollHintStill,
+          replayOnView: true,
+          alt: 'The scroll hint on its track: the teal left-stick icon bursts to twice its size and back on load, then rides the white scroll indicator down the track; it turns to a white outline at rest while something has focus, and back to teal when focus lets go',
           fit: 'contain',
-          background: '#000000',
+          background: '#1f1f1f',
         },
       },
       {
