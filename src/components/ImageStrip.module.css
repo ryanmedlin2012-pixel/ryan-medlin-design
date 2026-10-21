@@ -378,7 +378,7 @@
 }
 
 /* The key above the steps: how to move the screens (see ImageStripNav). The
-   hand drawn as the pointer shows it — white, outlined — beside a short
+   hand outlined in the steps' green, unfilled, beside a short
    line of small text; the words suit the device. */
 .dragHint {
   display: flex;
@@ -414,8 +414,8 @@
   flex-shrink: 0;
   width: 0.9375rem;
   height: 0.9375rem;
-  fill: #fff;
-  stroke: #362828;
+  fill: none;
+  stroke: #39a503;
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;

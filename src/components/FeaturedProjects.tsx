@@ -100,16 +100,17 @@ const interactionProjects: Project[] = [
     path: '/project/token-redemption-agent',
   },
   {
-    id: 3,
-    title: 'Unrecognized Charge Agent',
+    id: 12,
+    title: 'Unrecognized Charge: Purchase Lookup',
+    titlePhrases: ['Unrecognized Charge:', 'Purchase Lookup'],
     description:
-      'Evolved the Xbox charge-dispute agent from MVP text links to rich adaptive cards. Click-through rate improved 102% and self-service resolution jumped from 18.7% to 31.2%.',
-    tags: ['Conversational UX', 'Visual Design', 'AI Design'],
+      'Designed how the Xbox support agent finds a charge a player doesn’t recognize: two questions, a confirmation, then a match, a near match or the five latest purchases, written the way a bank statement reads.',
+    tags: ['Conversational UX', 'Content Design', 'AI Design'],
     image: chargeTransactions,
     imageStill: chargeTransactionsStill,
     imageReplay: true,
     imageMaxSideCrop: 212,
-    path: '/project/unrecognized-charge-agent',
+    path: '/project/unrecognized-charge-lookup',
   },
   {
     id: 6,

@@ -21,6 +21,7 @@ import { ProjectEight } from './pages/ProjectEight'
 import { ProjectNine } from './pages/ProjectNine'
 import { ProjectTen } from './pages/ProjectTen'
 import { ProjectEleven } from './pages/ProjectEleven'
+import { ProjectTwelve } from './pages/ProjectTwelve'
 import { GraphicDesignPage, GALLERY_PAGES } from './pages/GraphicDesign'
 
 function HomePage() {
@@ -74,6 +75,7 @@ function App() {
           <Route path="/project/token-redemption-agent" element={<ProjectOne />} />
           <Route path="/project/support-escalation" element={<ProjectTwo />} />
           <Route path="/project/unrecognized-charge-agent" element={<ProjectThree />} />
+          <Route path="/project/unrecognized-charge-lookup" element={<ProjectTwelve />} />
           <Route path="/project/voice-chat-reporting" element={<ProjectFour />} />
           <Route path="/project/scrolling-article-10-foot-experience" element={<ProjectFive />} />
           <Route path="/project/sva-settings-feedback" element={<ProjectSix />} />

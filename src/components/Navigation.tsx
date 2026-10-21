@@ -9,6 +9,7 @@ import { FEATURED_PROJECT_PATHS } from './FeaturedProjects';
 const allProjects = [
   { title: 'SVA Improved Escalation to Assisted Support', path: '/project/support-escalation' },
   { title: 'Persistent Chat & OCC Floating Surface', path: '/project/persistent-chat-occ' },
+  { title: 'Unrecognized Charge: Purchase Lookup', path: '/project/unrecognized-charge-lookup' },
   { title: 'Unrecognized Charge Agent', path: '/project/unrecognized-charge-agent' },
   { title: 'Voice Chat Reporting & Voice Safety', path: '/project/voice-chat-reporting' },
   { title: 'Token Redemption Agent', path: '/project/token-redemption-agent' },
