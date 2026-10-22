@@ -2,14 +2,14 @@
 import scrollingArticleFocus from '../assets/Scrolling_article_focus.svg';
 import scrollingArticleFocusStill from '../assets/Scrolling_article_focus_still.png';
 // From the design file: the template's grid and gradients, the article elements with
-// their spacing and the screen reader focus order.
+// their spacing and the screen reader landmarks.
 import templateDiagram from '../assets/Scrolling_article_template.png';
 import elementSpacing from '../assets/Scrolling_article_spacing.png';
 // The scroll hint, animated after the spec's "Icon + scroll bar indicator and
 // track" (the PNG is its finished still).
 import scrollHint from '../assets/Scrolling_article_scroll_hint.svg';
 import scrollHintStill from '../assets/Scrolling_article_scroll_hint_still.png';
-import focusOrder from '../assets/Scrolling_article_focus_order.png';
+import landmarks from '../assets/Scrolling_article_landmarks.png';
 // The granted patent: its cover page and the drawing sheet with FIG. 4-1 and 4-2.
 import patentSpread from '../assets/Scrolling_article_patent.png';
 import patentSpreadFull from '../assets/Scrolling_article_patent_full.jpg';
@@ -292,32 +292,40 @@ export const ProjectFive = () => (
       },
       {
         sectionLabel: '06 / Accessibility',
-        heading: 'A focus order a screen reader can follow',
+        heading: 'Labels written to be heard in context',
         content: (
           <>
             <p>
-              The spec also covers screen readers: landmarks, the heading structure, and each
-              focus stop’s name, role, value, state and what the reader says.
+              <span>Five named regions.</span> The page is split into labeled landmarks: Breadcrumb,
+              Status and search, Support content, More actions and Feedback. Each uses the words on
+              screen.
             </p>
             <p>
-              <span>Where focus starts.</span> If there are focusable elements in the article on
-              load, the first one gets focus. If there are none, focus goes to the first link in
-              the breadcrumb instead. The order then runs through the article, the more actions
-              in the right column, the “Did this resolve your issue?” buttons, and the header.
+              <span>Written for what comes before.</span> When focus enters a region, the screen
+              reader says its header before the element’s own label, so labels were written to be
+              heard after their header. “Yes” and “No” mean nothing alone; after “Feedback. Did
+              this resolve your issue?” they complete the question. Labels never repeat their
+              header, and expanders use their heading, so moving through them reads like the
+              article’s outline.
             </p>
             <p>
-              <span>A pointer to the text.</span> Focus skips text, so the first thing the screen
-              reader says ends with “Use scan mode to navigate article text”, which tells the
-              player how to reach it.
+              <span>A rule for content and design.</span> Every label has to make sense right after
+              the header before it, and every group of focusable elements has a header directly
+              above it.
+            </p>
+            <p>
+              <span>Where focus starts.</span> On the first focusable element in the article, or
+              the breadcrumb if there is none. The first utterance ends with “Use scan mode to
+              navigate article text”, because focus skips text.
             </p>
           </>
         ),
         imageSlot: {
           type: 'image',
-          src: focusOrder,
-          alt: 'The article template with every focus stop outlined in magenta and numbered: 1 to 3 the content expanders in the article, 4 to 6 the more actions, 7 and 8 the Yes and No buttons, 9 and 10 the breadcrumb, 11 and 12 the header buttons',
+          src: landmarks,
+          alt: 'The article template with its landmarks outlined and labelled: Navigation, Breadcrumb, and Navigation, Status and search, across the top; Main, Support content, around the article; and in the right column Region, More actions, around three buttons, and Region, Feedback, around “Did this resolve your issue?” with Yes and No buttons, Yes focused',
           fit: 'contain',
-          background: '#202020',
+          background: '#f4f4f4',
         },
       },
       {
