@@ -16,7 +16,8 @@ export type ImageSlot =
    * backdrop colour so a contained image blends into the frame around it.
    * `position` sets where the image sits in the slot (CSS object-position),
    * e.g. 'top' to pin a contained image to the slot's top edge.
-   * `fullImage` adds a "See full diagram" button that opens it in a zoomable lightbox.
+   * `fullImage` adds a "See full diagram" button (or its own `label`) that opens it in a
+   * zoomable lightbox.
    * `link` adds the same corner button as a link that opens in a new tab.
    * `stillSrc` is shown instead to readers who prefer reduced motion, for an
    * animated image; `replayOnView` restarts one that plays once each time it
@@ -31,7 +32,7 @@ export type ImageSlot =
       fit?: 'cover' | 'contain';
       background?: string;
       position?: string;
-      fullImage?: { src: string; alt: string };
+      fullImage?: { src: string; alt: string; label?: string };
       link?: { href: string; label: string };
       maxSideCrop?: number;
       stillSrc?: string;
@@ -273,7 +274,7 @@ export const PanelImageSlot = ({ slot }: Props) => {
             onClick={() => setLightboxOpen(true)}
             aria-haspopup="dialog"
           >
-            See full diagram
+            {fullImage.label ?? 'See full diagram'}
           </button>
         )}
 

@@ -2,7 +2,7 @@
 import scrollingArticleFocus from '../assets/Scrolling_article_focus.svg';
 import scrollingArticleFocusStill from '../assets/Scrolling_article_focus_still.png';
 // From the design file: the template's grid and gradients, the article elements with
-// their spacing, the screen reader focus order and the change log.
+// their spacing and the screen reader focus order.
 import templateDiagram from '../assets/Scrolling_article_template.png';
 import elementSpacing from '../assets/Scrolling_article_spacing.png';
 // The scroll hint, animated after the spec's "Icon + scroll bar indicator and
@@ -10,7 +10,9 @@ import elementSpacing from '../assets/Scrolling_article_spacing.png';
 import scrollHint from '../assets/Scrolling_article_scroll_hint.svg';
 import scrollHintStill from '../assets/Scrolling_article_scroll_hint_still.png';
 import focusOrder from '../assets/Scrolling_article_focus_order.png';
-import changelog from '../assets/Scrolling_article_changelog.png';
+// The granted patent: its cover page and the drawing sheet with FIG. 4-1 and 4-2.
+import patentSpread from '../assets/Scrolling_article_patent.png';
+import patentSpreadFull from '../assets/Scrolling_article_patent_full.jpg';
 import { ProjectHorizontalLayout } from '../components/ProjectHorizontalLayout';
 import { ImageStripNav } from '../components/ImageStrip';
 import type { StripImage } from '../components/ImageStrip';
@@ -341,10 +343,15 @@ export const ProjectFive = () => (
         ),
         imageSlot: {
           type: 'image',
-          src: changelog,
-          alt: 'The design file’s change log, from the first hand-off of the article elements on 2.25.2022 to the screen reader and right column documentation on 6.21.2022',
+          src: patentSpread,
+          alt: 'Two pages of US patent 12,427,412 B2: the cover page, with the title Systems and methods for presenting visual content, the inventors, the abstract and the method flowchart; and drawing sheet 3, FIG. 4-1 and FIG. 4-2, showing a viewport of stacked elements with a focusable element indicated, a navigation direction and a game controller',
           fit: 'contain',
-          background: '#ffffff',
+          background: '#ecebe9',
+          fullImage: {
+            src: patentSpreadFull,
+            alt: 'US patent 12,427,412 B2: the cover page and drawing sheet 3, full size',
+            label: 'See the patent pages',
+          },
         },
       },
     ]}
