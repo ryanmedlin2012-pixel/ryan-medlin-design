@@ -1,9 +1,9 @@
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import './App.css'
 import { LayoutProvider } from './context/LayoutContext'
 import { useLayout } from './context/LayoutContext'
-import { Navigation } from './components/Navigation'
+import { Navigation, SHOW_IN_PROGRESS, IN_PROGRESS_PATHS } from './components/Navigation'
 import { ScrollToTop } from './components/ScrollToTop'
 import { HorizontalLayout } from './components/HorizontalLayout'
 import { Hero } from './components/Hero'
@@ -64,6 +64,22 @@ function HomePage() {
   )
 }
 
+// The project pages. Those still in progress are left out of the live site.
+const projectRoutes = ([
+  ['/project/token-redemption-agent', <ProjectOne />],
+  ['/project/support-escalation', <ProjectTwo />],
+  ['/project/unrecognized-charge-agent', <ProjectThree />],
+  ['/project/unrecognized-charge-lookup', <ProjectTwelve />],
+  ['/project/voice-chat-reporting', <ProjectFour />],
+  ['/project/scrolling-article-10-foot-experience', <ProjectFive />],
+  ['/project/sva-settings-feedback', <ProjectSix />],
+  ['/project/persistent-chat-occ', <ProjectSeven />],
+  ['/project/skylight-occ-migration', <ProjectEight />],
+  ['/project/asurion-hardware-card', <ProjectNine />],
+  ['/project/floating-sva-front-door', <ProjectTen />],
+  ['/project/xds-design-system', <ProjectEleven />],
+] as const).filter(([path]) => SHOW_IN_PROGRESS || !IN_PROGRESS_PATHS.includes(path))
+
 function App() {
   return (
     <LayoutProvider>
@@ -72,21 +88,14 @@ function App() {
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/project/token-redemption-agent" element={<ProjectOne />} />
-          <Route path="/project/support-escalation" element={<ProjectTwo />} />
-          <Route path="/project/unrecognized-charge-agent" element={<ProjectThree />} />
-          <Route path="/project/unrecognized-charge-lookup" element={<ProjectTwelve />} />
-          <Route path="/project/voice-chat-reporting" element={<ProjectFour />} />
-          <Route path="/project/scrolling-article-10-foot-experience" element={<ProjectFive />} />
-          <Route path="/project/sva-settings-feedback" element={<ProjectSix />} />
-          <Route path="/project/persistent-chat-occ" element={<ProjectSeven />} />
-          <Route path="/project/skylight-occ-migration" element={<ProjectEight />} />
-          <Route path="/project/asurion-hardware-card" element={<ProjectNine />} />
-          <Route path="/project/floating-sva-front-door" element={<ProjectTen />} />
-          <Route path="/project/xds-design-system" element={<ProjectEleven />} />
+          {projectRoutes.map(([path, element]) => (
+            <Route key={path} path={path} element={element} />
+          ))}
           <Route path="/graphic-design/editorial" element={<GraphicDesignPage key="editorial" page={GALLERY_PAGES.editorial} />} />
           <Route path="/graphic-design/posters" element={<GraphicDesignPage key="posters" page={GALLERY_PAGES.posters} />} />
           <Route path="/graphic-design/ephemera" element={<GraphicDesignPage key="ephemera" page={GALLERY_PAGES.ephemera} />} />
+          {/* Anything else, including a page left out of the live site: home. */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </LayoutProvider>

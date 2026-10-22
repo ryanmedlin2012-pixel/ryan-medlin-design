@@ -277,6 +277,19 @@
   text-decoration-line: underline;
 }
 
+/* Running locally only: a reminder that these projects aren't on the live
+   site yet. */
+.inProgressTag {
+  margin-left: 8px;
+  padding: 1px 6px;
+  border: 1px solid #c9a227;
+  border-radius: 3px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #8a6d00;
+  white-space: nowrap;
+}
+
 /* The arrow, then the words (only the words underline). */
 .moreLabel {
   display: inline-flex;

@@ -34,6 +34,11 @@ const projects = [...allProjects].sort((a, b) => featuredRank(a.path) - featured
 // The flyout lists the first few; "More projects" shows the rest.
 const PROJECTS_SHOWN = 5;
 
+// The rest are still being worked on: shown when running locally (the dev
+// server), left out of the live site, along with their pages (see App).
+export const SHOW_IN_PROGRESS = import.meta.env.DEV;
+export const IN_PROGRESS_PATHS = projects.slice(PROJECTS_SHOWN).map((project) => project.path);
+
 // Graphic design work, by kind.
 const graphicDesign = [
   { title: 'Editorial', path: '/graphic-design/editorial' },
@@ -210,55 +215,60 @@ export const Navigation: React.FC = () => {
                   Interaction
                 </div>
                 {projects.slice(0, PROJECTS_SHOWN).map(projectLink)}
-                {/* The rest open above the control, so it always sits at the
-                    foot of the list it shows and hides. */}
-                <div
-                  id="nav-projects-more"
-                  className={`${styles.moreProjects} ${moreProjects ? styles.moreProjectsOpen : ''}`}
-                >
-                  <div ref={moreProjectsRef} className={styles.moreProjectsInner}>
-                    {projects.slice(PROJECTS_SHOWN).map(projectLink)}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className={styles.moreToggle}
-                  aria-expanded={moreProjects}
-                  aria-controls="nav-projects-more"
-                  onClick={(e) => {
-                    const opening = !moreProjects;
-                    setMoreProjects(opening);
-                    // Using the panel keeps it open, even if a hover opened
-                    // it. (In the phone menu there's no panel to keep.)
-                    setProjectsPanel((p) => (p === 'hover' ? 'pinned' : p));
-                    // From the keyboard (a click with no pointer), opening
-                    // moves to the first project it reveals — they're above
-                    // the control, so Tab alone would skip past them.
-                    if (opening && e.detail === 0) {
-                      requestAnimationFrame(() =>
-                        moreProjectsRef.current?.querySelector('a')?.focus()
-                      );
-                    }
-                  }}
-                >
-                  <span className={styles.moreLabel}>
-                    {/* An arrow before the words: down to show more, up to
-                        show fewer. */}
-                    <svg
-                      className={styles.moreArrow}
-                      viewBox="0 0 10 10"
-                      width="10"
-                      height="10"
-                      aria-hidden="true"
-                      focusable="false"
+                {SHOW_IN_PROGRESS && (
+                  <>
+                    {/* The rest open above the control, so it always sits at the
+                        foot of the list it shows and hides. */}
+                    <div
+                      id="nav-projects-more"
+                      className={`${styles.moreProjects} ${moreProjects ? styles.moreProjectsOpen : ''}`}
                     >
-                      <path d="M5 1v8M1.5 5.5L5 9l3.5-3.5" />
-                    </svg>
-                    <span className={styles.moreText}>
-                      {moreProjects ? 'fewer interaction projects' : 'more interaction projects'}
-                    </span>
-                  </span>
-                </button>
+                      <div ref={moreProjectsRef} className={styles.moreProjectsInner}>
+                        {projects.slice(PROJECTS_SHOWN).map(projectLink)}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.moreToggle}
+                      aria-expanded={moreProjects}
+                      aria-controls="nav-projects-more"
+                      onClick={(e) => {
+                        const opening = !moreProjects;
+                        setMoreProjects(opening);
+                        // Using the panel keeps it open, even if a hover opened
+                        // it. (In the phone menu there's no panel to keep.)
+                        setProjectsPanel((p) => (p === 'hover' ? 'pinned' : p));
+                        // From the keyboard (a click with no pointer), opening
+                        // moves to the first project it reveals — they're above
+                        // the control, so Tab alone would skip past them.
+                        if (opening && e.detail === 0) {
+                          requestAnimationFrame(() =>
+                            moreProjectsRef.current?.querySelector('a')?.focus()
+                          );
+                        }
+                      }}
+                    >
+                      <span className={styles.moreLabel}>
+                        {/* An arrow before the words: down to show more, up to
+                            show fewer. */}
+                        <svg
+                          className={styles.moreArrow}
+                          viewBox="0 0 10 10"
+                          width="10"
+                          height="10"
+                          aria-hidden="true"
+                          focusable="false"
+                        >
+                          <path d="M5 1v8M1.5 5.5L5 9l3.5-3.5" />
+                        </svg>
+                        <span className={styles.moreText}>
+                          {moreProjects ? 'fewer interaction projects' : 'more interaction projects'}
+                        </span>
+                        <span className={styles.inProgressTag}>Local only</span>
+                      </span>
+                    </button>
+                  </>
+                )}
               </div>
               <div role="group" aria-labelledby="nav-projects-graphic">
                 <div id="nav-projects-graphic" className={styles.groupHeading}>

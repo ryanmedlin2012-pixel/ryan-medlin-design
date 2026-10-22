@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { SHOW_IN_PROGRESS } from '../components/Navigation';
 // The section's graphic, animated (the PNG is its finished still, for reduced motion).
 import chargeTransactions from '../assets/Charge_transactions.svg';
 import chargeTransactionsStill from '../assets/Charge_transactions_still.png';
@@ -156,7 +157,11 @@ export const ProjectTwelve = () => (
               Support Virtual Agent. It asks for the date and amount, searches the player’s Xbox
               purchase history, and names the charge in plain language. When there’s no clear
               answer, it shows what’s closest, or where to look next. It builds on{' '}
-              <Link to="/project/unrecognized-charge-agent">the agent’s first phase</Link>, which
+              {SHOW_IN_PROGRESS ? (
+                <Link to="/project/unrecognized-charge-agent">the agent’s first phase</Link>
+              ) : (
+                'the agent’s first phase'
+              )}, which
               moved its answers from text links to adaptive cards.
             </p>
             <h3>At a glance</h3>
