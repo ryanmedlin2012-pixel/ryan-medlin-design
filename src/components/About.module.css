@@ -1,0 +1,181 @@
+/* Laid out as the Skills section is (Skills.module.css): centred in the
+   panel, an overline and headline over a row of three columns (one on
+   phones); above the overline, my face in a circle. */
+.about {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  overflow-y: auto;
+  /* The hero's warm grey field (Hero.module.css .hero), lit as Skills is but
+     turned the other way, so the two light sections either side of it don't
+     read as one. */
+  background:
+    radial-gradient(ellipse 40% 34% at 60% 50%, rgba(255, 255, 255, 0.5) 0%, transparent 70%),
+    radial-gradient(ellipse 72% 58% at 90% 90%, rgba(157, 236, 83, 0.08) 0%, transparent 62%),
+    radial-gradient(ellipse 62% 70% at 6% 8%, rgba(84, 193, 5, 0.05) 0%, transparent 62%),
+    radial-gradient(ellipse 50% 44% at 80% 10%, rgba(54, 40, 40, 0.06) 0%, transparent 66%),
+    radial-gradient(ellipse 52% 48% at 12% 92%, rgba(54, 40, 40, 0.08) 0%, transparent 66%),
+    linear-gradient(118deg, transparent 28%, rgba(157, 236, 83, 0.025) 48%, transparent 68%),
+    radial-gradient(ellipse 200% 200% at 45% 50%, #fcfbfa 0%, #f3f0ef 22%, #e4dfdd 48%, #eeeae9 76%, #f5f2f1 100%);
+}
+
+.container {
+  /* Narrower than Skills, so the three columns read as one block of text. */
+  max-width: 64rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* My face, in a circle, then the headline beside it, left aligned, over
+   the columns (inset as they are). */
+.headRow {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 0 3rem;
+  margin-bottom: 3rem;
+}
+
+.avatar {
+  flex-shrink: 0;
+  display: block;
+  width: 11.5rem;
+  height: 11.5rem;
+  /* Out into the margin a little, past the columns' left edge. */
+  margin-left: -1rem;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 14px rgba(54, 40, 40, 0.16);
+}
+
+.heading {
+  font-size: 2.25rem;
+  line-height: 1.25;
+  margin: 0;
+  /* Lines of even length (the question runs to two). */
+  text-wrap: balance;
+  color: #362828;
+  outline: none;
+  text-align: left;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+  /* Inset from the headline's width, so the columns sit inside it. */
+  padding: 0 3rem;
+}
+
+/* The columns: open, on the section's ground, as text columns. */
+.card {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardTitle {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0 0 1rem;
+  color: #362828;
+}
+
+.card p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #6a6a6a;
+  margin: 0 0 0.75rem;
+}
+
+.card p:last-child {
+  margin-bottom: 0;
+}
+
+/* Working together: the list close under its intro, then the button at the
+   card's foot. */
+.card p.listIntro {
+  margin-bottom: 0.35rem;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.list li {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: #6a6a6a;
+}
+
+.list span {
+  font-weight: 500;
+  color: #362828;
+}
+
+/* The headline's last words: a link to the contact section, set in the
+   headline's own type, in green and italic. */
+.headingCta {
+  padding: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  color: #39a503;
+  cursor: pointer;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 2px;
+}
+
+.headingCta em {
+  font-style: italic;
+}
+
+.headingCta:hover em {
+  text-decoration-line: underline;
+}
+
+.headingCta:focus-visible {
+  outline: 2px solid #39a503;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+@media (max-width: 900px) {
+  /* Narrow: the headline wraps where it needs to. */
+  .headingBreak {
+    display: none;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 0;
+  }
+
+  /* The circle above the headline. */
+  .headRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 0;
+    margin-bottom: 2rem;
+  }
+
+  .avatar {
+    width: 6.5rem;
+    height: 6.5rem;
+  }
+
+  .heading {
+    font-size: 1.75rem;
+  }
+
+}

@@ -220,7 +220,8 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
       '#projects': 1,
       '#visual-design': 2,
       '#skills': 3,
-      '#contact': 4,
+      '#about': 4,
+      '#contact': 5,
     };
 
     const handleHashChange = () => {
