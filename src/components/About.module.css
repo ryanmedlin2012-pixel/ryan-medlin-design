@@ -170,6 +170,13 @@
     padding: 0;
   }
 
+  /* One column: keep each heading, paragraph and list to a readable
+     measure (about 75 characters). Wider windows leave room to its right;
+     once the window is narrower than the measure, that room goes. */
+  .card {
+    max-width: 544px;
+  }
+
   /* The circle still beside the headline, closer to it, at the margin. */
   .headRow {
     gap: 20px;
