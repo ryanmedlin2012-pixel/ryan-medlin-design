@@ -7,8 +7,8 @@ export const SECTION_LABELS = [
   'Introduction',
   'Interaction projects',
   'Visual design',
-  'Skills',
   'About',
+  'Skills',
   'Contact',
 ] as const;
 

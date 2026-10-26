@@ -58,8 +58,8 @@ function HomePage() {
         <Hero />,
         <FeaturedProjects />,
         <FeaturedVisualDesign />,
-        <Skills />,
         <About />,
+        <Skills />,
         <Contact />,
       ]}
     />
