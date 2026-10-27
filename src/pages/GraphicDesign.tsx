@@ -24,7 +24,6 @@ import posterRitaMarquez from '../assets/Poster_rita_marquez.jpg';
 import posterYaldaNight from '../assets/Poster_yalda_night.jpg';
 import posterYaldaNightFlag from '../assets/Poster_yalda_night_flag.jpg';
 import posterYaldaNightWhite from '../assets/Poster_yalda_night_white.jpg';
-import posterAdventuresOfLulu from '../assets/Poster_adventures_of_lulu.jpg';
 import posterMidsummerMeadows from '../assets/Poster_midsummer_meadows.jpg';
 import posterLivingNewEconomy from '../assets/Poster_living_new_economy.jpg';
 import posterLneDirectionPhoto from '../assets/Poster_lne_direction_photo.jpg';
@@ -61,6 +60,7 @@ export const GALLERY_PAGES: Record<'editorial' | 'posters' | 'ephemera', Gallery
         label: "America's Shooting Edge",
         alt: "Cover for America's Shooting Edge: A Portrait of the 1990s Constitutional Militias, by Nita Renfrew, laid flat: camouflage trousers on the back, a camouflage jacket on the front, on white.",
         aspect: 3900 / 2700,
+        keepHeight: true,
         caption: "Cover for America's Shooting Edge, by Nita Renfrew: back, spine and front.",
       },
       {
@@ -145,13 +145,6 @@ export const GALLERY_PAGES: Record<'editorial' | 'posters' | 'ephemera', Gallery
         alt: 'Alternate Yalda Night poster: the Persian title in black on white, with butterflies and pomegranate flowers, under a black lace border.',
         aspect: 642 / 860,
         caption: 'Yalda Night: an alternate, in black and white with butterflies.',
-      },
-      {
-        src: posterAdventuresOfLulu,
-        label: 'The Adventures of Lulu',
-        alt: 'Poster for The Adventures of Lulu, new plays at 18th & Union Theatre: an engraved woman under the Space Needle and a rainbow, the title in large magenta letters, with animals and mushrooms.',
-        aspect: 3 / 4,
-        caption: 'Poster for The Adventures of Lulu, an evening of new plays at 18th & Union.',
       },
       {
         src: posterMidsummerMeadows,

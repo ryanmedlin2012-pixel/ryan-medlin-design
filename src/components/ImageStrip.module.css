@@ -540,6 +540,12 @@
   );
 }
 
+/* (keepHeight) a wide piece always at the strip's full height: sized by the
+   height alone, never capped by the strip's width. */
+:global([data-layout='mediaBelow']) .item[data-keep-height] {
+  --item-w: calc((100cqh - var(--caption-room)) * var(--aspect, 16 / 9));
+}
+
 /* Stacked layout: the column is narrow, so show more of each screen. */
 @media (max-width: 767px) {
   .strip {
@@ -556,5 +562,11 @@
       calc((100% - var(--strip-bleed, 0px)) * 0.92),
       60vh * var(--width-aspect, var(--aspect, 16 / 9))
     );
+  }
+
+  /* (keepHeight) a wide piece at the tall pieces' height, 60% of the
+     screen's, however narrow the window: never scaled down to its width. */
+  .item[data-keep-height] {
+    --item-w: calc(60vh * var(--aspect, 16 / 9));
   }
 }

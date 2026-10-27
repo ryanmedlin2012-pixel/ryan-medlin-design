@@ -25,6 +25,10 @@ export interface StripImage {
       'feature', four images — a large one on the left, a wide one top right,
       and two side by side beneath it. */
   stackLayout?: 'column' | 'feature';
+  /** Always the strip's full height, however narrow the window: a wide
+      piece isn't scaled down to fit the strip's width (it runs past the
+      window edge instead, and scrolls in). */
+  keepHeight?: boolean;
 }
 
 const DEFAULT_ASPECT = 16 / 9;
@@ -385,16 +389,21 @@ export const ImageStrip = ({
 
     // Mark screens the strip's right edge cuts off (the strip runs to the
     // window edge, so this is the browser cropping them) so CSS can dim them.
-    // Judged by the right edge alone, checked on every scroll frame and
+    // Judged by its horizontal edges, checked on every scroll frame and
     // resize — not by how much of a screen shows, which a screen taller than
-    // the strip (a long caption) never reaches.
+    // the strip (a long caption) never reaches: cut off on the right, and
+    // starting in the strip's right half. (A screen wider than the strip —
+    // keepHeight — is always cut off on the right; while it's the one in
+    // view, starting at or left of the strip's start, it isn't dimmed.)
     let cropFrame = 0;
     const markCropped = () => {
       cropFrame = 0;
-      const right = scroller.getBoundingClientRect().right;
-      items().forEach((item) =>
-        item.toggleAttribute('data-cropped', item.getBoundingClientRect().right > right + 1),
-      );
+      const { left, right } = scroller.getBoundingClientRect();
+      const middle = (left + right) / 2;
+      items().forEach((item) => {
+        const rect = item.getBoundingClientRect();
+        item.toggleAttribute('data-cropped', rect.right > right + 1 && rect.left > middle);
+      });
     };
     const queueMarkCropped = () => {
       if (!cropFrame) cropFrame = requestAnimationFrame(markCropped);
@@ -445,6 +454,7 @@ export const ImageStrip = ({
           <figure
             key={i}
             className={styles.item}
+            data-keep-height={image.keepHeight || undefined}
             style={
               {
                 '--aspect': image.aspect ?? DEFAULT_ASPECT,
