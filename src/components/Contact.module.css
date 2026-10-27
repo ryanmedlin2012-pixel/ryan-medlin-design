@@ -50,32 +50,16 @@
   color: #6a6a6a;
 }
 
-/* The ways to reach me: in a row, each a small grey label over a green
-   italic link (as About's "Let's get in touch"). */
+/* The ways to reach me: green italic links (as About's "Let's get in
+   touch"), one above the other. */
 .links {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 24px 64px;
-}
-
-.links li {
-  display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-}
-
-.label {
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #7a7a7a;
+  gap: 8px;
 }
 
 .link {
@@ -102,17 +86,12 @@
   border-radius: 2px;
 }
 
-/* A quiet line at the foot, on a hairline. Room at the bottom for the
-   section dots, which float over it. */
+/* A quiet note under the links. */
 .footer {
   display: flex;
   justify-content: center;
   gap: 24px;
-  max-width: 64rem;
-  width: calc(100% - 64px);
-  margin: 0 auto;
-  padding: 16px 48px 56px;
-  border-top: 1px solid rgba(54, 40, 40, 0.12);
+  margin-top: 48px;
   font-size: 12px;
   line-height: 16px;
   color: #7a7a7a;
@@ -131,21 +110,12 @@
     padding: 0 32px;
   }
 
-  .footer {
-    width: 100%;
-    padding: 16px 32px;
-  }
 }
 
 @media (max-width: 600px) {
   .heading {
     font-size: 28px;
     line-height: 36px;
-  }
-
-  .links {
-    flex-direction: column;
-    gap: 20px;
   }
 
   .link {

@@ -21,7 +21,7 @@ const CONTACT_LINKS = [
 
 // The last section, set as About is (but centred): a serif headline on the
 // light ground, a line of grey text, then the ways to reach me as green
-// links, each with its label above it. A quiet footer at the foot.
+// links, one above the other, and a quiet note under them.
 export const Contact: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
@@ -38,14 +38,15 @@ export const Contact: React.FC = () => {
           </p>
           <ul className={styles.links}>
             {CONTACT_LINKS.map(({ label, text, href, onClick }) => {
+              // (The label names the link for screen readers only.)
               const external = href.startsWith('http');
               return (
                 <li key={label}>
-                  <span className={styles.label}>{label}</span>
                   <a
                     className={styles.link}
                     href={href}
                     onClick={onClick}
+                    aria-label={`${label}: ${text}`}
                     {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   >
                     <em>{text}</em> <span aria-hidden="true">→</span>
@@ -54,12 +55,12 @@ export const Contact: React.FC = () => {
               );
             })}
           </ul>
+          <footer className={styles.footer}>
+            <p>© {currentYear} Ryan Medlin</p>
+            <p>Designed and built with AI tools</p>
+          </footer>
         </div>
       </div>
-      <footer className={styles.footer}>
-        <p>© {currentYear} Ryan Medlin</p>
-        <p>Designed and built with AI tools</p>
-      </footer>
     </section>
   );
 };

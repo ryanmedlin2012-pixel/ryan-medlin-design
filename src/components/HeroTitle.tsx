@@ -17,55 +17,72 @@ const SUFFIX = ' designer';
 const FINAL_TEXT = `${FINAL}${SUFFIX}`;
 /** The line above the heading, typed first. */
 /** …typed in phrases, with a beat (the caret blinking) between them. */
-const INTRO_PHRASES = ['Hi,', ' I’m Ryan', ' and I’m a ...'];
+// (A no-break space keeps the ellipsis with "a" when the line wraps.)
+const INTRO_PHRASES = ['Hi,', ' I’m Ryan', ' and I’m a\u00a0...'];
 const INTRO = INTRO_PHRASES.join('');
 
-// The caret's blink (ms): on for half of each cycle, then off for half.
+// The order things come in. 'wordsFirst': just the words type first, alone
+// (each struck through, then the final one); then " designer" opens out
+// beside it, and the intro line above fades in, with the subtitle and
+// button. 'introFirst': the intro is typed
+// first, then the heading row opens below it (as it used to).
+type Order = 'wordsFirst' | 'introFirst';
+const ORDER = 'wordsFirst' as Order;
+
+// The caret's blink (ms): on for half of each cycle, then off for half. Quick,
+// so the whole sequence runs in a few seconds.
 // The sequence keeps this blink itself (rather than CSS), so every change to
 // the caret happens exactly on its beat: it only ever appears as a blink
 // comes on, and only ever goes away, or starts typing, as a blink ends — so
 // every "on" it shows is a whole one, never cut short or brought in late.
-const BLINK = 600;
+const BLINK = 360;
 const BLINK_ON = BLINK / 2;
 
 // The caret is there only to type. Once a word is typed it stays on to the
 // end of its blink, blinks off on the beat — and doesn't come back on. The
 // strike and the deletion play without it (so the two never meet), until it
 // comes back to type the next word.
+/** How long the final word takes to lean to the italic's angle (ms; matches
+    the CSS transition). */
+export const LEAN_MS = 140;
+
 const TIMING = {
   /** Wait once the hero is on screen before starting (ms). */
-  startDelay: 250,
+  startDelay: 80,
   /** Per typed character, varied a little so it reads as human (ms). */
-  type: 34,
-  typeJitter: 24,
+  type: 20,
+  typeJitter: 12,
   /** Per deleted character (ms). */
-  erase: 20,
+  erase: 12,
   /** Gap between the caret going and the strike starting to draw (ms). */
-  caretClear: 80,
+  caretClear: 30,
   /** How long the strike takes to draw (ms; matches the CSS animation). */
-  strike: 260,
+  strike: 150,
   /** How long the strike stays (ms). */
-  strikeHold: 240,
+  strikeHold: 90,
   /** How long the strike takes to fade out (ms; matches the CSS). */
-  strikeFade: 120,
+  strikeFade: 70,
   /** Gap between the strike disappearing and the word being deleted (ms). */
-  strikeClear: 60,
+  strikeClear: 20,
   /** Pause with the caret back in place before it types the next word (ms). */
-  beforeTyping: 100,
+  beforeTyping: 40,
   // Then "Multidisciplinary" (bold, as every word there is) turns italic.
   /** Pause after the caret's gone, before it leans (ms). */
-  beforeLean: 200,
+  beforeLean: 80,
   /** Whole blinks the caret gives at each beat in the intro (after "Hi,"
       and after "I’m Ryan") before typing on. */
-  introBeatBlinks: 1,
+  introBeatBlinks: 0,
   /** How long the heading's row takes to open below the intro, once the
       intro is typed (ms; matches the CSS transition). */
-  titleOpen: 550,
+  titleOpen: 320,
   /** Pause once it's italic, before what's below the heading comes in (ms). */
-  beforeDone: 1400,
+  beforeDone: 300,
+  /** (Words first) pause once it's italic and " designer" is opening, before
+      the intro fades in (ms). */
+  beforeIntro: 450,
   /** How long it takes to lean to the italic's angle (ms; matches the CSS
       transition), when it becomes the italic proper. */
-  lean: 160,
+  lean: LEAN_MS,
 };
 
 // Once per page load: coming back to the home page shows the finished title.
@@ -111,6 +128,9 @@ const strikeFor = (wordWidth: number, wordHeight: number, fontSize: number): Str
 interface Frame {
   /** The intro line above the heading, as typed so far. */
   intro: string;
+  /** Whether the intro is showing (it's held back until the heading is
+      done, when the words come first). */
+  introShown: boolean;
   /** Whether the heading's row has opened (below the intro, once typed). */
   titleOpen: boolean;
   /** The word before " designer", as typed so far. */
@@ -139,6 +159,7 @@ interface Frame {
 
 const finished: Frame = {
   intro: INTRO,
+  introShown: true,
   titleOpen: true,
   word: FINAL,
   suffix: SUFFIX,
@@ -157,13 +178,19 @@ export const heroTitleWillPlay = () =>
   !(typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
 interface HeroTitleProps {
+  /** Just the words, inline in the paragraph's sentence (in the word's
+      place, after "Hi, I'm Ryan and I'm a"): each struck through in turn,
+      then the final one — no intro, no " designer", no heading (the
+      paragraph has its own: see Hero). Starts as soon as it appears. */
+  inline?: boolean;
   /** Called once the heading has finished (typed, and its final word turned
-      italic) — so what follows it can come in. */
+      italic; inline, once the final word is typed) — so what follows it can
+      come in. */
   onDone?: () => void;
 }
 
 /** The lean (deg): about the italic's own angle. */
-const LEAN = -10;
+export const LEAN = -10;
 
 const wordStyle: Record<Frame['style'], string> = {
   upright: '',
@@ -171,7 +198,7 @@ const wordStyle: Record<Frame['style'], string> = {
   italic: styles.finalWord,
 };
 
-export const HeroTitle = ({ onDone }: HeroTitleProps) => {
+export const HeroTitle = ({ onDone, inline = false }: HeroTitleProps) => {
   // Decided once, when the heading first appears: finishing the animation
   // (which sets hasPlayed) mustn't restart or cancel it partway.
   const [skip] = useState(() => !heroTitleWillPlay());
@@ -181,8 +208,25 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
   const [frame, setFrame] = useState<Frame>(
     skip
       ? finished
+      : ORDER === 'wordsFirst'
+      ? {
+          // The heading's row is open from the start; the intro's text is
+          // set but hidden, holding its place above.
+          intro: INTRO,
+          introShown: false,
+          titleOpen: true,
+          word: '',
+          suffix: '',
+          strike: null,
+          strikeLeaving: false,
+          caret: false,
+          style: 'upright',
+          lean: null,
+          caretAt: 'word',
+                }
       : {
           intro: '',
+          introShown: true,
           titleOpen: false,
           word: '',
           suffix: '',
@@ -192,16 +236,17 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
           style: 'upright',
           lean: null,
           caretAt: 'intro',
-        },
+                },
   );
-  const introRef = useRef<HTMLParagraphElement>(null);
+  // What's watched to start it (the intro; inline, it starts at once).
+  const introRef = useRef<HTMLElement | null>(null);
   const wordRef = useRef<HTMLSpanElement>(null);
   const italicRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     if (skip) return;
     const intro = introRef.current;
-    if (!intro) return;
+    if (!intro && !inline) return;
     let cancelled = false;
     const timers: ReturnType<typeof setTimeout>[] = [];
     const wait = (ms: number) =>
@@ -258,10 +303,11 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
           blinkEnd = { count, resolve };
         });
 
+      if (ORDER === 'introFirst') {
       // The caret appears and blinks once, then starts typing the intro as
       // its next "on" ends.
       blink();
-      await untilBlinkEnds(2);
+      await untilBlinkEnds(1);
       if (cancelled) return;
       let introTyped = '';
       for (const [i, phrase] of INTRO_PHRASES.entries()) {
@@ -291,9 +337,16 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
       await wait(TIMING.titleOpen);
       if (cancelled) return;
       show({ caretAt: 'word' });
-      blink();
-      await untilBlinkEnds(1);
-      if (cancelled) return;
+      }
+      // The caret blinks once before typing the first word (inline, it
+      // types straight on from the paragraph's opening, without a beat).
+      if (inline) {
+        show({ caret: true });
+      } else {
+        blink();
+        await untilBlinkEnds(1);
+        if (cancelled) return;
+      }
       for (const next of [...STRUCK, FINAL]) {
         // Type the word (and, the first time, " designer" after it), with
         // the caret held on.
@@ -303,11 +356,14 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
           word += ch;
           show({ word });
         }
-        for (const ch of SUFFIX.slice(suffix.length)) {
-          await wait(typeDelay());
-          if (cancelled) return;
-          suffix += ch;
-          show({ suffix, caretAt: 'end' });
+        // (Words first: just the words; " designer" comes in at the end.)
+        if (ORDER === 'introFirst') {
+          for (const ch of SUFFIX.slice(suffix.length)) {
+            await wait(typeDelay());
+            if (cancelled) return;
+            suffix += ch;
+            show({ suffix, caretAt: 'end' });
+          }
         }
         if (next === FINAL) hasPlayed = true;
         // The caret stays on to the end of its blink (it's on from typing)
@@ -319,25 +375,41 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
         if (next === FINAL) {
           // With the caret gone, the final word turns italic: it leans over
           // to the italic's angle and, as it lands, becomes the italic
-          // proper.
-          await wait(TIMING.beforeLean);
-          if (cancelled) return;
-          // The italic is narrower: as it leans, it narrows to the italic's
-          // width (measured from the finished heading's invisible copy),
-          // starting from its own.
-          const upright = wordRef.current?.getBoundingClientRect().width;
-          const italic = italicRef.current?.getBoundingClientRect().width;
-          if (upright && italic) {
-            show({ lean: { width: upright, squeeze: 1 } });
-            await nextFrame();
-            await nextFrame();
+          // proper. (Inline, it stays upright: the paragraph turns it italic,
+          // if it does — see Hero.)
+          if (!inline) {
+            await wait(TIMING.beforeLean);
             if (cancelled) return;
-            show({ style: 'leaning', lean: { width: italic, squeeze: italic / upright } });
-          } else {
-            show({ style: 'leaning' });
+            // The italic is narrower: as it leans, it narrows to the italic's
+            // width (measured from the finished heading's invisible copy),
+            // starting from its own.
+            const upright = wordRef.current?.offsetWidth;
+            const italic = italicRef.current?.offsetWidth;
+            if (upright && italic) {
+              show({ lean: { width: upright, squeeze: 1 } });
+              await nextFrame();
+              await nextFrame();
+              if (cancelled) return;
+              show({ style: 'leaning', lean: { width: italic, squeeze: italic / upright } });
+            } else {
+              show({ style: 'leaning' });
+            }
+            await wait(TIMING.lean);
+            show({ style: 'italic', lean: null });
           }
-          await wait(TIMING.lean);
-          show({ style: 'italic', lean: null });
+          if (inline) {
+            onDoneRef.current?.();
+            return;
+          }
+          // Then the rest comes in: " designer" opening out beside the word
+          // (which eases over to make room), the intro above, and what's
+          // below (by onDone, just after).
+          if (ORDER === 'wordsFirst') {
+            show({ suffix: SUFFIX });
+            await wait(TIMING.beforeIntro);
+            if (cancelled) return;
+            show({ introShown: true });
+          }
           await wait(TIMING.beforeDone);
           if (cancelled) return;
           onDoneRef.current?.();
@@ -348,9 +420,12 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
         if (cancelled) return;
         const wordEl = wordRef.current;
         if (wordEl) {
-          const rect = wordEl.getBoundingClientRect();
+          // (Its own size, not as drawn: it may be scaled up.)
           const fontSize = parseFloat(getComputedStyle(wordEl).fontSize);
-          show({ strike: strikeFor(rect.width, rect.height, fontSize), strikeLeaving: false });
+          show({
+            strike: strikeFor(wordEl.offsetWidth, wordEl.offsetHeight, fontSize),
+            strikeLeaving: false,
+          });
         }
         await wait(TIMING.strike + TIMING.strikeHold);
         if (cancelled) return;
@@ -374,6 +449,14 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
       }
     };
 
+    // Inline, it starts at once (the paragraph shows it when it's time).
+    if (inline) {
+      timers.push(setTimeout(run, 0));
+      return () => {
+        cancelled = true;
+        timers.forEach(clearTimeout);
+      };
+    }
     // Start once the hero is actually on screen (it may not be, if the page
     // opened on another section).
     const observer = new IntersectionObserver(
@@ -384,22 +467,51 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
       },
       { threshold: 0.5 },
     );
-    observer.observe(intro);
+    if (intro) observer.observe(intro);
     return () => {
       cancelled = true;
       observer.disconnect();
       timers.forEach(clearTimeout);
     };
-  }, [skip]);
+  }, [skip, inline]);
 
   // Takes up no width (like a real text caret), so moving it never shifts
   // the letters; kept in place once gone, for the same reason.
   const caret = <span className={`${styles.caret} ${frame.caret ? '' : styles.caretOff}`} />;
 
+  if (inline) {
+    return (
+      <span aria-hidden="true">
+        <span ref={wordRef} className={styles.typedWord}>
+          {frame.word}
+          {frame.strike && (
+            <svg
+              className={`${styles.strike} ${frame.strikeLeaving ? styles.strikeLeaving : ''}`}
+              width={frame.strike.width}
+              height={frame.strike.height}
+              viewBox={`0 0 ${frame.strike.width} ${frame.strike.height}`}
+              style={{ left: -frame.strike.overshoot }}
+              focusable="false"
+            >
+              <path d={frame.strike.d} pathLength={1} strokeWidth={frame.strike.stroke} />
+            </svg>
+          )}
+        </span>
+        {caret}
+      </span>
+    );
+  }
+
+
   return (
     <>
       {/* The intro line, typed first, from its centre like the heading. */}
-      <p ref={introRef} className={`${styles.intro} ${styles.typedTitle}`}>
+      <p
+        ref={(el) => (introRef.current = el)}
+        className={`${styles.intro} ${styles.typedTitle} ${
+          frame.introShown ? '' : styles.introHeld
+        } ${ORDER === 'wordsFirst' && frame.introShown && !skip ? styles.introIn : ''}`}
+      >
         <span className={styles.srOnly}>{INTRO}</span>
         <span className={`${styles.fill} ${styles.typedGhost}`} aria-hidden="true">
           {INTRO}
@@ -432,6 +544,14 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
             {/* The animation. */}
             <span className={styles.typedLive} aria-hidden="true">
               <span className={styles.fill}>
+                {/* (Words first) the word, with its caret, is set large while
+                    it stands alone; it eases down to size as " designer"
+                    joins it. */}
+                <span
+                  className={`${styles.wordScale} ${
+                    ORDER === 'wordsFirst' && !skip && !frame.suffix ? styles.wordScaleBig : ''
+                  }`}
+                >
                 <span
                   ref={wordRef}
                   className={`${styles.typedWord} ${wordStyle[frame.style]}`}
@@ -462,7 +582,14 @@ export const HeroTitle = ({ onDone }: HeroTitleProps) => {
                   )}
                 </span>
                 {frame.caretAt === 'word' && caret}
-                {frame.suffix}
+                </span>
+                {ORDER === 'wordsFirst' && !skip ? (
+                  <span className={`${styles.suffix} ${frame.suffix ? styles.suffixShown : ''}`}>
+                    {SUFFIX}
+                  </span>
+                ) : (
+                  frame.suffix
+                )}
                 {frame.caretAt === 'end' && caret}
               </span>
             </span>
