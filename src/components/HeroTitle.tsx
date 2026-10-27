@@ -366,6 +366,11 @@ export const HeroTitle = ({ onDone, inline = false }: HeroTitleProps) => {
           }
         }
         if (next === FINAL) hasPlayed = true;
+        // (Inline, the paragraph types straight on from the final word.)
+        if (next === FINAL && inline) {
+          onDoneRef.current?.();
+          return;
+        }
         // The caret stays on to the end of its blink (it's on from typing)
         // and, as it blinks off on the beat, goes — it doesn't come back on.
         blink();
@@ -396,10 +401,6 @@ export const HeroTitle = ({ onDone, inline = false }: HeroTitleProps) => {
             }
             await wait(TIMING.lean);
             show({ style: 'italic', lean: null });
-          }
-          if (inline) {
-            onDoneRef.current?.();
-            return;
           }
           // Then the rest comes in: " designer" opening out beside the word
           // (which eases over to make room), the intro above, and what's

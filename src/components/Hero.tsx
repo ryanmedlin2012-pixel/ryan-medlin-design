@@ -43,6 +43,8 @@ interface Segment {
   decorative?: boolean;
 }
 const OPENING: Segment[] = [{ text: 'Hi, I’m Ryan and I’m a ' }];
+/** (The opening) where to pause: just after "Ryan". */
+const AFTER_RYAN = [...'Hi, I’m Ryan'].length;
 // Whether "Multidisciplinary" ends up italic (leaning over once it has
 // been typed), or stays bold and upright.
 const ITALIC_WORD = false;
@@ -52,8 +54,6 @@ const SENTENCE: Segment[] = [
   { text: 'I craft communications that combine beautiful design & thoughtful strategy.' },
 ];
 const LINK: Segment[] = [{ text: 'View my work', em: true }, { text: ' ' }, { text: '→', decorative: true }];
-/** (The opening) where to pause: just after "Ryan". */
-const AFTER_RYAN = [...'Hi, I’m Ryan'].length;
 const lengthOf = (segments: Segment[]) => segments.reduce((n, seg) => n + [...seg.text].length, 0);
 const textOf = (segments: Segment[]) =>
   segments.filter((seg) => !seg.decorative).map((seg) => seg.text).join('').trim();
@@ -65,18 +65,19 @@ const TYPE = {
   /** Per character, and its variation. */
   char: 24,
   jitter: 14,
-  /** The pause after "Ryan", as someone typing gathers their thoughts. */
-  pause: 450,
-  /** The longer pause after "designer.", the first sentence's end. */
+  /** The brief pause after "Ryan", as someone typing gathers their
+      thoughts. */
+  afterRyan: 225,
+  /** The pause after "designer.", the first sentence's end. */
   afterDesigner: 900,
-  /** The longer pause after "strategy.", before "View my work". */
+  /** The pause after "strategy.", before "View my work". */
   beforeLink: 900,
   /** The beat after the opening words are typed, before the words (none:
       it types straight on). */
   beforeWords: 0,
   /** The beat after "Multidisciplinary" is typed, before it leans into
-      italic (if it does) or the typing goes on. */
-  afterWord: 160,
+      italic (if it does) or the typing goes on: brief. */
+  afterWord: 220,
   /** The beat after it's italic, before typing on past it. */
   afterLean: 120,
   /** The caret's blink, once it's done (on and off), and how many. */
@@ -221,7 +222,7 @@ export const Hero: React.FC = () => {
           if (cancelled) return;
           setTyped((t) => ({ ...t, opening: n }));
           if (n === AFTER_RYAN) {
-            await wait(TYPE.pause);
+            await wait(TYPE.afterRyan);
             if (cancelled) return;
           }
         }
