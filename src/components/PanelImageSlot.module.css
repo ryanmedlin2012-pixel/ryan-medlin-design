@@ -42,6 +42,8 @@
 }
 
 .slide {
+  /* (For the edge fade, placed over the image.) */
+  position: relative;
   flex: 0 0 100%;
   min-width: 0;
   height: 100%;
@@ -98,6 +100,43 @@
 /* Scale the whole image down to fit the slot — never crop it */
 .imageContain {
   object-fit: contain;
+}
+
+/* A slide whose contained image fades into its background: its size, for
+   the fade to measure against (cqw, cqh). */
+.slide.slideFade {
+  container-type: size;
+}
+
+/* Over a contained image, exactly its shown size — the slide's width or
+   height, whichever it meets first at the image's shape (--ratio, set by
+   PanelImageSlot) — and placed as the image is (data-h, data-v): an inset
+   shadow in the slot's background colour, fading the image's edges into it. */
+.edgeFade {
+  --w: min(100cqw, 100cqh * var(--ratio));
+  --h: min(100cqh, 100cqw / var(--ratio));
+  position: absolute;
+  width: var(--w);
+  height: var(--h);
+  left: calc((100cqw - var(--w)) / 2);
+  top: calc((100cqh - var(--h)) / 2);
+  pointer-events: none;
+}
+
+.edgeFade[data-h='start'] {
+  left: 0;
+}
+
+.edgeFade[data-h='end'] {
+  left: calc(100cqw - var(--w));
+}
+
+.edgeFade[data-v='start'] {
+  top: 0;
+}
+
+.edgeFade[data-v='end'] {
+  top: calc(100cqh - var(--h));
 }
 
 /* ── Arrow buttons ────────────────────────────────────────────────────── */

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import styles from './PanelImageSlot.module.css';
 import lightboxStyles from './ImageLightbox.module.css';
 import { ImageLightbox } from './ImageLightbox';
@@ -24,6 +24,9 @@ export type ImageSlot =
    * comes back into view.
    * `maxSideCrop` (in the image's own pixels) caps how much a cover-fit image
    * may lose off its left and right, however tall the slot (see limitSideCrop).
+   * `edgeFade` (a contained image on its own `background`): the image's edges
+   * fade into the background, so there's no seam where the two meet — on by
+   * default (EDGE_FADE); `{ blur, inset }` (px) tunes it, `false` turns it off.
    */
   | {
       type: 'image';
@@ -37,6 +40,7 @@ export type ImageSlot =
       maxSideCrop?: number;
       stillSrc?: string;
       replayOnView?: boolean;
+      edgeFade?: false | EdgeFade;
     }
   | { type: 'carousel'; images: Array<{ src: string; alt: string }> }
   /**
@@ -67,6 +71,27 @@ const slotKey = (slot: ImageSlot) =>
       ? `lightbox:${slot.fullImage?.src ?? slot.src}`
       : '';
 
+/** How a contained image's edges fade into its background (px): how soft the
+    fade is, and how far in the solid background colour reaches before it.
+    (As the art site's vignette: an inset shadow in the background colour.) */
+interface EdgeFade {
+  blur?: number;
+  inset?: number;
+}
+
+const EDGE_FADE = { blur: 48, inset: 12 };
+
+/** Where a contained image sits in its slot, by its object-position —
+    keywords only (left / right / top / bottom; centred otherwise) — for the
+    edge fade to line up with it. */
+const fadeAlign = (position = '') => {
+  const words = position.split(/\s+/);
+  return {
+    h: words.includes('left') ? 'start' : words.includes('right') ? 'end' : 'center',
+    v: words.includes('top') ? 'start' : words.includes('bottom') ? 'end' : 'center',
+  };
+};
+
 interface SlideImageProps {
   src: string;
   alt: string;
@@ -75,6 +100,8 @@ interface SlideImageProps {
   maxSideCrop?: number;
   stillSrc?: string;
   replayOnView?: boolean;
+  /** Fade the (contained) image's edges into this colour. */
+  fade?: { color: string; blur: number; inset: number };
 }
 
 const SlideImage = ({
@@ -85,23 +112,60 @@ const SlideImage = ({
   maxSideCrop,
   stillSrc,
   replayOnView,
+  fade,
 }: SlideImageProps) => {
   const replay = useReplayOnView(src, !!replayOnView);
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const ref = useCallback(
     (img: HTMLImageElement | null) => {
+      imgRef.current = img;
       replay.ref(img);
       if (maxSideCrop) limitSideCrop(maxSideCrop)(img);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [maxSideCrop],
   );
+  // The fade traces the image as it shows (not its element, which fills the
+  // slot): sized in CSS from the slot's size and the image's shape, read
+  // once it has loaded — so it follows every resize with no measuring.
+  const [ratio, setRatio] = useState<number | null>(null);
+  const fades = !!fade;
+  useLayoutEffect(() => {
+    const img = imgRef.current;
+    if (!fades || !img) return;
+    const read = () => {
+      if (img.naturalWidth && img.naturalHeight) setRatio(img.naturalWidth / img.naturalHeight);
+    };
+    read();
+    img.addEventListener('load', read);
+    return () => img.removeEventListener('load', read);
+  }, [fades]);
+  const align = fadeAlign(style?.objectPosition?.toString());
   return (
-    // An animated image gives way to its still for readers who prefer
-    // reduced motion (the browser picks, no script).
-    <picture className={styles.picture}>
-      {stillSrc && <source media="(prefers-reduced-motion: reduce)" srcSet={stillSrc} />}
-      <img ref={ref} src={replay.src} alt={alt} className={className} style={style} />
-    </picture>
+    <>
+      {/* An animated image gives way to its still for readers who prefer
+          reduced motion (the browser picks, no script). */}
+      <picture className={styles.picture}>
+        {stillSrc && <source media="(prefers-reduced-motion: reduce)" srcSet={stillSrc} />}
+        <img ref={ref} src={replay.src} alt={alt} className={className} style={style} />
+      </picture>
+      {fade && ratio && (
+        // Over the image (a sibling: an inset shadow on the slot itself would
+        // paint behind the image), its edges washed into the background.
+        <div
+          className={styles.edgeFade}
+          aria-hidden="true"
+          data-h={align.h}
+          data-v={align.v}
+          style={
+            {
+              '--ratio': ratio,
+              boxShadow: `inset 0 0 ${fade.blur}px ${fade.inset}px ${fade.color}`,
+            } as React.CSSProperties
+          }
+        />
+      )}
+    </>
   );
 };
 
@@ -143,6 +207,10 @@ export const PanelImageSlot = ({ slot }: Props) => {
   const maxSideCrop = slot.type === 'image' ? slot.maxSideCrop : undefined;
   const stillSrc = slot.type === 'image' ? slot.stillSrc : undefined;
   const replayOnView = slot.type === 'image' ? slot.replayOnView : undefined;
+  const edgeFade =
+    slot.type === 'image' && slot.fit === 'contain' && background && slot.edgeFade !== false
+      ? { color: background, ...EDGE_FADE, ...slot.edgeFade }
+      : undefined;
   const slideClass = maxSideCrop ? `${styles.slide} ${styles.slideLimitCrop}` : styles.slide;
   const backgroundStyle = background ? { background } : undefined;
   const imageClass =
@@ -220,7 +288,11 @@ export const PanelImageSlot = ({ slot }: Props) => {
           onTransitionEnd={handleTransitionEnd}
         >
           {images.map((img, i) => (
-            <div key={i} className={slideClass} style={backgroundStyle}>
+            <div
+              key={i}
+              className={`${slideClass} ${edgeFade ? styles.slideFade : ''}`}
+              style={backgroundStyle}
+            >
               <SlideImage
                 src={img.src}
                 alt={img.alt}
@@ -229,6 +301,7 @@ export const PanelImageSlot = ({ slot }: Props) => {
                 maxSideCrop={maxSideCrop}
                 stillSrc={stillSrc}
                 replayOnView={replayOnView}
+                fade={edgeFade}
               />
             </div>
           ))}
