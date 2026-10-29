@@ -1,8 +1,9 @@
 import { useLayout, SECTION_LABELS } from '../context/LayoutContext';
 import styles from './SectionDots.module.css';
 
-// Sections with a dark background, where the dots turn light (Contact).
-const DARK_SECTIONS = new Set([4]);
+// Sections with a dark background, where the dots turn light. (None now:
+// every section is on the light field.)
+const DARK_SECTIONS = new Set<number>([]);
 
 export const SectionDots = () => {
   const { currentSection, goToSection, sectionCount } = useLayout();

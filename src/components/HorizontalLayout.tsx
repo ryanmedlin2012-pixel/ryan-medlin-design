@@ -27,6 +27,10 @@ const SECTION_IDS = ['hero', 'projects', 'visual-design', 'about', 'skills', 'co
 // Contact).
 const FULL_BLEED_SECTIONS = new Set([0, 3, 4, 5]);
 
+// The carousels' panels sit on a field of their own (the site's warm grey),
+// so each carousel's frame reads as a card on it: the carousel's own
+// controls on the card, the page's section dots on the field.
+
 export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
   const {
     currentSection, goToSection, syncSection, wheelHandlersRef, isAnimating, setIsAnimating,
@@ -408,7 +412,9 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
               key={i}
               ref={(el) => { panelRefs.current[i] = el; }}
               className={
-                FULL_BLEED_SECTIONS.has(i) ? `${styles.panel} ${styles.panelFullBleed}` : styles.panel
+                FULL_BLEED_SECTIONS.has(i)
+                  ? `${styles.panel} ${styles.panelFullBleed}`
+                  : `${styles.panel} ${styles.panelField}`
               }
               role="region"
               aria-label={SECTION_LABELS[i]}

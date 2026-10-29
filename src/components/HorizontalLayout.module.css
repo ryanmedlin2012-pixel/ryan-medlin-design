@@ -40,6 +40,31 @@
   overflow-x: hidden;
 }
 
+/* A carousel's panel: the whole viewport below the nav, on a field of its
+   own, its frame inset in it as a card. The section dots float on the
+   field below the card (its bottom padding: the 6% of the viewport they
+   sit in, and the usual inset). */
+.panel.panelField {
+  height: 100%;
+  padding-bottom: calc(0.06 * (100vh - var(--nav-height, 64px)) + max(2vw, 24px));
+}
+
+/* The card: white, lifted off the field by a soft shadow (its hairline
+   outline lighter, now the field marks its edge). */
+.panelField .panelFrame {
+  background-color: #ffffff;
+  border-color: rgba(35, 27, 27, 0.1);
+  box-shadow:
+    0 1px 2px rgba(54, 40, 40, 0.05),
+    0 10px 30px -8px rgba(54, 40, 40, 0.14);
+}
+
+/* The field: the site's warm grey (the hero's, About's and Skills'), quiet
+   — top to bottom, no glows — so the card's the only thing on it. */
+.panel.panelField {
+  background: linear-gradient(to bottom, #f6f4f3 0%, #efebe9 55%, #e9e4e1 100%);
+}
+
 /* A full-bleed section (the hero): the whole viewport below the nav, with no
    inset, outline or rounding — its own background runs to the window's
    edges. The section dots float over it. */
