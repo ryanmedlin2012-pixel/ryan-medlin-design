@@ -1,0 +1,209 @@
+/* The colophon (see Colophon): a round button anchored at the bottom right
+   of every page, over everything but the lightbox, and a card that flies out
+   above it, growing from the button's corner. Set as the home page's cards
+   are: white, a hairline outline and a soft shadow; the headline serif, grey
+   sans text and green italic links (as Contact's). The monogram on the
+   button is set as my name is in the nav. */
+.colophon {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 300;
+}
+
+/* ── The button ───────────────────────────────────────────────────────── */
+
+.button {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(35, 27, 27, 0.12);
+  background-color: #ffffff;
+  color: #362828;
+  /* (Buttons don't take the page's font by default.) */
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  box-shadow:
+    0 1px 2px rgba(54, 40, 40, 0.06),
+    0 6px 18px -6px rgba(54, 40, 40, 0.22);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(57, 165, 3, 0.45);
+  box-shadow:
+    0 1px 2px rgba(54, 40, 40, 0.06),
+    0 10px 24px -8px rgba(54, 40, 40, 0.28);
+}
+
+.button:focus-visible {
+  outline: 2px solid #39a503;
+  outline-offset: 3px;
+}
+
+/* The monogram and the close mark share the button's centre, crossfading
+   (with a quarter turn) as it opens and closes. */
+.monogram,
+.close {
+  grid-area: 1 / 1;
+  transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+/* Set as my name is in the nav (Navigation .logo): the site's sans,
+   semibold, in green. */
+.monogram {
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1;
+  color: #39a503;
+}
+
+.close {
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  transform: rotate(-90deg);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+}
+
+.colophon[data-open] .monogram {
+  opacity: 0;
+  transform: rotate(90deg);
+}
+
+.colophon[data-open] .close {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── The card ─────────────────────────────────────────────────────────── */
+
+.panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  width: max-content;
+  max-width: min(20rem, calc(100vw - 3rem));
+  padding: 20px 24px;
+  background-color: #ffffff;
+  border: 1px solid rgba(35, 27, 27, 0.1);
+  border-radius: 4px;
+  box-shadow:
+    0 1px 2px rgba(54, 40, 40, 0.05),
+    0 10px 30px -8px rgba(54, 40, 40, 0.18);
+  color: #6a6a6a;
+  text-align: left;
+  /* Grows from the button's corner. */
+  transform-origin: calc(100% - 22px) calc(100% + 34px);
+  opacity: 0;
+  transform: translateY(6px) scale(0.92);
+  visibility: hidden;
+  transition:
+    opacity 0.18s ease,
+    transform 0.22s cubic-bezier(0.3, 0, 0.2, 1),
+    visibility 0s linear 0.22s;
+}
+
+.colophon[data-open] .panel {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition:
+    opacity 0.18s ease,
+    transform 0.22s cubic-bezier(0.3, 0, 0.2, 1),
+    visibility 0s;
+}
+
+.panel p {
+  margin: 0;
+}
+
+.name {
+  font-family: 'Ancizar Serif', serif;
+  font-size: 20px;
+  line-height: 28px;
+  color: #362828;
+}
+
+.role {
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.links {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.link {
+  font-family: 'Ancizar Serif', serif;
+  font-size: 17px;
+  line-height: 24px;
+  color: #39a503;
+  text-decoration: none;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 1px;
+}
+
+.link em {
+  font-style: italic;
+}
+
+.link:hover em {
+  text-decoration-line: underline;
+}
+
+.link:focus-visible {
+  outline: 2px solid #39a503;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* The small print, under a hairline. */
+.smallPrint {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(35, 27, 27, 0.1);
+  font-size: 12px;
+  line-height: 18px;
+  color: #7a7a7a;
+}
+
+/* Phones: a little nearer the corner. */
+@media (max-width: 767px) {
+  .colophon {
+    right: 1rem;
+    bottom: 1rem;
+  }
+}
+
+/* A fade only, for readers who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .colophon[data-open] .panel {
+    transform: none;
+  }
+
+  .monogram,
+  .close,
+  .colophon[data-open] .monogram {
+    transform: none;
+  }
+
+  .button:hover {
+    transform: none;
+  }
+}

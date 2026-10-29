@@ -29,8 +29,6 @@ import scrollingArticleFocusStill from '../assets/Scrolling_article_focus_still.
 import visualShootingEdge from '../assets/Visual_card_shooting_edge_book.jpg';
 import visualWedding from '../assets/Visual_card_wedding.jpg';
 import visualLivingNewEconomy from '../assets/Visual_card_living_new_economy.jpg';
-import visualAlchimia from '../assets/Visual_card_alchimia.jpg';
-import visualYaldaNight from '../assets/Visual_card_yalda_night_white.jpg';
 import { readRestored, saveRestorable } from '../hooks/restore';
 import { limitSideCrop } from './limitSideCrop';
 import { useReplayOnView } from '../hooks/useReplayOnView';
@@ -62,6 +60,9 @@ interface Project {
       allows (never touching the card's top or bottom), and fade its sides
       all the way in to the object. */
   imageContent?: { left: number; right: number; top: number; bottom: number };
+  /** The card's button, where it isn't "View project" (the visual design
+      cards lead on to their whole gallery). */
+  cta?: string;
   path: string;
 }
 
@@ -132,7 +133,8 @@ const interactionProjects: Project[] = [
   },
 ];
 
-// The graphic design work, from the gallery pages.
+// The graphic design work: one piece from each gallery, leading on to the
+// whole gallery (editorial, posters, ephemera).
 const visualProjects: Project[] = [
   {
     id: 101,
@@ -144,19 +146,8 @@ const visualProjects: Project[] = [
     imageContent: { left: 0.269, right: 0.694, top: 0.182, bottom: 0.798 },
     imageMaxSideCrop: 212,
     studioBackdrop: true,
+    cta: 'View more editorial design',
     path: '/graphic-design/editorial',
-  },
-  {
-    id: 102,
-    title: 'The Wedding of the Century',
-    description:
-      "A trifold wedding invitation after Saul Bass's Vertigo poster: a falling couple in an orange spiral outside; the cast, ceremony and reception, set like film credits, within.",
-    tags: ['Print', 'Illustration', 'Typography'],
-    image: visualWedding,
-    imageContent: { left: 0.136, right: 0.864, top: 0.313, bottom: 0.647 },
-    imageMaxSideCrop: 212,
-    studioBackdrop: true,
-    path: '/graphic-design/ephemera',
   },
   {
     id: 103,
@@ -168,31 +159,21 @@ const visualProjects: Project[] = [
     imageContent: { left: 0.221, right: 0.782, top: 0.139, bottom: 0.881 },
     imageMaxSideCrop: 212,
     studioBackdrop: true,
+    cta: 'View more posters',
     path: '/graphic-design/posters',
   },
   {
-    id: 104,
-    title: 'Alchimia',
+    id: 102,
+    title: 'The Wedding of the Century',
     description:
-      'Identity for a jewelry maker: a hand-drawn diamond and hand-lettered name, carried from the mark onto boxes and cards.',
-    tags: ['Brand Identity', 'Lettering', 'Packaging'],
-    image: visualAlchimia,
-    imageContent: { left: 0.167, right: 0.872, top: 0.202, bottom: 0.726 },
+      "A trifold wedding invitation after Saul Bass's Vertigo poster: a falling couple in an orange spiral outside; the cast, ceremony and reception, set like film credits, within.",
+    tags: ['Print', 'Illustration', 'Typography'],
+    image: visualWedding,
+    imageContent: { left: 0.136, right: 0.864, top: 0.313, bottom: 0.647 },
     imageMaxSideCrop: 212,
     studioBackdrop: true,
+    cta: 'View more ephemera',
     path: '/graphic-design/ephemera',
-  },
-  {
-    id: 105,
-    title: 'Yalda Night',
-    description:
-      'Poster for a new play by Morgan Ludlow: the title in Persian script, in black on white, among butterflies and pomegranate flowers under a black lace border.',
-    tags: ['Poster', 'Collage', 'Typography'],
-    image: visualYaldaNight,
-    imageContent: { left: 0.204, right: 0.79, top: 0.101, bottom: 0.896 },
-    imageMaxSideCrop: 212,
-    studioBackdrop: true,
-    path: '/graphic-design/posters',
   },
 ];
 
@@ -545,7 +526,7 @@ const FeaturedCarousel = ({
                     ))}
                   </div>
                   <Link to={project.path} className={styles.viewProject}>
-                    View project <span aria-hidden="true">→</span>
+                    {project.cta ?? 'View project'} <span aria-hidden="true">→</span>
                   </Link>
                 </div>
                 <div

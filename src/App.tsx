@@ -5,6 +5,7 @@ import { LayoutProvider } from './context/LayoutContext'
 import { useLayout } from './context/LayoutContext'
 import { Navigation, SHOW_IN_PROGRESS, IN_PROGRESS_PATHS } from './components/Navigation'
 import { ScrollToTop } from './components/ScrollToTop'
+import { Colophon } from './components/Colophon'
 import { HorizontalLayout } from './components/HorizontalLayout'
 import { Hero } from './components/Hero'
 import { FeaturedProjects, FeaturedVisualDesign } from './components/FeaturedProjects'
@@ -99,6 +100,7 @@ function App() {
           {/* Anything else, including a page left out of the live site: home. */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <Colophon />
       </BrowserRouter>
     </LayoutProvider>
   )

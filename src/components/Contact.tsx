@@ -1,30 +1,12 @@
 import React from 'react';
 import styles from './Contact.module.css';
-
-// Where to reach me. The email address isn't written out on the page, and
-// isn't whole anywhere in the code: it's put together only when the link is
-// used, which keeps it from address-harvesting bots.
-const EMAIL_PARTS = ['ryanmedlin2012', 'gmail.com'];
-const openEmail = (e: React.MouseEvent<HTMLAnchorElement>) => {
-  e.preventDefault();
-  window.location.href = `mailto:${EMAIL_PARTS.join('@')}`;
-};
-
-const CONTACT_LINKS = [
-  { label: 'Email', text: 'Send me an email', href: '#contact', onClick: openEmail },
-  {
-    label: 'LinkedIn',
-    text: 'linkedin.com/in/medlinryan',
-    href: 'https://www.linkedin.com/in/medlinryan/',
-  },
-];
+import { CONTACT_LINKS } from './contactLinks';
 
 // The last section, set as About is (but centred): a serif headline on the
 // light ground, a line of grey text, then the ways to reach me as green
-// links, one above the other, and a quiet note under them.
+// links, one above the other. (The small print — the year, how the site was
+// made — is in the colophon, from the button at the bottom right.)
 export const Contact: React.FC = () => {
-  const currentYear = new Date().getFullYear();
-
   return (
     <section id="contact" className={styles.contact}>
       <div className={styles.contentWrapper}>
@@ -55,10 +37,6 @@ export const Contact: React.FC = () => {
               );
             })}
           </ul>
-          <footer className={styles.footer}>
-            <p>© {currentYear} Ryan Medlin</p>
-            <p>Designed and built with AI tools</p>
-          </footer>
         </div>
       </div>
     </section>
