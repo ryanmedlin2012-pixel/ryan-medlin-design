@@ -241,7 +241,7 @@
    rather than a percentage, which some image types — SVG — don't resolve
    here.) */
 .cardVisualLimitCrop .cardImage {
-  height: min(100cqh, calc(100cqw * var(--max-cover, 100) / var(--img-scale, 1)));
+  height: var(--el-h);
 }
 
 /* Lays out as if it weren't there: the image sizes to the card itself.
@@ -334,11 +334,13 @@
     max-height: none;
   }
 
+  /* Zoomed (each image as far as its object allows — --phone-scale, set by
+     CardImage — or 1.5). */
   .cardImage {
     object-fit: contain;
-    transform: scale(1.5);
+    --img-scale: var(--phone-scale, 1.5);
+    transform: scale(var(--img-scale));
     transform-origin: center center;
-    --img-scale: 1.5;
   }
 
   .carouselHeader {
@@ -431,6 +433,7 @@
   margin-bottom: 1rem;
 }
 
+
 .compactCard h3 {
   font-size: 1rem;
   color: #362828;
@@ -451,3 +454,70 @@
   margin: 0 0 0.75rem;
 }
 
+/* Every viewport: the image's edges fade into the card's ground (as the
+   art site's vignette, but by a mask, so it works over the ground's
+   gradients). Where the image is contained (860px and below), a mask exactly
+   the size it shows at — the element's width or height, whichever it meets
+   first at the image's shape (--ratio, set by CardImage) — centred as the
+   image is, fading out over its outer 14%. */
+@media all {
+  .cardImage {
+    --el-w: 100cqw;
+    /* The image's height: the card's, less room above and below so the
+       graphic never touches the card's top or bottom edge — allowing for
+       the zoom some breakpoints give it (--img-scale) — and no taller than
+       its side-crop cap. */
+    --edge-room: 6cqh;
+    --el-h: min(
+      calc((100cqh - 2 * var(--edge-room)) / var(--img-scale, 1)),
+      calc(100cqw * var(--max-cover, 100) / var(--img-scale, 1))
+    );
+  }
+}
+
+/* Phones and narrow tablets: the image fills the card's height, zoomed —
+   its object, not the image, is what's kept clear of the edges (see
+   CardImage's zoom). */
+@media (max-width: 860px) {
+  .cardImage {
+    --el-h: min(100cqh, calc(100cqw * var(--max-cover, 100) / var(--img-scale, 1)));
+  }
+}
+
+@media all {
+  .cardImage {
+    --fade: 14%;
+    /* (Its sides fade all the way in to its object, where that's known —
+       --fade-x, set by CardImage — so a lighter backdrop ramps out with no
+       edge to it.) */
+    -webkit-mask-image:
+      linear-gradient(to right, transparent, #000 var(--fade-x, var(--fade)), #000 calc(100% - var(--fade-x, var(--fade))), transparent),
+      linear-gradient(to bottom, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
+    mask-image:
+      linear-gradient(to right, transparent, #000 var(--fade-x, var(--fade)), #000 calc(100% - var(--fade-x, var(--fade))), transparent),
+      linear-gradient(to bottom, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
+    -webkit-mask-size:
+      min(var(--el-w), var(--el-h) * var(--ratio, 1)) min(var(--el-h), var(--el-w) / var(--ratio, 1));
+    mask-size:
+      min(var(--el-w), var(--el-h) * var(--ratio, 1)) min(var(--el-h), var(--el-w) / var(--ratio, 1));
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    /* (Both fades at once: only where both are opaque shows.) */
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+}
+
+/* Wider tablets and desktops (861px and up): the image fills the card's
+   width (cover), so only its top and bottom can meet the ground — they fade;
+   its sides, cut by the card's own edges, don't. */
+@media (min-width: 861px) {
+  .cardImage {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+}

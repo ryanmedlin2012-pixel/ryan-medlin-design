@@ -56,6 +56,12 @@ interface Project {
   /** The image is on the studio backdrop (the visual design cards): the card
       takes the backdrop's colours round it, where the image doesn't fill it. */
   studioBackdrop?: boolean;
+  /** Where the photographed object sits in its image (fractions of the
+      image's width and height: left, right, top, bottom — measured from the
+      image). Phones and narrow tablets zoom the image as far as the object
+      allows (never touching the card's top or bottom), and fade its sides
+      all the way in to the object. */
+  imageContent?: { left: number; right: number; top: number; bottom: number };
   path: string;
 }
 
@@ -135,6 +141,7 @@ const visualProjects: Project[] = [
       "Book cover for Nita Renfrew's portrait of the 1990s constitutional militias: hunting camouflage, laid flat, wraps from back to front around a spare typographic spine.",
     tags: ['Book Design', 'Typography', 'Art Direction'],
     image: visualShootingEdge,
+    imageContent: { left: 0.269, right: 0.694, top: 0.182, bottom: 0.798 },
     imageMaxSideCrop: 212,
     studioBackdrop: true,
     path: '/graphic-design/editorial',
@@ -146,6 +153,7 @@ const visualProjects: Project[] = [
       "A trifold wedding invitation after Saul Bass's Vertigo poster: a falling couple in an orange spiral outside; the cast, ceremony and reception, set like film credits, within.",
     tags: ['Print', 'Illustration', 'Typography'],
     image: visualWedding,
+    imageContent: { left: 0.136, right: 0.864, top: 0.313, bottom: 0.647 },
     imageMaxSideCrop: 212,
     studioBackdrop: true,
     path: '/graphic-design/ephemera',
@@ -157,6 +165,7 @@ const visualProjects: Project[] = [
       'Poster for Convergence, a gathering on the new economy in Oakland: a white koru spiral, the Māori symbol of new beginnings, over a full-color road map of the Bay Area.',
     tags: ['Poster', 'Event Identity', 'Typography'],
     image: visualLivingNewEconomy,
+    imageContent: { left: 0.221, right: 0.782, top: 0.139, bottom: 0.881 },
     imageMaxSideCrop: 212,
     studioBackdrop: true,
     path: '/graphic-design/posters',
@@ -168,6 +177,7 @@ const visualProjects: Project[] = [
       'Identity for a jewelry maker: a hand-drawn diamond and hand-lettered name, carried from the mark onto boxes and cards.',
     tags: ['Brand Identity', 'Lettering', 'Packaging'],
     image: visualAlchimia,
+    imageContent: { left: 0.167, right: 0.872, top: 0.202, bottom: 0.726 },
     imageMaxSideCrop: 212,
     studioBackdrop: true,
     path: '/graphic-design/ephemera',
@@ -179,6 +189,7 @@ const visualProjects: Project[] = [
       'Poster for a new play by Morgan Ludlow: the title in Persian script, in black on white, among butterflies and pomegranate flowers under a black lace border.',
     tags: ['Poster', 'Collage', 'Typography'],
     image: visualYaldaNight,
+    imageContent: { left: 0.204, right: 0.79, top: 0.101, bottom: 0.896 },
     imageMaxSideCrop: 212,
     studioBackdrop: true,
     path: '/graphic-design/posters',
@@ -213,6 +224,25 @@ const ProjectTitle = ({ project }: { project: Project }) =>
     <>{project.title}</>
   );
 
+// Phones and narrow tablets zoom a card's image (up to this), and keep the
+// object in it this far (a fraction of the card's height) from the card's
+// top and bottom.
+const PHONE_ZOOM = 1.5;
+const EDGE_ROOM = 0.06;
+
+/** For an image whose object's place is known: its zoom on phones, and how
+    far in from each side its fade reaches (to the object). */
+const contentFit = (content: Project['imageContent']) => {
+  if (!content) return undefined;
+  const reach = Math.max(0.5 - content.top, content.bottom - 0.5);
+  const zoom = Math.min(PHONE_ZOOM, (0.5 - EDGE_ROOM) / reach);
+  const fade = Math.min(content.left, 1 - content.right);
+  return {
+    '--phone-scale': zoom.toFixed(3),
+    '--fade-x': `${(fade * 100).toFixed(1)}%`,
+  } as React.CSSProperties;
+};
+
 // A card's image: limited side crop, a still for reduced motion and replay
 // on view, where the project asks for them.
 const CardImage = ({ project }: { project: Project }) => {
@@ -222,6 +252,16 @@ const CardImage = ({ project }: { project: Project }) => {
     (img: HTMLImageElement | null) => {
       replay.ref(img);
       if (maxCrop) limitSideCrop(maxCrop)(img);
+      // Its shape, for the edge fade (phones) to trace it as it shows.
+      if (img) {
+        const shape = () => {
+          if (img.naturalWidth && img.naturalHeight) {
+            img.style.setProperty('--ratio', String(img.naturalWidth / img.naturalHeight));
+          }
+        };
+        if (img.complete) shape();
+        else img.addEventListener('load', shape, { once: true });
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [maxCrop],
@@ -231,7 +271,13 @@ const CardImage = ({ project }: { project: Project }) => {
       {project.imageStill && (
         <source media="(prefers-reduced-motion: reduce)" srcSet={project.imageStill} />
       )}
-      <img ref={ref} src={replay.src} alt={project.title} className={styles.cardImage} />
+      <img
+        ref={ref}
+        src={replay.src}
+        alt={project.title}
+        className={styles.cardImage}
+        style={contentFit(project.imageContent)}
+      />
     </picture>
   );
 };
