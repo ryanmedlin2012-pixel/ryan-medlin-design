@@ -53,7 +53,7 @@ export const GALLERY_PAGES: Record<'editorial' | 'posters' | 'ephemera', Gallery
     id: 'editorial',
     title: 'Editorial',
     intro:
-      'Placeholder introduction: magazine and publication design — covers, spreads and the systems behind them. Scroll sideways through the work.',
+      'Magazine and publication design — covers, spreads and the systems behind them. Scroll sideways through the work.',
     pieces: [
       {
         src: shootingEdgeCover,
@@ -116,7 +116,7 @@ export const GALLERY_PAGES: Record<'editorial' | 'posters' | 'ephemera', Gallery
     id: 'posters',
     title: 'Posters',
     intro:
-      'Placeholder introduction: posters for events, campaigns and causes. Scroll sideways through the work.',
+      'Posters for events, campaigns and causes. Scroll sideways through the work.',
     pieces: [
       {
         src: posterRitaMarquez,
@@ -187,7 +187,7 @@ export const GALLERY_PAGES: Record<'editorial' | 'posters' | 'ephemera', Gallery
     id: 'ephemera',
     title: 'Brand / Ephemera',
     intro:
-      'Placeholder introduction: invitations, tickets, cards and the small printed things in between. Scroll sideways through the work.',
+      'Invitations, tickets, cards and the small printed things in between. Scroll sideways through the work.',
     pieces: [
       {
         src: weddingFlatOutsideFramed,
