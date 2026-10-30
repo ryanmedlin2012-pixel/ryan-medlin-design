@@ -80,6 +80,8 @@ const TYPE = {
   afterWord: 220,
   /** The beat after it's italic, before typing on past it. */
   afterLean: 120,
+  /** The first line slides from centred to its place, once it's typed. */
+  lineSettle: 480,
   /** The caret's blink, once it's done (on and off), and how many. */
   blink: 300,
   blinks: 2,
@@ -92,12 +94,16 @@ const TYPE = {
  * readers have the whole text throughout.
  */
 const Typed = ({
+  name,
   segments,
   shown,
   caret,
   caretOn,
   silent = false,
 }: {
+  /** Marks its characters (data-ch="name:n", n counting from 1), for the
+      first line to be found among them. */
+  name: string;
   segments: Segment[];
   shown: number;
   caret: boolean;
@@ -107,7 +113,7 @@ const Typed = ({
 }) => {
   let index = 0;
   const caretEl = (
-    <span key="caret" className={`${styles.caret} ${caretOn ? '' : styles.caretOff}`} />
+    <span key="caret" data-caret className={`${styles.caret} ${caretOn ? '' : styles.caretOff}`} />
   );
   const out: React.ReactNode[] = [];
   if (caret && shown === 0) out.push(caretEl);
@@ -115,7 +121,7 @@ const Typed = ({
     const chars = [...seg.text].map((ch) => {
       const i = index++;
       const el = (
-        <span key={i} className={i < shown ? undefined : styles.untyped}>
+        <span key={i} data-ch={`${name}:${i + 1}`} className={i < shown ? undefined : styles.untyped}>
           {ch}
         </span>
       );
@@ -175,6 +181,61 @@ export const Hero: React.FC = () => {
     at: null,
     on: true,
   });
+  // The first line types in from the centre: while it types, the paragraph
+  // is nudged so the typed part stays centred (the rest is unseen, so only
+  // the first line seems to move), following the caret; once the line's last
+  // character is in, the paragraph slides to its place and the rest types
+  // in, left aligned. Which characters are on the first line is read from
+  // the layout (data-ch), so it holds at any width.
+  const ledeRef = useRef<HTMLDivElement>(null);
+  const lineOneEnd = useRef<string | null>(null);
+  const centring = useRef<number | null>(null);
+  const findLineOneEnd = () => {
+    const chars = ledeRef.current?.querySelectorAll<HTMLElement>('[data-ch]');
+    if (!chars?.length) return null;
+    const top = chars[0].getBoundingClientRect().top;
+    let last = chars[0].dataset.ch ?? null;
+    for (const ch of chars) {
+      if (ch.getBoundingClientRect().top > top + 2) break;
+      last = ch.dataset.ch ?? last;
+    }
+    return last;
+  };
+  const startCentring = () => {
+    const lede = ledeRef.current;
+    if (!lede) return;
+    lede.style.transition = 'transform 90ms linear';
+    const follow = () => {
+      const caretEl = lede.querySelector<HTMLElement>('[data-caret]');
+      const first = lede.querySelector<HTMLElement>('[data-ch]');
+      if (caretEl && first) {
+        const box = lede.getBoundingClientRect();
+        const start = first.getBoundingClientRect().left;
+        const end = caretEl.getBoundingClientRect().left;
+        // (Measured as it's drawn, but the nudge moves all three alike, so
+        // the difference is the nudge needed, whatever it is now.)
+        const nudge = box.left + box.width / 2 - (start + end) / 2;
+        lede.style.transform = `translateX(${Math.max(0, nudge).toFixed(1)}px)`;
+      }
+      centring.current = requestAnimationFrame(follow);
+    };
+    centring.current = requestAnimationFrame(follow);
+  };
+  const settleLineOne = () => {
+    if (centring.current !== null) cancelAnimationFrame(centring.current);
+    centring.current = null;
+    const lede = ledeRef.current;
+    if (!lede) return;
+    lede.style.transition = `transform ${TYPE.lineSettle}ms cubic-bezier(0.3, 0, 0.2, 1)`;
+    lede.style.transform = 'translateX(0)';
+  };
+  useEffect(
+    () => () => {
+      if (centring.current !== null) cancelAnimationFrame(centring.current);
+    },
+    [],
+  );
+
   // Once the hero is on screen (it may not be, if the page opened on another
   // section) and the fonts are in, the word's place is measured and the
   // opening types in.
@@ -192,7 +253,14 @@ export const Hero: React.FC = () => {
           const upright = uprightRef.current?.offsetWidth;
           const final = finalRef.current?.offsetWidth;
           if (upright && final) setWidths({ upright, final });
-          timer = setTimeout(() => setPhase('opening'), TYPE.startDelay);
+          timer = setTimeout(() => {
+            if (cancelled) return;
+            // (The word's place now held at its width: the lines as they'll
+            // finish.)
+            lineOneEnd.current = findLineOneEnd();
+            startCentring();
+            setPhase('opening');
+          }, TYPE.startDelay);
         });
       },
       { threshold: 0.5 },
@@ -213,6 +281,13 @@ export const Hero: React.FC = () => {
     const timers: ReturnType<typeof setTimeout>[] = [];
     const wait = (ms: number) => new Promise<void>((r) => timers.push(setTimeout(r, ms)));
     let cancelled = false;
+    // Typed the first line's last character: it slides into place (typing
+    // waits for it, or a pause that follows runs alongside it).
+    const lineOneDone = (at: string) => {
+      if (at !== lineOneEnd.current) return null;
+      settleLineOne();
+      return wait(TYPE.lineSettle);
+    };
     if (phase === 'opening' && !started.current.opening) {
       started.current.opening = true;
       (async () => {
@@ -221,6 +296,11 @@ export const Hero: React.FC = () => {
           await wait(TYPE.char + Math.random() * TYPE.jitter);
           if (cancelled) return;
           setTyped((t) => ({ ...t, opening: n }));
+          const settling = lineOneDone(`opening:${n}`);
+          if (settling) {
+            await settling;
+            if (cancelled) return;
+          }
           if (n === AFTER_RYAN) {
             await wait(TYPE.afterRyan);
             if (cancelled) return;
@@ -235,7 +315,7 @@ export const Hero: React.FC = () => {
     if (phase === 'paragraph' && !started.current.rest) {
       started.current.rest = true;
       (async () => {
-        await wait(TYPE.afterWord);
+        await Promise.all([wait(TYPE.afterWord), lineOneDone('word')]);
         if (cancelled) return;
         if (ITALIC_WORD) {
           setWordStyle('leaning');
@@ -246,16 +326,23 @@ export const Hero: React.FC = () => {
           if (cancelled) return;
         }
         setCaret({ at: 'designer', on: true });
+        // (Its line's end, if it's on the first line and the first line
+        // ends within it: a slide that typing waits for; at its very end,
+        // one the pause after it runs alongside.)
+        let lineOneSettling: Promise<void> | null = null;
         const typeOut = async (key: 'designer' | 'sentence' | 'link', length: number) => {
           for (let n = 1; n <= length; n++) {
             await wait(TYPE.char + Math.random() * TYPE.jitter);
             if (cancelled) return;
             setTyped((t) => ({ ...t, [key]: n }));
+            const settling = lineOneDone(`${key}:${n}`);
+            if (settling && n < length) await settling;
+            else if (settling) lineOneSettling = settling;
           }
         };
         await typeOut('designer', full.designer);
         if (cancelled) return;
-        await wait(TYPE.afterDesigner);
+        await Promise.all([wait(TYPE.afterDesigner), lineOneSettling]);
         if (cancelled) return;
         setCaret({ at: 'sentence', on: true });
         await typeOut('sentence', full.sentence);
@@ -288,7 +375,7 @@ export const Hero: React.FC = () => {
         {/* One fill behind the whole paragraph, wrapping with it, so the
             phrases sit as one run of text (the fill's padding only at its
             ends, not between phrases). */}
-        <div className={styles.lede} style={width ? { maxWidth: width } : undefined}>
+        <div ref={ledeRef} className={styles.lede} style={width ? { maxWidth: width } : undefined}>
           {/* The first sentence on one line, unseen, to size the paragraph. */}
           <span ref={measureRef} className={`${styles.fill} ${styles.ledeMeasure}`} aria-hidden="true">
             Hi, I’m Ryan and I’m a <em ref={finalRef} className={ITALIC_WORD ? styles.finalWord : styles.typedWord}>Multidisciplinary</em> designer.
@@ -300,6 +387,7 @@ export const Hero: React.FC = () => {
             filled ? styles.ledeFillIn : ''
           }`}>
             <Typed
+              name="opening"
               segments={OPENING}
               shown={typed.opening}
               caret={caret.at === 'opening'}
@@ -309,6 +397,7 @@ export const Hero: React.FC = () => {
               <span className={styles.srOnly}>Multidisciplinary designer.</span>
               <span aria-hidden="true">
                 <em
+                  data-ch="word"
                   className={
                     wordStyle === 'italic'
                       ? styles.finalWord
@@ -337,6 +426,7 @@ export const Hero: React.FC = () => {
                   )}
                 </em>
                 <Typed
+                  name="designer"
                   segments={DESIGNER}
                   shown={typed.designer}
                   caret={caret.at === 'designer'}
@@ -346,6 +436,7 @@ export const Hero: React.FC = () => {
               </span>
             </h1>{' '}
             <Typed
+              name="sentence"
               segments={SENTENCE}
               shown={typed.sentence}
               caret={caret.at === 'sentence'}
@@ -353,6 +444,7 @@ export const Hero: React.FC = () => {
             />{' '}
             <button type="button" className={styles.ledeLink} onClick={() => goToSection(1)}>
               <Typed
+                name="link"
                 segments={LINK}
                 shown={typed.link}
                 caret={caret.at === 'link'}

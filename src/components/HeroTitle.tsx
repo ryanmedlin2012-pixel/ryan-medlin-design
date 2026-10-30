@@ -478,7 +478,11 @@ export const HeroTitle = ({ onDone, inline = false }: HeroTitleProps) => {
 
   // Takes up no width (like a real text caret), so moving it never shifts
   // the letters; kept in place once gone, for the same reason.
-  const caret = <span className={`${styles.caret} ${frame.caret ? '' : styles.caretOff}`} />;
+  // (data-caret: the hero's first line follows it, typing in from the
+  // centre — see Hero.)
+  const caret = (
+    <span data-caret className={`${styles.caret} ${frame.caret ? '' : styles.caretOff}`} />
+  );
 
   if (inline) {
     return (
