@@ -49,6 +49,39 @@ const AFTER_RYAN = [...'Hi, I’m Ryan'].length;
 // been typed), or stays bold and upright.
 const ITALIC_WORD = false;
 
+// Once "Multidisciplinary" is typed it's given a moment of emphasis, then a
+// pause before " designer." comes in. (Locally, ?emph=a|b|c|d tries the
+// treatments: a, the strikes' green pen draws a line under it — the words
+// before it struck through, this one underlined; b, a soft green marker
+// sweeps in behind it; c, it warms to green and settles back; d, it nods.)
+type Emphasis = 'a' | 'b' | 'c' | 'd';
+const EMPHASES: Emphasis[] = ['a', 'b', 'c', 'd'];
+const EMPHASIS: Emphasis = (() => {
+  if (!import.meta.env.DEV || typeof window === 'undefined') return 'a';
+  const asked = new URLSearchParams(window.location.search).get('emph');
+  return EMPHASES.find((e) => e === asked) ?? 'a';
+})();
+/** How long each emphasis takes (ms; matches the CSS). */
+const EMPHASIS_MS: Record<Emphasis, number> = { a: 420, b: 450, c: 900, d: 520 };
+
+/** A hand-drawn line under a word of the given size (px), as the strikes
+    are drawn (HeroTitle), but low, near the baseline, and a touch longer. */
+const underlineFor = (width: number, height: number, fontSize: number) => {
+  const r = (spread: number) => (Math.random() * 2 - 1) * spread;
+  const over = fontSize * 0.08;
+  const w = width + over * 2;
+  const base = height * 0.9;
+  const wobble = fontSize * 0.035;
+  const y0 = base + r(wobble);
+  const y1 = base + r(wobble);
+  const d = `M ${(fontSize * 0.04).toFixed(1)} ${y0.toFixed(1)} C ${(w * 0.3).toFixed(1)} ${(
+    y0 + wobble + r(wobble)
+  ).toFixed(1)}, ${(w * 0.7).toFixed(1)} ${(y1 - wobble + r(wobble)).toFixed(1)}, ${(
+    w - fontSize * 0.04
+  ).toFixed(1)} ${y1.toFixed(1)}`;
+  return { width: w, height: height * 1.2, over, stroke: fontSize * 0.06, d };
+};
+
 const DESIGNER: Segment[] = [{ text: ' designer.' }];
 const SENTENCE: Segment[] = [
   { text: 'I craft communications that combine beautiful design & thoughtful strategy.' },
@@ -77,7 +110,9 @@ const TYPE = {
   beforeWords: 0,
   /** The beat after "Multidisciplinary" is typed, before it leans into
       italic (if it does) or the typing goes on: brief. */
-  afterWord: 220,
+  afterWord: 160,
+  /** The pause after the word's emphasis, before " designer." */
+  afterEmphasis: 380,
   /** The beat after it's italic, before typing on past it. */
   afterLean: 120,
   /** The first line slides from centred to its place, once it's typed. */
@@ -154,6 +189,10 @@ export const Hero: React.FC = () => {
   const uprightRef = useRef<HTMLSpanElement>(null);
   // It's typed upright, then (if it turns italic) leans over, narrowing as
   // it leans so it arrives at the italic's width (as HeroTitle's lean).
+  // The word's emphasis, once it's typed (and, for the underline, its line).
+  const [emphasis, setEmphasis] = useState(false);
+  const [underline, setUnderline] = useState<ReturnType<typeof underlineFor> | null>(null);
+  const wordRef = useRef<HTMLElement>(null);
   const [wordStyle, setWordStyle] = useState<'upright' | 'leaning' | 'italic'>(
     wordsWillPlay || !ITALIC_WORD ? 'upright' : 'italic',
   );
@@ -317,6 +356,15 @@ export const Hero: React.FC = () => {
       (async () => {
         await Promise.all([wait(TYPE.afterWord), lineOneDone('word')]);
         if (cancelled) return;
+        // The word's emphasis, then a pause before " designer."
+        const word = wordRef.current;
+        if (EMPHASIS === 'a' && word) {
+          const fontSize = parseFloat(getComputedStyle(word).fontSize);
+          setUnderline(underlineFor(word.offsetWidth, word.offsetHeight, fontSize));
+        }
+        setEmphasis(true);
+        await wait(EMPHASIS_MS[EMPHASIS] + TYPE.afterEmphasis);
+        if (cancelled) return;
         if (ITALIC_WORD) {
           setWordStyle('leaning');
           await wait(LEAN_MS);
@@ -397,12 +445,14 @@ export const Hero: React.FC = () => {
               <span className={styles.srOnly}>Multidisciplinary designer.</span>
               <span aria-hidden="true">
                 <em
+                  ref={wordRef}
                   data-ch="word"
-                  className={
+                  data-emphasis={emphasis ? EMPHASIS : undefined}
+                  className={`${
                     wordStyle === 'italic'
                       ? styles.finalWord
                       : `${styles.typedWord} ${wordStyle === 'leaning' ? styles.wordLeaning : ''}`
-                  }
+                  } ${styles.emphasisWord}`}
                   style={
                     widths && wordStyle !== 'italic'
                       ? {
@@ -423,6 +473,19 @@ export const Hero: React.FC = () => {
                   ) : (
                     // (Nothing yet, but a line's height: a zero-width space.)
                     '\u200b'
+                  )}
+                  {underline && (
+                    <svg
+                      className={styles.underline}
+                      width={underline.width}
+                      height={underline.height}
+                      viewBox={`0 0 ${underline.width} ${underline.height}`}
+                      style={{ left: -underline.over }}
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d={underline.d} pathLength={1} strokeWidth={underline.stroke} />
+                    </svg>
                   )}
                 </em>
                 <Typed

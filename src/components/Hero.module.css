@@ -542,3 +542,85 @@
     font-size: 1.35rem;
   }
 }
+
+/* ── The word's emphasis ──────────────────────────────────────────────────
+   Once "Multidisciplinary" is typed (data-emphasis, set by Hero to the
+   treatment in use). Its own stacking context, so a marker behind it stays
+   above the paragraph's fill. */
+.emphasisWord {
+  position: relative;
+  isolation: isolate;
+}
+
+/* (a) The strikes' pen draws a line under it (left to right), and it stays. */
+.underline {
+  position: absolute;
+  top: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.underline path {
+  fill: none;
+  stroke: #39a503;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: strikeDraw 420ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* (b) A soft green marker sweeps in behind it (left to right), and stays. */
+.emphasisWord[data-emphasis='b']::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: -0.12em;
+  right: -0.12em;
+  top: 0.18em;
+  bottom: 0.08em;
+  background-color: rgba(157, 236, 83, 0.32);
+  border-radius: 2px;
+  transform-origin: left center;
+  animation: markerSweep 450ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes markerSweep {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* (c) It warms to green, holds a beat, and settles back. */
+.emphasisWord[data-emphasis='c'] {
+  animation: inkWarm 900ms ease-in-out;
+}
+
+@keyframes inkWarm {
+  35%,
+  60% {
+    color: #39a503;
+  }
+}
+
+/* (d) It nods: a slight lift, and settles. */
+.emphasisWord[data-emphasis='d'] {
+  animation: wordNod 520ms cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+@keyframes wordNod {
+  40% {
+    transform: translateY(-0.08em) scale(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .underline path,
+  .emphasisWord[data-emphasis]::before,
+  .emphasisWord[data-emphasis] {
+    animation: none;
+  }
+
+  .underline path {
+    stroke-dashoffset: 0;
+  }
+}
