@@ -454,12 +454,12 @@
   margin: 0 0 0.75rem;
 }
 
-/* Every viewport: the image's edges fade into the card's ground (as the
-   art site's vignette, but by a mask, so it works over the ground's
-   gradients). Where the image is contained (860px and below), a mask exactly
-   the size it shows at — the element's width or height, whichever it meets
-   first at the image's shape (--ratio, set by CardImage) — centred as the
-   image is, fading out over its outer 14%. */
+/* Every viewport, the graphic design cards: the image's edges fade into
+   the card's ground (as the art site's vignette, but by a mask, so it works
+   over the ground's gradients). Where the image is contained (860px and
+   below), a mask exactly the size it shows at — the element's width or
+   height, whichever it meets first at the image's shape (--ratio, set by
+   CardImage) — centred as the image is, fading out over its outer 14%. */
 @media all {
   .cardImage {
     --el-w: 100cqw;
@@ -484,8 +484,10 @@
   }
 }
 
+/* (The graphic design cards only: the interaction cards' drawings sit on
+   the card's ground with nothing to fade.) */
 @media all {
-  .cardImage {
+  .cardVisualStudio .cardImage {
     --fade: 14%;
     /* (Its sides fade all the way in to its object, where that's known —
        --fade-x, set by CardImage — so a lighter backdrop ramps out with no
@@ -514,7 +516,7 @@
    width (cover), so only its top and bottom can meet the ground — they fade;
    its sides, cut by the card's own edges, don't. */
 @media (min-width: 861px) {
-  .cardImage {
+  .cardVisualStudio .cardImage {
     -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
     mask-image: linear-gradient(to bottom, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
     -webkit-mask-size: 100% 100%;

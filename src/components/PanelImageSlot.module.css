@@ -236,6 +236,20 @@
     height: auto;
   }
 
+  /* The same for a slide whose image fades into its background: measuring
+     its height too would take away the image's say in it, and the slide
+     would collapse to nothing. Here the image shows at its own shape, so
+     the fade simply covers it. */
+  .slide.slideFade {
+    container-type: inline-size;
+  }
+
+  .slide.slideFade .edgeFade {
+    inset: 0;
+    width: auto;
+    height: auto;
+  }
+
   .container {
     display: block;
     height: auto;

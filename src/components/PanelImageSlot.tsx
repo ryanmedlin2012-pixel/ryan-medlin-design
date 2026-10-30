@@ -25,8 +25,10 @@ export type ImageSlot =
    * `maxSideCrop` (in the image's own pixels) caps how much a cover-fit image
    * may lose off its left and right, however tall the slot (see limitSideCrop).
    * `edgeFade` (a contained image on its own `background`): the image's edges
-   * fade into the background, so there's no seam where the two meet — on by
-   * default (EDGE_FADE); `{ blur, inset }` (px) tunes it, `false` turns it off.
+   * fade into the background, so there's no seam where the two meet — off
+   * unless asked for (`true`, at EDGE_FADE, or `{ blur, inset }` in px). The
+   * case studies' images don't use it: their backgrounds are matched to
+   * them, and the fade is for the graphic design work.
    */
   | {
       type: 'image';
@@ -40,7 +42,7 @@ export type ImageSlot =
       maxSideCrop?: number;
       stillSrc?: string;
       replayOnView?: boolean;
-      edgeFade?: false | EdgeFade;
+      edgeFade?: boolean | EdgeFade;
     }
   | { type: 'carousel'; images: Array<{ src: string; alt: string }> }
   /**
@@ -208,8 +210,8 @@ export const PanelImageSlot = ({ slot }: Props) => {
   const stillSrc = slot.type === 'image' ? slot.stillSrc : undefined;
   const replayOnView = slot.type === 'image' ? slot.replayOnView : undefined;
   const edgeFade =
-    slot.type === 'image' && slot.fit === 'contain' && background && slot.edgeFade !== false
-      ? { color: background, ...EDGE_FADE, ...slot.edgeFade }
+    slot.type === 'image' && slot.fit === 'contain' && background && slot.edgeFade
+      ? { color: background, ...EDGE_FADE, ...(slot.edgeFade === true ? {} : slot.edgeFade) }
       : undefined;
   const slideClass = maxSideCrop ? `${styles.slide} ${styles.slideLimitCrop}` : styles.slide;
   const backgroundStyle = background ? { background } : undefined;
