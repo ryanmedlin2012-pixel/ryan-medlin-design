@@ -19,13 +19,13 @@ const TRACK_TRANSITION = 'transform 0.7s cubic-bezier(0.77, 0, 0.175, 1)';
 // Matches the id already set on each section's own root element
 // (Hero, the two featured carousels, About, Skills, Contact), in
 // currentSection order — as App's HomePage lists them.
-const SECTION_IDS = ['hero', 'projects', 'visual-design', 'about', 'skills', 'contact'];
+const SECTION_IDS = ['hero', 'projects', 'visual-design', 'about', 'skills', 'methods', 'contact'];
 
 // Sections that fill the whole viewport below the nav, edge to edge, rather
 // than sitting in the inset, outlined frame the others use: their own
-// backgrounds run to the window's edges (the hero, About, Skills and
-// Contact).
-const FULL_BLEED_SECTIONS = new Set([0, 3, 4, 5]);
+// backgrounds run to the window's edges (the hero, About, Skills, Methods
+// and tools, and Contact).
+const FULL_BLEED_SECTIONS = new Set([0, 3, 4, 5, 6]);
 
 // The carousels' panels sit on a field of their own (the site's warm grey),
 // so each carousel's frame reads as a card on it: the carousel's own
@@ -227,7 +227,8 @@ export const HorizontalLayout = ({ sections }: HorizontalLayoutProps) => {
       '#visual-design': 2,
       '#about': 3,
       '#skills': 4,
-      '#contact': 5,
+      '#methods': 5,
+      '#contact': 6,
     };
 
     const handleHashChange = () => {

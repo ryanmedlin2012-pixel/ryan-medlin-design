@@ -11,6 +11,7 @@ import { Hero } from './components/Hero'
 import { FeaturedProjects, FeaturedVisualDesign } from './components/FeaturedProjects'
 import { Skills } from './components/Skills'
 import { About } from './components/About'
+import { MethodsTools } from './components/MethodsTools'
 import { Contact } from './components/Contact'
 import { ProjectOne } from './pages/ProjectOne'
 import { ProjectTwo } from './pages/ProjectTwo'
@@ -61,6 +62,7 @@ function HomePage() {
         <FeaturedVisualDesign />,
         <About />,
         <Skills />,
+        <MethodsTools />,
         <Contact />,
       ]}
     />

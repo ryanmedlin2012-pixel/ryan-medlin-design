@@ -67,12 +67,18 @@
   align-items: center;
   gap: 2rem;
   margin: 0;
-  /* Desktop: room on the right for the Projects panel, which opens
-     rightward from "Projects". From "Projects" to the end of "Contact" is
-     about 249px; the panel reaches 308px past "Projects" (320px wide, from
-     12px before it). The difference keeps the panel's right edge on the
-     nav's own right margin. (The phone menu resets this.) */
-  padding: 0 59px 0 0;
+  /* (No room needed on the right for the Projects panel, which opens
+     rightward from "Projects": it reaches 308px past "Projects" — 320px
+     wide, from 12px before it — and the links after it already run on
+     about 480px.) */
+  padding: 0;
+}
+
+/* Tablets: the links a little closer, so they keep clear of the name. */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .links {
+    gap: 1.25rem;
+  }
 }
 
 .links a {

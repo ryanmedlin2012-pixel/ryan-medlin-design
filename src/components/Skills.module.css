@@ -2,7 +2,9 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* (Centred by the container's auto margins, not justify-content: when the
+     content is taller than the section it starts from the top, every bit
+     of it in reach, rather than overflowing both ends.) */
   /* (More below: room for the section dots, which float at the bottom.) */
   padding: 2rem 2rem 4rem;
   overflow-y: auto;
@@ -22,8 +24,8 @@
 }
 
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 960px;
+  margin: auto;
   width: 100%;
 }
 
@@ -47,61 +49,158 @@
 }
 
 /* ── The strengths ────────────────────────────────────────────────────────
-   Six cards, three across (two on tablets, one on phones), set as the home
-   page's other cards are: white, a hairline outline and a soft shadow. Each:
-   its number, a serif claim, a line or two of proof, and where to see it. */
-.strengths {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+   An accordion on the section's field: six rows, all closed to begin with,
+   an open one a card.
+   Each row's heading is its trigger — the serif claim, centred, turning
+   green on hover — and opens its panel: the proof, and where to see it,
+   centred under it. */
+/* No rules between rows. An open row becomes a card (as the home page's
+   other cards are: white, a hairline outline, a soft shadow) shaped as a
+   pill, settling in
+   with a little spring; closing, it snaps back to the field. (Every row
+   keeps a transparent outline, so opening moves nothing.) */
+.item {
+  border: 1px solid transparent;
+  /* A pill: its ends fully round. */
+  border-radius: 999px;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.strength {
-  display: flex;
-  flex-direction: column;
+.item[data-open] {
   background-color: #ffffff;
-  border: 1px solid rgba(35, 27, 27, 0.08);
-  border-radius: 4px;
-  padding: 1.25rem 1.5rem 1.25rem;
+  border-color: rgba(35, 27, 27, 0.08);
   box-shadow:
     0 1px 2px rgba(54, 40, 40, 0.04),
-    0 8px 24px -10px rgba(54, 40, 40, 0.14);
+    0 10px 28px -10px rgba(54, 40, 40, 0.16);
+  animation: cardSpring 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.number {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: #39a503;
+/* Open, more white above the title and below the links (eased in with the
+   panel's spring). */
+.trigger {
+  transition: padding 0.18s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.item[data-open] .trigger {
+  padding-top: 1.75rem;
+  transition: padding 0.38s cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
+.item[data-open] .seenIn {
+  padding-bottom: 1.75rem;
+}
+
+/* From a touch smaller, overshooting a whisker past full size. */
+@keyframes cardSpring {
+  from {
+    transform: scale(0.985);
+  }
+}
+
+.itemHeading {
+  margin: 0;
+}
+
+.trigger {
+  display: block;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.trigger:focus-visible {
+  outline: 2px solid #39a503;
+  outline-offset: -2px;
+  border-radius: 4px;
 }
 
 .title {
+  font-family: 'Ancizar Serif', serif;
   font-size: 1.375rem;
-  line-height: 1.25;
+  line-height: 1.3;
   font-weight: 400;
-  margin: 0.375rem 0 0.5rem;
-  /* Where a title must wrap (narrower cards), lines of even length: no
-     word left alone on the second. */
+  color: #362828;
+  /* Where a title must wrap, lines of even length. */
   text-wrap: balance;
 }
 
+.trigger:hover .title {
+  color: #39a503;
+}
+
+/* While a row is open, the others' titles step back (and come forward
+   again on hover or focus, to show they still open). */
+.title {
+  transition: opacity 0.3s ease, color 0.2s ease;
+}
+
+.accordion[data-any-open] .item:not([data-open]) .title {
+  opacity: 0.4;
+}
+
+.accordion[data-any-open] .item:not([data-open]) .trigger:hover .title,
+.accordion[data-any-open] .item:not([data-open]) .trigger:focus-visible .title {
+  opacity: 1;
+}
+
+/* The panel opens to its content's height (a grid row from 0fr to 1fr):
+   quickly, easing out long, as it springs open; closing, a short snap. */
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.18s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.item[data-open] .panel {
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.38s cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
+/* Its content rises a few pixels into place as it fades in; out at once. */
+.panelInner {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 1.5rem;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+
+.item[data-open] .panelInner {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.3s ease 0.06s,
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.06s;
+}
+
 .proof {
-  font-size: 0.9rem;
-  line-height: 1.55;
+  max-width: 40rem;
+  margin-inline: auto;
+  font-size: 0.95rem;
+  line-height: 1.6;
   color: #6a6a6a;
-  margin: 0 0 0.875rem;
+  margin-top: 0;
+  margin-bottom: 0.625rem;
   /* No word left alone on a last line. */
   text-wrap: pretty;
 }
 
-/* Where to see it: at the card's foot, however long the proof runs. */
+/* Where to see it. */
 .seenIn {
-  margin: auto 0 0;
-  padding-top: 0.75rem;
-  border-top: 1px solid rgba(35, 27, 27, 0.08);
+  margin: 0;
+  padding-bottom: 1.25rem;
   font-size: 0.8rem;
   line-height: 1.5;
   color: #7a7a7a;
@@ -121,6 +220,8 @@
 }
 
 .seenInLink {
+  /* (A link wraps to the next line whole, never split.) */
+  white-space: nowrap;
   color: #39a503;
   text-underline-offset: 0.15em;
   text-decoration-thickness: 1px;
@@ -140,73 +241,45 @@
   color: #362828;
 }
 
-/* ── Methods and tools ────────────────────────────────────────────────────
-   Two rows of tags (the project cards' tags), each after its label. */
-.kit {
-  margin-top: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.kitRow {
-  display: flex;
-  align-items: baseline;
-  gap: 1rem;
-}
-
-.kitLabel {
-  flex: 0 0 4.5rem;
-  margin: 0;
-  font-family: inherit;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #7a7a7a;
-}
-
-.tags {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.tag {
-  color: #362828;
-  padding: 0.3rem 0.65rem 0.4rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  border: 1px solid #d1b8a5;
-  background-color: rgba(255, 255, 255, 0.5);
-}
-
-@media (max-width: 1024px) {
-  .strengths {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 767px) {
   .heading {
     font-size: 1.75rem;
     margin-bottom: 1.5rem;
   }
 
-  .strengths {
-    grid-template-columns: 1fr;
+  .trigger {
+    padding: 0.875rem 1rem;
   }
 
-  .kitRow {
-    flex-direction: column;
-    gap: 0.5rem;
+  .title {
+    font-size: 1.2rem;
   }
 
-  .kitLabel {
-    flex: none;
+  .panelInner {
+    padding: 0 1rem;
+  }
+
+  /* (Narrow, the open row is too tall for round ends to clear its text:
+     generously rounded corners instead.) */
+  .item {
+    border-radius: 1.75rem;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .item[data-open] .trigger,
+  .panel,
+  .item[data-open] .panel,
+  .item,
+  .title,
+  .panelInner,
+  .item[data-open] .panelInner {
+    transition: none;
+  }
+
+  .item[data-open] {
+    animation: none;
   }
 }

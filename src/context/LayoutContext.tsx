@@ -2,13 +2,14 @@ import { createContext, useContext, useState, useRef, useCallback } from 'react'
 import type { MutableRefObject, ReactNode } from 'react';
 import { readRestored } from '../hooks/restore';
 
-export const SECTION_COUNT = 6;
+export const SECTION_COUNT = 7;
 export const SECTION_LABELS = [
   'Introduction',
   'Interaction projects',
   'Visual design',
   'About',
   'Skills',
+  'Methods and tools',
   'Contact',
 ] as const;
 

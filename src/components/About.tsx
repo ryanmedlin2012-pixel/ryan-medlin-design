@@ -4,7 +4,7 @@ import { useLayout } from '../context/LayoutContext';
 import avatar from '../assets/About_avatar.jpg';
 
 // The contact section's place on the home page (see App's HomePage).
-const CONTACT_SECTION = 5;
+const CONTACT_SECTION = 6;
 
 // The baseline grid's step, and the least room above the content.
 const GRID = 4;

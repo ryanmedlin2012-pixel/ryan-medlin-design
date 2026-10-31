@@ -52,7 +52,8 @@ const SECTION_HASHES: Record<string, number> = {
   '/#visual-design': 2,
   '/#about': 3,
   '/#skills': 4,
-  '/#contact': 5,
+  '/#methods': 5,
+  '/#contact': 6,
 };
 
 export const Navigation: React.FC = () => {
@@ -287,6 +288,11 @@ export const Navigation: React.FC = () => {
           <li>
             <a href="/#skills" onClick={(e) => handleSectionLink(e, '/#skills')}>
               Skills
+            </a>
+          </li>
+          <li>
+            <a href="/#methods" onClick={(e) => handleSectionLink(e, '/#methods')}>
+              Methods &amp; Tools
             </a>
           </li>
           <li>

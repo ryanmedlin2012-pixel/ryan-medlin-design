@@ -1,0 +1,264 @@
+/* The Methods & tools portraits (see MethodsPortrait). Text in the site's
+   inks (never a discipline's colour); the disciplines' colours on marks
+   only, beside their names. */
+
+.figure {
+  margin: 0;
+  width: 100%;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Venn ─────────────────────────────────────────────────────────────── */
+
+/* As wide as it can be, up to 720px, but no taller than the screen leaves
+   room for (the heading above, the key below): sized by width, at the
+   drawing's own shape. */
+.venn {
+  position: relative;
+  width: 100%;
+  max-width: min(720px, calc((100svh - 340px) * 1060 / 830));
+  margin: 0 auto;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* The circles' names: small capitals, spaced, on their curves. */
+.circleName text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  fill: #362828;
+}
+
+.dot {
+  cursor: default;
+  transition: opacity 0.2s ease;
+}
+
+.dotLabel {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: 19px;
+  font-weight: 500;
+  fill: #362828;
+  /* Legible where it crosses a circle's edge or another dot. */
+  paint-order: stroke;
+  stroke: rgba(251, 250, 249, 0.85);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.5rem 0.75rem;
+  background: #ffffff;
+  border: 1px solid rgba(35, 27, 27, 0.12);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px -6px rgba(54, 40, 40, 0.25);
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: #362828;
+  white-space: nowrap;
+  pointer-events: none;
+  text-align: left;
+  z-index: 2;
+}
+
+.tooltipWhere {
+  color: #6a6a6a;
+}
+
+/* The key, drawn in the chart (at its scale). */
+.keyText text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: 19px;
+  fill: #6a6a6a;
+}
+
+.keyText .keyHead {
+  font-weight: 600;
+  fill: #362828;
+}
+
+/* ── Ledger ───────────────────────────────────────────────────────────── */
+
+.ledger {
+  text-align: left;
+  font-size: 0.875rem;
+  color: #362828;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1.4fr) 1fr 1fr 6rem;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+}
+
+.rowHover {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.headRow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6a6a6a;
+  padding-bottom: 0.5rem;
+}
+
+.whereHead {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.whereKey {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.swatch {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.groupLabel {
+  margin: 0.75rem 0.5rem 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7a7a7a;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.barCell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Thin bars on a faint track, rounded at the data end. */
+.track {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background-color: rgba(54, 40, 40, 0.08);
+  overflow: hidden;
+}
+
+.bar {
+  display: block;
+  height: 100%;
+  border-radius: 0 3px 3px 0;
+  background-color: #362828;
+}
+
+.barYears {
+  background-color: #8a7a76;
+}
+
+.value {
+  width: 1.5rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #6a6a6a;
+}
+
+.whereCell {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* (Phones: the key to the where-dots, under the rows, as their heading's
+   hidden.) */
+.phoneKey {
+  display: none;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0.75rem 0.5rem 0;
+  font-size: 0.75rem;
+  color: #6a6a6a;
+}
+
+/* Filled in the discipline's colour where it's applied; an empty ring where
+   it isn't — so it never rests on colour alone. */
+.whereDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(54, 40, 40, 0.25);
+  box-sizing: border-box;
+}
+
+/* Shorter screens (laptops): the ledger's rows closer, so it fits beside
+   the heading and toggle without scrolling. */
+@media (max-height: 860px) and (min-width: 768px) {
+  .row {
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+  }
+
+  .headRow {
+    padding-bottom: 0.25rem;
+  }
+
+  .groupLabel {
+    margin: 0.375rem 0.5rem 0.125rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .row {
+    grid-template-columns: minmax(0, 1.3fr) 1fr 1fr 3.5rem;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .whereHead {
+    display: none;
+  }
+
+  .phoneKey {
+    display: flex;
+  }
+
+  .whereCell {
+    gap: 0.25rem;
+  }
+
+  .whereDot {
+    width: 9px;
+    height: 9px;
+  }
+}
