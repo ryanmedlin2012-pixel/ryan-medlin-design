@@ -83,8 +83,10 @@ const underlineFor = (width: number, height: number, fontSize: number) => {
 };
 
 const DESIGNER: Segment[] = [{ text: ' designer.' }];
+// (Set in italics, as the link after it is: the paragraph's second and
+// third lines.)
 const SENTENCE: Segment[] = [
-  { text: 'I craft communications that combine beautiful design & thoughtful strategy.' },
+  { text: 'I craft communications that combine beautiful design & thoughtful strategy.', em: true },
 ];
 const LINK: Segment[] = [{ text: 'View my work', em: true }, { text: ' ' }, { text: '→', decorative: true }];
 const lengthOf = (segments: Segment[]) => segments.reduce((n, seg) => n + [...seg.text].length, 0);

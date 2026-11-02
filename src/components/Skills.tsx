@@ -40,7 +40,7 @@ const STRENGTHS: Strength[] = [
   {
     title: 'Typography and editorial craft',
     proof:
-      'Roots in graphic design: covers, posters and identities, and a year teaching typography at Miami Ad School. Interfaces set on a baseline grid (4px / 8px grid).',
+      'Roots in graphic design: covers, posters and identities; years designing for daily and monthly publishing organizations; and a year teaching typography at Miami Ad School. Interfaces set on a baseline grid (4px / 8px grid).',
     seenIn: [
       { label: 'Editorial', path: '/graphic-design/editorial' },
       { label: 'Posters', path: '/graphic-design/posters' },
@@ -49,7 +49,7 @@ const STRENGTHS: Strength[] = [
   {
     title: 'Design engineering',
     proof:
-      'Designer and front-end developer at the San Francisco Chronicle, the Oakland Tribune and IDG, 2002–2014. I hand‑code HTML, CSS and JavaScript, which makes me a better vibe coder: I can read and fix what AI writes.',
+      'Proficient in hand‑coded HTML/CSS/JavaScript = a better vibe coder: I can read and fix what AI writes.',
     seenIn: [{ label: 'this site' }],
   },
   {
@@ -61,7 +61,7 @@ const STRENGTHS: Strength[] = [
   {
     title: 'Evidence and systems',
     proof:
-      'Flows validated with players (91% task success in study), handed off as specs teams build from: design-system components and interaction guidelines.',
+      'Flows validated with users, handed off as pixel‑perfect, source‑of‑truth specs that teams rely on. From design‑system primitives and anatomy through to interaction motion curves, everything is covered.',
     seenIn: [{ label: 'Escalation', path: '/project/support-escalation' }],
   },
 ];
@@ -86,7 +86,7 @@ export const Skills: React.FC = () => {
       <div className={styles.container}>
         <span className={styles.eyebrow}>Skills &amp; expertise</span>
         <h2 className={styles.heading} data-section-heading="true" tabIndex={-1}>
-          Where I do my best work
+          Where I’ve done my best work
         </h2>
         <div className={styles.accordion} data-any-open={open !== null || undefined}>
           {STRENGTHS.map((strength, i) => {

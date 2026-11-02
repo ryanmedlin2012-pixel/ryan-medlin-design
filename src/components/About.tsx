@@ -118,7 +118,7 @@ export const About: React.FC = () => {
             data-section-heading="true"
             tabIndex={-1}
           >
-            Looking for product/<wbr />interaction design for the moments that matter? down to the last
+            Looking for a designer who can take it from first sketch to shipped, down to the last
             detail?{' '}
             <br className={styles.headingBreak} />
             <button
@@ -134,41 +134,41 @@ export const About: React.FC = () => {
           <div className={styles.card}>
             <h3 className={styles.cardTitle}>Hi, I’m Ryan</h3>
             <p>
-              An independent product designer in Portland. Most recently I designed Xbox support
-              agents that identify a mystery charge, recover a damaged code from a photo, and hand
-              off to a person without starting over. The handoff redesign cut abandonment from 31%
-              to 18%.
+              I’m an independent designer in Portland. Most recently I designed Xbox support agents
+              that identify mystery charges, recover damaged codes from a photo, and hand off to
+              human support without starting over.
             </p>
             <p>I also hold a Microsoft patent for navigating long articles with a game controller.</p>
           </div>
           <div className={styles.card}>
             <h3 className={styles.cardTitle}>How I work</h3>
             <p>
-              I build what I design, prototyping in working code. This site, motion graphics
-              included, is my work, designed and built with AI tools.
+              I build what I design. I’ve prototyped in many ways over the years; now I work with
+              Claude Code in VS Code. I designed and built this site that way, motion graphics
+              included.
             </p>
             <p>
-              My roots are in graphic design (editorial, posters, typography), and it shows in the
-              details most people never notice.
+              My roots are in modern typography and grid systems. Done well, both disappear and
+              let the content speak.
             </p>
           </div>
           <div className={styles.card}>
             <h3 className={styles.cardTitle}>Working together</h3>
             <p className={styles.listIntro}>
-              I work with a few teams at a time, part-time or on a fixed scope, in one of three ways:
+              I work with a few teams and studios at a time, on contract or a fixed scope:
             </p>
             <ul className={styles.list}>
               <li>
-                <span>Fractional design lead</span> for an early-stage product, shaping it from the
-                first flows to a shipped system
+                <span>Senior product and visual design</span> for agencies and product teams
               </li>
               <li>
-                <span>Design engineer</span>, prototyping in working code so the team can try ideas
-                before committing to them
+                <span>Fractional design lead</span>, a day or two a week
               </li>
               <li>
-                <span>Agent experience review</span>, finding where an AI agent in production hedges,
-                fails or hands off, and how to fix it
+                <span>Design and build</span>: sites and design systems, hand‑coded
+              </li>
+              <li>
+                <span>AI agent experience</span>: how an agent asks, answers and hands off
               </li>
             </ul>
           </div>
