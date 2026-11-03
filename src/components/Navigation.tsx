@@ -130,9 +130,11 @@ export const Navigation: React.FC = () => {
   return (
     <nav ref={navRef} className={styles.nav} aria-label="Main navigation">
       <div className={styles.container}>
+        {/* My name is the way home (there's no separate Home link). */}
         <a
           href="/"
           className={styles.logo}
+          aria-label="Ryan Medlin, home"
           style={{ textDecoration: 'none' }}
           onClick={(e) => handleSectionLink(e, '/#hero')}
         >
@@ -157,11 +159,6 @@ export const Navigation: React.FC = () => {
           className={`${styles.links} ${menuOpen ? styles.linksOpen : ''}`}
           role="list"
         >
-          <li>
-            <a href="/#hero" onClick={(e) => handleSectionLink(e, '/#hero')}>
-              Home
-            </a>
-          </li>
           <li
             className={`${styles.dropdown} ${projectsOpen ? styles.dropdownOpen : ''}`}
             // Escape closes it, back to the toggle; so does focus moving on
