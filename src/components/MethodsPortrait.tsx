@@ -19,7 +19,7 @@ const MAX_YEARS = 26;
 /** A dot's radius: its area grows with years (so a 26-year dot isn't 13
     times the area of a 2-year one). */
 const radiusFor = (years: number) => 5 + 3.2 * Math.sqrt(years);
-/** Its ink: lighter for less mastery, full for most (draft scores 7–10
+/** Its ink: lighter for less mastery, full for most (scores 7–10
     spread across the range). */
 const inkFor = (mastery: number) => 0.25 + 0.75 * Math.max(0, Math.min(1, (mastery - 6) / 4));
 
@@ -99,7 +99,7 @@ const SrTable = () => (
   // so hidden itself it would still widen the page.)
   <div className={styles.srOnly}>
     <table>
-      <caption>Methods and tools: mastery (draft, out of 10), years of use, and where applied</caption>
+      <caption>Methods and tools: mastery (out of 10), years of use, and where applied</caption>
       <thead>
         <tr>
           <th scope="col">Method or tool</th>
@@ -198,7 +198,7 @@ export const VennPortrait = () => {
               );
             })}
             <text x={990} y={720} className={styles.keyHead} textAnchor="end">
-              Mastery (draft)
+              Mastery
             </text>
             {[7, 8, 9, 10].map((m, i) => {
               const cx = 770 + i * 62;
@@ -278,7 +278,7 @@ export const LedgerPortrait = () => {
       <div className={styles.ledger} aria-hidden="true">
         <div className={`${styles.row} ${styles.headRow}`}>
           <span />
-          <span>Mastery (draft, of 10)</span>
+          <span>Mastery (of 10)</span>
           <span>Years of use</span>
           <span className={styles.whereHead}>
             {ORDER.map((d) => (

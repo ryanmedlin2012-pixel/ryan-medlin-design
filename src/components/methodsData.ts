@@ -2,9 +2,9 @@
 // I've used each (years, from the résumé's dates), where it's served (the
 // three disciplines my work has spanned), and how well I'd say I know it.
 //
-// Mastery is a DRAFT score (1–10), estimated from the work — the case
-// studies, the résumé and this site — not a measured fact. Ryan to confirm
-// or correct each before it goes live.
+// Mastery is a self-assessed score (1–10), first estimated from the work —
+// the case studies, the résumé and this site — and confirmed by Ryan
+// (2026-11-03).
 
 /** The three disciplines: product & interaction (Centrify, Xbox, 2015–2026),
     web & editorial (the Chronicle, the Tribune, IDG, 2000–2014), print &
@@ -26,7 +26,7 @@ export interface Skill {
   kind: 'method' | 'tool';
   /** Years of use, roughly (from the résumé's dates). */
   years: number;
-  /** Draft, 1–10 (see above). */
+  /** Self-assessed, 1–10 (see above). */
   mastery: number;
   /** Where it's served. */
   where: Discipline[];
