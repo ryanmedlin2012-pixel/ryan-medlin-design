@@ -213,10 +213,6 @@ export const ProjectFour = () => (
           type: 'image',
           src: vcrConfirm,
           alt: 'Xbox report confirmation screen reading "Thanks for speaking up. Your action helps make Xbox a safer place.", explaining that the report is uploading and the player will be notified when it is complete',
-          link: {
-            href: 'https://www.figma.com/design/TwFIqNdNgBrjmZCNcJaGng/Voice-Chat-Reporting-2301?node-id=419-29384&t=qqlbOC2QbJEzA8cA-1',
-            label: 'See Figma',
-          },
         },
       },
     ]}
