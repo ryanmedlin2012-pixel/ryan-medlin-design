@@ -3,15 +3,15 @@ import styles from './Hero.module.css';
 
 // The hero heading, which types itself out once per page load: "UX designer",
 // then "UX" is struck through by a hand-drawn line and replaced by "UI",
-// then "Product", then "Graphic" — each struck through in turn — before it
-// settles on "Multidisciplinary designer".
+// then "Product", "Graphic" and "Content" — each struck through in turn —
+// before it settles on "Multidisciplinary designer".
 //
 // Screen readers get the final heading from the start (the animation is
 // hidden from them); an invisible copy of the final text holds its space so
 // nothing below shifts as the words change; and it's skipped for readers who
 // prefer reduced motion.
 
-const STRUCK = ['UX', 'UI', 'Product', 'Graphic'];
+const STRUCK = ['UX', 'UI', 'Product', 'Graphic', 'Content'];
 const FINAL = 'Multidisciplinary';
 const SUFFIX = ' designer';
 const FINAL_TEXT = `${FINAL}${SUFFIX}`;
